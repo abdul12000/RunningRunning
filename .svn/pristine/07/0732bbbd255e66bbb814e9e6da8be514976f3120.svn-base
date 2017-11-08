@@ -1,0 +1,9 @@
+{
+  "suggestedWagers" : [{
+    "win" : ${win},
+    "risk" : ${risk},
+    "odds" : "${odds}",
+    "oddsRisk" : ${oddsRisk},
+	"oddsWin": ${oddsWin}
+  }]
+}

@@ -1,0 +1,35 @@
+package internal.qaauto.inrunning.tom.coupons;
+
+import internal.qaauto.inrunning.tom.InRunningComponent;
+
+/**
+ * Created by Harish Renukunta on 06/10/2014.
+ */
+public abstract class LeftNavCoupon extends InRunningComponent implements LeftNavCouponInterface {
+
+    @Override
+    public String getSport() {
+        return null;
+    }
+
+    @Override
+    public String getCouponDescription() {
+        return null;
+    }
+
+    @Override
+    public void collapse() {
+
+    }
+
+    @Override
+    public void expand() {
+
+    }
+
+    @Override
+    public boolean isCollapsed() {
+        return false;
+    }
+
+}

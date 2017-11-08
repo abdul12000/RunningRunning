@@ -1,0 +1,76 @@
+Meta:
+@author rkora
+@story BGSIR_478
+@functionality betslip
+@testType smoke
+
+Narrative:
+As a player
+I want Bet Slip includes information for each selection
+so that I am aware of all the relevant details of the wager that will be placed
+
+
+Scenario: Outcome description is displayed for each selection in the Bet slip
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+When player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then Selection description <Selection> should display in the betslip
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Selection>      |
+|47801      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-story|Outcome next play   |Extra Market 1        |Pass Completion|
+|47802      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-story|Point Spread        |Extra Market PS       |Away           |
+|47803      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-story|Total               |Extra Market Total    |Under          |
+
+Scenario:  Price is displayed for each selection in the betslip
+Meta:
+@scenarioName price
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate      |Win  |Risk  | Selection |
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|<Win>|<Risk>|<Selection>|
+When player navigates to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then Selection <<Selection>> price <Price> should display in the betslip
+
+Examples:
+|<GameId>   |<Sport>     |<Selection>    |<Win>|<Risk>|Price|<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Home Team>    |<Away Team>    |<League Id>|<Status>    |
+|47804      |Football    |Pass Completion|24   |20    | +120|AUTOTEST-story    |Outcome next play   |Extra Market 1    |Home_story     |Away_story     |5          |In Progress |
+|47805      |Football    |HOME           |24   |20    | +120|AUTOTEST-story    |Point Spread        |Extra Market PS   |Home_story     |Away_story     |5          |In Progress |
+|47806      |Football    |Over           |24   |20    | +120|AUTOTEST-story    |Total               |Extra Market Total|Home_story     |Away_story     |5          |In Progress |
+
+
+Scenario: Event description is displayed for each selection in the Bet slip
+Meta:
+@scenarioName eventDescription
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate      |
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then Selection <<Selection>> Should display Event Description <<Description>> should be in the betslip
+
+Examples:
+|<GameId>   |<Sport>     |<Selection>    |<Description>           |<MarketNameToCreate>|<MarketTitle>     |<Home Team>    |<Away Team>    |<League Id>|<Status>    |
+|47807      |Football    |Pass Completion|AUTOTEST-BGSIR_478      |Outcome next play   |Extra Market 1    |Home_story     |Away_story     |5          |In Progress |
+|47808      |Football    |AWAY           |AUTOTEST-BGSIR_478 PS   |Point Spread        |Extra Market PS   |Home_story     |Away_story     |5          |In Progress |
+|47809      |Football    |Under          |AUTOTEST-BGSIR_478 Total|Total               |Extra Market Total|Home_story     |Away_story     |5          |In Progress |
+
+
+Scenario: Market name to be displayed for each selection in the bet slip
+Meta:
+@scenarioName marketName
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate      |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then Market Title <<MarketTitle>>  for Selection <<Selection>> should be displayed in the bet slip
+
+Examples:
+|<GameId>   |<Sport>     |<Selection>    |<Description>           |<MarketNameToCreate>|<MarketTitle>     |<Home Team>    |<Away Team>    |<League Id>|<Status>    |
+|47810      |Football    |Pass Completion|AUTOTEST-BGSIR_478      |Outcome next play   |Extra Market 1    |Home_story     |Away_story     |5          |In Progress |
+|47811      |Football    |HOME           |AUTOTEST-BGSIR_478      |Point Spread        |Extra Market PS   |Home_story     |Away_story     |5          |In Progress |
+|47812      |Football    |Over           |AUTOTEST-BGSIR_478      |Total               |Extra Market Total|Home_story     |Away_story     |5          |In Progress |
+

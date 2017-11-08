@@ -1,0 +1,28 @@
+Meta:
+@author rkora
+@story BGSIR_813
+@functionality markets
+@testType regression
+
+Scenario:verify suspended outcome after the price change
+Given user created the event with the  below data
+|GameId     |Sport      |MarketNameToCreate  |MarketTitle   |League Id  |Status      |
+|<GameId>   |<Sport>    |<MarketNameToCreate>|<MarketTitle> |<League Id>|<Status>    |
+When player navigates to above event
+And price is updated for one of the outcome <OutcomeDesc> with Win <WinValue> and risk <RiskValue>
+Then Expected price <Price> for the outcome<OutcomeDesc> should be displayed
+When suspend outcome <Outcome Description> in backend
+Then selection <Outcome Description> in market should display 'Suspended' instead of odd
+
+Examples:
+| <GameId> | <Sport>    | <MarketNameToCreate> | <MarketTitle>                | OutcomeDesc     | WinValue | RiskValue | Price | <League Id> | <Status>    | Outcome Description |
+| 81303    | Hockey     | Point Spread         | EXTRA MARKET POINTS SPREAD 2 | Red Wings       | 24       | 20        | +120  | 50          | In Progress | Red Wings           |
+| 81304    | Basketball | Total                | EXTRA MARKET TOTAL 3         | Under           | 24       | 20        | +120  | 2           | In Progress | Under               |
+| 81301    | Football   | Moneyline            | EXTRA MARKET MONEY LINE 1    | HOME            | 24       | 20        | +120  | 5           | In Progress | HOME                |
+| 81302    | Tennis     | Outcome next play    | EXTRA MARKET 1               | Pass Incomplete | 24       | 20        | +120  | 325         | In Progress | Pass Incomplete     |
+| 81305    | Soccer     | Outcome next play    | EXTRA MARKET 1               | Rush            | 24       | 20        | +120  | 33          | In Progress | Rush                |
+| 81306    | Football   | Moneyline            | EXTRA MARKET MONEY LINE 1    | HOME            | 24       | 20        | +120  | 5           | Upcoming    | HOME                |
+| 81307    | Tennis     | Outcome next play    | EXTRA MARKET 1               | Pass Incomplete | 24       | 20        | +120  | 325         | Upcoming    | Pass Incomplete     |
+| 81308    | Hockey     | Point Spread         | EXTRA MARKET POINTS SPREAD 2 | Red Wings       | 24       | 20        | +120  | 50          | Upcoming    | Red Wings           |
+| 81309    | Basketball | Total                | EXTRA MARKET TOTAL 3         | Over            | 24       | 20        | +120  | 2           | Upcoming    | Under               |
+| 81310    | Soccer     | Outcome next play    | EXTRA MARKET 1               | Rush            | 24       | 20        | +120  | 33          | Upcoming    | Rush                |

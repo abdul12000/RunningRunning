@@ -1,0 +1,22 @@
+package internal.qaauto.inrunning.tom.leftnav;
+
+import internal.qaauto.inrunning.tom.coupons.LeftNavEvent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowEvent;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 16/10/2014.
+ */
+public class LiveNowEventsSport extends Sport {
+
+    public LiveNowEventsSport(final WebElement sportContainerWebElement){
+        setComponent(sportContainerWebElement);
+    }
+
+    @Override
+    public LeftNavEvent newLeftNavEvent(final WebElement leftNavEventWebElement) {
+        return new LeftNavLiveNowEvent(leftNavEventWebElement);
+    }
+
+
+}

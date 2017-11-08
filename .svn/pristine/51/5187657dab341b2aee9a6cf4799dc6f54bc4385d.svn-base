@@ -1,0 +1,6 @@
+<referredIDsMessage>
+  <wagerReferralIDs>
+    <wagerReferralID>${wagerReferralID}</wagerReferralID>
+    <wagerReferralID>${wagerReferralID2}</wagerReferralID>
+  </wagerReferralIDs>
+</referredIDsMessage>

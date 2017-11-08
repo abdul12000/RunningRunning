@@ -1,0 +1,27 @@
+Meta:
+@author rkora
+@story BGSIR_397
+@functionality betslip
+@testType regression
+
+Narrative:
+As a User
+I want to add a bet to betslip
+So that bet will be added to betslip
+
+
+Scenario:Add a bet to betslip
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |AwayTeam NickName   |HomeTeam NickName   |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<Away Team>_<GameId>|<Home Team>_<GameId>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |
+|39745      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |Pass Completion|
+|39747      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Point Spread        |Extra Market 1    |HOME           |
+|39748      |Soccer     |Home_Story     |Away_Story     |33             |In Progress |AUTOTEST-BGSIR-104 |Moneyline          |Extra Market 1    |Draw           |
+
+

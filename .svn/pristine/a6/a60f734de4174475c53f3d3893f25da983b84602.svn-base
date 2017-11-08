@@ -1,0 +1,17 @@
+package internal.qaauto.inline.tom.leftnav;
+
+import internal.qaauto.inline.tom.coupons.LeftNavUpcomingCouponInterface;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public interface LeftNavUpcomingMenuInterface {
+
+    public String getTitle();
+
+    public List<LeftNavUpcomingCouponInterface> getUpcomingCoupons();
+
+    public List<SportsContainerInterface> getSportsContainers();
+}

@@ -1,0 +1,29 @@
+<eventMessage>
+   <events>
+      <eventDto>
+         <eventTypeCode>${eventTypeCode}</eventTypeCode>
+         <segmentTypeCode>${segment}</segmentTypeCode>
+         <hasLines>${hasLines}</hasLines>
+         <publish>${publish}</publish>
+         <scheduledStartDate>${scheduled}</scheduledStartDate>
+         <scheduledStartDateUtc>${scheduled}</scheduledStartDateUtc>
+         <state>${state}</state>
+         <description>${nameEvent}</description>
+		 <name>${name}</name>
+		 <finalScorePosted>${finalScorePosted}</finalScorePosted>
+		 <gameClock>${gameClock}</gameClock>
+         <gameStatus>${gameStatus}</gameStatus>
+		 <liveEnabled>${liveEnabled}</liveEnabled>
+		 <needsSettling>${needsSettling}</needsSettling>
+		 <scoreType>${scoreType}</scoreType>
+		 <splitLine>${splitLine}</splitLine>
+         <wagerStopDate>${wagerStopDate}</wagerStopDate>
+         <wagerStopDateUtc>${wagerStopDateUtc}</wagerStopDateUtc>
+		 <wagersToUpdate>${wagersToUpdate}</wagersToUpdate>
+		 <eventId>${eventId}</eventId>
+		 <finalizedBy>${finalizedBy}</finalizedBy>
+		 <dateFinalized>${dateFinalized}</dateFinalized>
+		 <dateFinalizedUtc>${dateFinalized}</dateFinalizedUtc>
+      </eventDto>
+   </events>
+</eventMessage>

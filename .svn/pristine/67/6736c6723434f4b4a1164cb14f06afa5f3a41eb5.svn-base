@@ -1,0 +1,31 @@
+Narrative:
+As a player
+I want HTML Live client to allow wager placement in QBM
+so that I will be able to place wagers quickly by using Quick mode instead of the Bet Slip
+
+Meta:
+@author rkora
+@story BGSIR_488
+
+@functionality betslip
+!-- The below scenario will fail as we cannot still create a bet through automation because of know issue.
+!-- Please consult Raghu for details
+
+Scenario: Place Wager with QBM
+
+Meta:
+@scenarioName BGSIR_488_PlacewagerWithQBM
+@functionality betCapture
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate      |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+And a user logged in with username '<Username>' and password '<Password>'
+When user navigates to above event
+And select ON in the QBM selector
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then Selection <<Selection>> is placed for market title <<MarketTitle>> and the button will react when the process is finished
+
+
+Examples:
+|<GameId>   |<Sport>     |<Selection>    |Username|Password |<Description>           |<MarketNameToCreate>|<MarketTitle>     |<Home Team>    |<Away Team>    |<League Id>|<Status>    |
+|48851      |Football    |Pass Completion|2393086 |testing  |AUTOTEST-BGSIR_488      |Outcome next play   |Extra Market 1    |Home_story     |Away_story     |5          |In Progress |

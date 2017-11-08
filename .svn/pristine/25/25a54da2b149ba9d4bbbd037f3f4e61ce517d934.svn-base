@@ -1,0 +1,69 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.MyBets.MyBets;
+import internal.qaauto.inrunning.tom.betslip.BetSlipModeComponent;
+import internal.qaauto.inrunning.utils.WaitUtils;
+import org.jbehave.core.annotations.Then;
+import org.jbehave.core.annotations.When;
+import org.openqa.selenium.By;
+
+/**
+ * @author rkora on 13/01/2015.
+ */
+public class MyBetsSteps extends InRunningBaseStep {
+
+    private static final String EMPTY_MSG_CSS = "p.empty-msg";
+
+    private static final String MESSAGE_CSS = ".header>p";
+
+    public static final int TIMEOUT = 2000;
+
+    private By betTypeMsgLocator = new By.ByCssSelector(EMPTY_MSG_CSS);
+
+    private static final String BETS_SELECTOR_CSS = ".bets-selector";
+
+    private By betTypeLocator = new By.ByCssSelector(BETS_SELECTOR_CSS);
+
+    private By messageLocator = new By.ByCssSelector(MESSAGE_CSS);
+
+    @When("clicks on My bets tab")
+    public void goToMyBets() {
+        final BetSlipModeComponent betSlipModeComponent = getLiveBettingPage().getBetSlipModeComponent();
+        betSlipModeComponent.goToMyBets();
+
+    }
+
+    @Then("it should display a default message '$message'")
+    public void verifyMyBetsMessage(final String expectedMessage) {
+        final BetSlipModeComponent betSlipModeComponent = getLiveBettingPage().getBetSlipModeComponent();
+        final MyBets myBets = betSlipModeComponent.getMyBets();
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForWebElementToDisplay(messageLocator);
+        final String actualMsg = myBets.getMessage();
+        Assert.assertEquals(expectedMessage, actualMsg, "Default message is displayed under My Bets tab",
+                "Default message is not displayed under My Bets tab");
+    }
+
+    @When("player select '$AllBets' from the dropdown")
+    public void selectTheBetType(final String betType) {
+        final BetSlipModeComponent betSlipModeComponent = getLiveBettingPage().getBetSlipModeComponent();
+        final MyBets myBets = betSlipModeComponent.getMyBets();
+        new WaitUtils().waitForWebElementToDisplay(messageLocator);
+        myBets.selectBetType(betType);
+
+    }
+
+    @Then("it should display relevant message '$betType'")
+    public void verifyBetTypeMessage(final String expectedBetTypeMsg) throws InterruptedException {
+        final BetSlipModeComponent betSlipModeComponent = getLiveBettingPage().getBetSlipModeComponent();
+        final MyBets myBets = betSlipModeComponent.getMyBets();
+        Thread.sleep(TIMEOUT);
+        new WaitUtils().setTimeOut(10);
+        new WaitUtils().waitForWebElementToDisplay(betTypeMsgLocator);
+        final String actualBetTypeMsg = myBets.getBetTypeMessage();
+        Assert.assertEquals(expectedBetTypeMsg, actualBetTypeMsg, "Relevant bet type message is displayed",
+                "Relevant bet type message is not displayed");
+    }
+}

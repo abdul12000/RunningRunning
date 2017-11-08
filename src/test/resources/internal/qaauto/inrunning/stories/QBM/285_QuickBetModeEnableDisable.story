@@ -1,0 +1,32 @@
+Meta:
+@story BGSIR_285
+@functionality qbm
+
+Narrative:
+As a player
+I want the Bet Slip include an option to switch between Quick Bet and Betslip Mode
+so that I will be able to change to the wager placement mode I prefer
+
+
+Scenario: Switch Quick Bet Mode to ON
+Meta:
+@author Harish
+@scenarioName BGSIR_285_QuickBetModeOn
+@testType smoke2
+Given HTML5 Live Client with Betslip as wager placement mode with no selections
+And wager placement selector in the right nav
+And QBM is in deactivate state
+When I select ON in the QBM selector
+Then QBM is activated
+And Betslip is not displayed in the right nav
+
+Scenario: Switch Quick Bet Mode to OFF
+Meta:
+@author Harish
+@scenarioName BGSIR_285_QuickBetModeOff
+@testType smoke2
+Given HTML5 Live Client with QBM as wager placement mode
+And wager placement selector in the right nav
+And QBM is in active state
+When I select OFF in the QBM selector
+Then Betslip mode is activated and Betslip is displayed in the right nav

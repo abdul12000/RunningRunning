@@ -1,0 +1,569 @@
+package internal.qaauto.inrunning.StepCandidatesHelperMethods;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.framework.ConfigManager;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.LiveBettingPage;
+import internal.qaauto.inrunning.tom.Utilties.BrandDomain;
+import internal.qaauto.inrunning.tom.Utilties.OutcomeStatus;
+import internal.qaauto.inrunning.tom.betslip.BetSlip;
+import internal.qaauto.inrunning.tom.betslip.BetSlipSelection;
+import internal.qaauto.inrunning.tom.markets.Market;
+import internal.qaauto.inrunning.tom.markets.MarketOutcome;
+import internal.qaauto.inrunning.utils.WaitUtils;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Pattern;
+
+/**
+ * Created by Harish Renukunta on 03/11/2014.
+ */
+public class CouponAreaStepsHelperMethods extends InRunningBaseStep {
+
+    private static final String ODDS_MATCH = "Odds match. Price:%s";
+
+    private static final String ODDS_MISMATCH = "Odds mismatch. Outcome desc:%s Expected:%s Actual:%s";
+
+    private static final String MARKET_NOT_DISPLAYED = "Market %s not displayed";
+
+    private static final String MARKET_DISPLAYED = "Market %s displayed";
+
+    private static final String MARKET_NOT_FOUND = "Market %s not found";
+
+    private static final String MARKET_FOUND = "Market %s found";
+
+    private static final String MARKET_SUSPENDED = "Market '%s' suspended";
+
+    private static final String MARKET_NOT_SUSPENDED = "Market '%s' not suspended";
+
+    private static final String TEST_OUTCOME_A = "TestOutcomeA";
+
+    private static final String TEST_OUTCOME_E = "TestOutcomeE";
+
+    private static final String TEST_OUTCOME_B = "TestOutcomeB";
+
+    private static final String TEST_OUTCOME_F = "TestOutcomeF";
+
+    private static final String TEST_OUTCOME_C = "TestOutcomeC";
+
+    private static final String TEST_OUTCOME_G = "TestOutcomeG";
+
+    private static final String TEST_OUTCOME_D = "TestOutcomeD";
+
+    private static final String HOME = "HOME";
+
+    private static final String DRAW = "Draw";
+
+    private static final String AWAY = "AWAY";
+
+    private static final String V2_COLUMNS = "V2Columns";
+
+    private static final String H2_COLUMNS = "H2Columns";
+
+    private static final String H3_COLUMNS = "H3Columns";
+
+    private static final String V3_COLUMNS = "V3Columns";
+
+    private static final String CORRECT_SCORE = "CorrectScore";
+
+    private static final String TIME_SORTED = "TimeSorted";
+
+    private static final String H2_COLUMNS_HA = "H2Columns-HA";
+
+    private static final String OUTCOME_FOUND = "Outcome '%s' found";
+
+    private static final String OUTCOME_NOT_FOUND = "Outcome '%s' not found";
+
+    private static final String OUTCOME_SUSPENDED = "Outcome '%s' suspended";
+
+    private static final String OUTCOME_NOT_SUSPENDED = "Outcome '%s' not suspended";
+
+    private static final String OUTCOME_STATUS_PASS_MSG = "Outcome '%s' is in %s status";
+
+    private static final String OUTCOME_STATUS_FAIL_MSG = "Outcome '%s' status mismatch. Exp:%s Actual:%s";
+
+    private static final String OUTCOME_PRICE_DISPLAYED = "Outcome '%s' price(%s) displayed";
+
+    private static final String OUTCOME_PRICE_NOT_DISPLAYED = "Outcome '%s' price(%s) not displayed";
+    
+    private static final String OUTCOME_HIGHLIGHTED = "Outcome '%s' of market '%s' is highlighted";
+    
+    private static final String OUTCOME_NOT_HIGHLIGHTED = "Outcome '%s' of market '%s' not highlighted";
+
+    private static final int FIRST_POSITION = 0;
+
+    private static final int LAST_POSITION = 1;
+
+    private static final String MARKETS_DISPLAYED = "Markets displayed";
+
+    private static final String MARKETS_NOT_AVAILABLE = "No markets available";
+
+    private static final String MARKET_EXPANDED = "Market '%s' is expanded";
+
+    private static final String MARKET_COLLAPSED = "Market '%s' is collapsed";
+
+    private static final String MESSAGE_SELECTOR = "p";
+    
+    private static final String MESSAGE_DISPLAYED = "Message '%s' displayed";
+    
+    private static final String MESSAGE_NOT_DISPLAYED = "Message '%s' not displayed";
+    
+
+    private final By messageLocator = new By.ByCssSelector(MESSAGE_SELECTOR);
+
+    private static final String LOAD_ICON_SELECTOR = "p.loading-markets-msg";
+
+    private final By loadIconLocator = new By.ByCssSelector(LOAD_ICON_SELECTOR);
+
+    private static final String MESSAGE_MATCH = "Message found. Message:%s";
+
+    private static final String MESSAGE_MIS_MATCH = "Message not found. Message:%s Actual:%s";
+
+    private static final String ENOUGH_OUTCOMES_COUNT = "There are enough no. of outcomes to add";
+
+    private static final String NOT_ENOUGH_OUTCOMES = "Market %s has only %s outcomes";
+
+    private static final String SELECTION_NOT_IN_BETSLIP = "Selection '%s' not in betslip";
+
+    private static final String SELECTION_IN_BETSLIP = "Selection '%s' in betslip";
+
+    private static final String ODD_REGEX = "([+-]\\d+)";
+
+    private static final String LOAD_ICON_DISPLAYED = "Load icon displayed in coupon area";
+
+    private static final String LOAD_ICON_NOT_DISPLAYED = "Load icon not displayed in coupon area";
+    
+    private static final String EXPECTED_PRICE_DISPLAYED = "Expected Price is displayed : %s";
+    
+    private static final String EXPECTED_PRICE_NOT_DISPLAYED = "Expected Price :%s is not displayed, Price displayed : %s";
+
+    public void verifyMarketsExistInCouponArea(final List<String> marketsTitle) {
+        for (final String marketTitle : marketsTitle) {
+            verifyMarketExistInCouponArea(marketTitle);
+        }
+    }
+
+    public Market verifyMarketExistInCouponArea(final String marketTitle) {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForMarketToDisplayInCoupon(getLiveBettingPage(), marketTitle);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        verifyMarketExistsInCouponArea(market, marketTitle);
+        return market;
+    }
+
+    public void verifyMarketNotVisibleInCouponArea(final String marketTitle) throws ConfigurationException, IOException {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForMarketWithTitleToDisappear(marketTitle);
+        Assert.assertTrue(getLiveBettingPage().getMarketByTitle(marketTitle) == null,
+                String.format(MARKET_NOT_DISPLAYED, marketTitle), String.format(MARKET_DISPLAYED, marketTitle));
+    }
+
+    public Market verifyMarketDisplayed(final String marketTitle) {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForMarketToDisplayInCoupon(getLiveBettingPage(), marketTitle);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        Assert.assertNotNull(market, String.format("Market with market title:%s is Displayed", market.getMarketTitle()),
+                String.format("Market with market title:%s is not Displayed", market.getMarketTitle()));
+        return market;
+    }
+    
+    public void verifyMarketsDisplayed(){
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.setTimeOut(5);
+        waitUtils.waitForMarketsToDisplay();
+        List<Market> markets = getLiveBettingPage().getMarkets();
+        Assert.assertTrue((markets != null && markets.size()>0), MARKETS_DISPLAYED, MARKETS_NOT_AVAILABLE);
+    }
+
+    public void verifyMarketColumnLayout(final String columnName, final Market market) {
+        List<MarketOutcome> marketOutcomes = market.getOutcomes();
+        String[] outcomes = null;
+        switch (columnName) {
+        case V2_COLUMNS:
+            outcomes =
+                    new String[] { TEST_OUTCOME_A, TEST_OUTCOME_E, TEST_OUTCOME_B, TEST_OUTCOME_F, TEST_OUTCOME_C,
+                            TEST_OUTCOME_G, TEST_OUTCOME_D };
+            break;
+        case H2_COLUMNS:
+            outcomes =
+                    new String[] { TEST_OUTCOME_A, TEST_OUTCOME_B, TEST_OUTCOME_C, TEST_OUTCOME_D, TEST_OUTCOME_E,
+                            TEST_OUTCOME_F, TEST_OUTCOME_G };
+            break;
+        case H3_COLUMNS:
+            outcomes =
+                    new String[] { TEST_OUTCOME_A, TEST_OUTCOME_B, TEST_OUTCOME_C, TEST_OUTCOME_D, TEST_OUTCOME_E,
+                            TEST_OUTCOME_F, TEST_OUTCOME_G };
+            break;
+        case V3_COLUMNS:
+            outcomes =
+                    new String[] { TEST_OUTCOME_A, TEST_OUTCOME_D, TEST_OUTCOME_G, TEST_OUTCOME_B, TEST_OUTCOME_E,
+                            TEST_OUTCOME_C, TEST_OUTCOME_F };
+            break;
+        case CORRECT_SCORE:
+            outcomes = new String[] { HOME, DRAW, AWAY };
+            break;
+        case TIME_SORTED:
+            outcomes =
+                    new String[] { TEST_OUTCOME_A, TEST_OUTCOME_B, TEST_OUTCOME_C, TEST_OUTCOME_D, TEST_OUTCOME_E,
+                            TEST_OUTCOME_F, TEST_OUTCOME_G };
+            break;
+        case H2_COLUMNS_HA:
+            outcomes = new String[] { getEvent().getAwayTeamNickname(), getEvent().getHomeTeamNickname() };
+            break;
+
+        }
+        int count = 0;
+        final int outcomeCount = marketOutcomes.size();
+        for (int i = 0; i < outcomeCount; i++) {
+            final String marketOutcomeText = market.getOutcomeByPosition(i).getOutcomeDescription();
+            if (outcomes[i].equals(marketOutcomeText)) {
+                count++;
+            } else {
+                reporter.info(String.format("%s : outcome is not displayed", marketOutcomeText));
+            }
+        }
+        Assert.assertEquals(outcomeCount, count, String.format("Relevant Outcomes are displayed", market.getMarketTitle()),
+                String.format("Relevant Outcomes are not displayed", market.getMarketTitle()));
+    }
+
+    public void verifyMarketWithTitleSuspended(final String marketTitle) throws ConfigurationException, IOException {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForMarketWithTitleSuspended(marketTitle);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        Assert.assertTrue(market.isSuspended(), String.format(MARKET_SUSPENDED, marketTitle),
+                String.format(MARKET_NOT_SUSPENDED, marketTitle));
+    }
+
+    public void verifyMarketWithTitleUnSuspended(final String marketTitle) throws ConfigurationException, IOException {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForMarketWithTitleUnSuspended(marketTitle);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        Assert.assertFalse(market.isSuspended(), String.format(MARKET_NOT_SUSPENDED, marketTitle),
+                String.format(MARKET_SUSPENDED, marketTitle));
+    }
+
+    public void verifyOutcomeWithDescriptionNoDisplay(final String marketTitle, final String outcomeDesc)
+            throws ConfigurationException, IOException {
+        final LiveBettingPage page = getLiveBettingPage();
+        final internal.qaauto.inrunning.utils.WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForOutcomeToDisappear(marketTitle, outcomeDesc);
+        final Market market = page.getMarketByTitle(marketTitle);
+        final MarketOutcome marketOutcome = market.getOutcomeByDescription(outcomeDesc);
+        Assert.assertTrue(marketOutcome == null, String.format(OUTCOME_NOT_FOUND, outcomeDesc),
+                String.format(OUTCOME_FOUND, outcomeDesc));
+    }
+
+    public MarketOutcome verifyOutcomeWithDescriptionDisplays(final String marketTitle, final String outcomeDesc)
+            throws ConfigurationException, IOException {
+        final LiveBettingPage page = getLiveBettingPage();
+        final internal.qaauto.inrunning.utils.WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForOutcomeToDisplay(marketTitle, outcomeDesc);
+        final Market market = page.getMarketByTitle(marketTitle);
+        final MarketOutcome marketOutcome = market.getOutcomeByDescription(outcomeDesc);
+        Assert.assertTrue(marketOutcome != null, String.format(OUTCOME_FOUND, outcomeDesc),
+                String.format(OUTCOME_NOT_FOUND, outcomeDesc));
+        return marketOutcome;
+    }
+
+    public boolean isHandicapValuesDisplayed(final String expectedHomeHandicapValue, final String expectedAwayHandicapValue,
+            final String marketTitle) {
+        verifyMarketDisplayed(marketTitle);
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForHandicapUpdate(expectedHomeHandicapValue, marketTitle);
+        final int awayTeamPosition =
+                getEvent().getDisplayAwayTeamFirst().equals(Boolean.TRUE.toString()) ? FIRST_POSITION : LAST_POSITION;
+        final int homeTeamPosition = (awayTeamPosition == LAST_POSITION) ? FIRST_POSITION : LAST_POSITION;
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        final List<MarketOutcome> marketOutcomes = market.getOutcomes();
+        final boolean isHomeTeamHandicapDisplayed =
+                marketOutcomes.get(homeTeamPosition).getHandicapValue().equals(expectedHomeHandicapValue.replaceAll("[+-]", ""));
+        final boolean isAwayTeamHandicapDisplayed =
+                marketOutcomes.get(awayTeamPosition).getHandicapValue().equals(expectedAwayHandicapValue.replaceAll("[+-]", ""));
+        final boolean isExpectedHandicapValuesDisplayed = isHomeTeamHandicapDisplayed && isAwayTeamHandicapDisplayed;
+        return isExpectedHandicapValuesDisplayed;
+
+    }
+
+    public void verifySelectionStatus(final String marketTitle, final String outcomeDescription,
+            final OutcomeStatus expectedStatus){
+        final Market market = getMarketByTitle(marketTitle);
+        final MarketOutcome marketOutcome = market.getOutcomeByDescription(outcomeDescription);
+        final WaitUtils waitUtils = new WaitUtils();
+        if (OutcomeStatus.ACCEPTED.equals(expectedStatus) || OutcomeStatus.REJECTED.equals(expectedStatus)) {
+            waitUtils.waitForQBMBetToPlaced(marketTitle, outcomeDescription);
+        }else if(OutcomeStatus.IDLE.equals(expectedStatus)){
+            waitUtils.setTimeOut(10);
+            waitUtils.waitForOutcomeToBeIdle(marketTitle, outcomeDescription);
+        }
+        final OutcomeStatus selectionStatus = marketOutcome.getStatus();
+        Assert.assertEquals(selectionStatus, expectedStatus,
+                String.format(OUTCOME_STATUS_PASS_MSG, outcomeDescription, expectedStatus),
+                String.format(OUTCOME_STATUS_FAIL_MSG, outcomeDescription, expectedStatus, selectionStatus));
+
+    }
+
+    public void verifyAllMarketsAreExpanded() {
+        final List<Market> markets = getLiveBettingPage().getMarkets();
+        Assert.assertNotNull(markets, MARKETS_DISPLAYED, MARKETS_NOT_AVAILABLE);
+        for (final Market market : markets) {
+            verifyMarketIsExpanded(market);
+        }
+    }
+
+    public void verifyMarketIsExpanded(final Market market) {
+        final String title = market.getMarketTitle();
+        Assert.assertTrue((market.isCollapsed() == false), String.format(MARKET_EXPANDED, title),
+                String.format(MARKET_COLLAPSED, title));
+    }
+
+    public void verifyMarketIsExpanded(final String marketTitle) {
+        final Market market = verifyMarketExistInCouponArea(marketTitle);
+        verifyMarketIsExpanded(market);
+    }
+
+    public void collapseMarketWithTitle(final String marketTitle) {
+        final Market market = verifyMarketExistInCouponArea(marketTitle);
+        market.collapse();
+    }
+
+    public void expandMarketWithTitle(final String marketTitle) {
+        final Market market = verifyMarketExistInCouponArea(marketTitle);
+        market.expand();
+    }
+
+    public void verifyMarketExistsInCouponArea(final Market market, final String marketTitle) {
+        Assert.assertNotNull(market, String.format(MARKET_FOUND, marketTitle), String.format(MARKET_NOT_FOUND, marketTitle));
+    }
+
+    public void verifyMarketWithTitleIsCollapsed(final String marketTitle) {
+        final Market market = verifyMarketExistInCouponArea(marketTitle);
+        verifyMarketIsCollapsed(market);
+    }
+
+    public void verifyMarketIsCollapsed(final Market market) {
+        final String marketTitle = market.getMarketTitle();
+        Assert.assertTrue(market.isCollapsed(), String.format(MARKET_COLLAPSED, marketTitle),
+                String.format(MARKET_EXPANDED, marketTitle));
+    }
+
+    public void verifyOddsOfOutcome(final MarketOutcome marketOutcome, final String expectedOdd) {
+        final String outcomePrice = marketOutcome.getPrice();
+        Assert.assertEquals(expectedOdd, outcomePrice, String.format(ODDS_MATCH, expectedOdd),
+                String.format(ODDS_MISMATCH, marketOutcome.getDescription(), expectedOdd, outcomePrice));
+    }
+
+    public void verifyMessageInCouponArea(final String message) {
+        final WebElement couponArea = getCouponArea();
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForMessageToDisplayInCouponArea(message);
+        final WebElement noMarketMsgWebElement = couponArea.findElement(messageLocator);
+        final String actualMessageText = noMarketMsgWebElement.getText();
+        Assert.assertEquals(message.toUpperCase(), actualMessageText, String.format(MESSAGE_MATCH, message),
+                String.format(MESSAGE_MIS_MATCH, message, actualMessageText));
+    }
+        
+    public void verifyMessageNotDisplayedInCouponArea(final String message){
+        final WebElement couponArea = getCouponArea();
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.setTimeOut(5);
+        waitUtils.waitForMessageNotToDisplayInCouponArea(message);
+        final List<WebElement> noMarketMsgWebElements = couponArea.findElements(messageLocator);
+        Assert.assertTrue(noMarketMsgWebElements.isEmpty() || !message.toUpperCase().equals(noMarketMsgWebElements.get(0).getText()), String.format(MESSAGE_NOT_DISPLAYED, message),
+                String.format(MESSAGE_DISPLAYED, message));
+    }
+
+    public void verifyPageLoadIcon() {
+        final WebElement couponArea = getCouponArea();
+        boolean loadingIconDisplayed = (new WaitUtils()).waitForPageLoadIconToDisplay();
+        Assert.assertTrue(loadingIconDisplayed, LOAD_ICON_DISPLAYED, LOAD_ICON_NOT_DISPLAYED);
+    }
+
+    public void addNSelectionsToBetSlip(final String marketTitle, final int outcomesToAdd) {
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        final int outcomesCount = market.getOutcomes().size();
+        Assert.assertTrue((market.getOutcomes().size() >= outcomesToAdd), ENOUGH_OUTCOMES_COUNT,
+                String.format(NOT_ENOUGH_OUTCOMES, marketTitle, outcomesCount));
+        for (int index = 0; index < outcomesToAdd; index++) {
+            market.getOutcomeByPosition(index).getWebElement().click();
+        }
+    }
+
+    public void addSelectionToBetSlip(final Market market, final String outcomeDescription) throws ConfigurationException,
+            IOException {
+        final MarketOutcome outcome = (new WaitUtils()).waitForOutcomeToDisplay(market.getMarketTitle(), outcomeDescription);
+        outcome.select();
+
+    }
+
+    public void addNthSelection(final String marketTitle, final int outcomePosition) {
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        final MarketOutcome outcome = market.getOutcomeByPosition(outcomePosition - 1);
+        outcome.getWebElement().click();
+    }
+
+    public void verifyOutcomeDescriptionOfSuspendedOutcome(final String outcomeDescription) throws ConfigurationException,
+            IOException {
+        final MarketOutcome marketOutcome = getOutcomeByDescription(outcomeDescription);
+        Assert.assertTrue(marketOutcome.isSuspended(), String.format(OUTCOME_SUSPENDED, outcomeDescription),
+                String.format(OUTCOME_NOT_SUSPENDED, outcomeDescription));
+        Assert.assertEquals("SUSPENDED", marketOutcome.getPrice(), "suspended text is displayed instead of price",
+                "suspended text is not displayed instead of price");
+    }
+
+    public MarketOutcome getOutcomeByDescription(final String outcomeDescription) throws ConfigurationException, IOException {
+        final Market market = getLiveBettingPage().getMarkets().get(0);
+        Assert.assertNotNull(market, String.format(MARKET_FOUND, "1st market"), String.format(MARKET_NOT_FOUND, "1st market"));
+        final MarketOutcome marketOutcome =
+                (new WaitUtils()).waitForOutcomeToDisplay(market.getMarketTitle(), outcomeDescription);
+        return marketOutcome;
+    }
+
+    public void verifyOutcomeDescription(final String outcomeDescription) throws ConfigurationException, IOException {
+        final MarketOutcome marketOutcome = getOutcomeByDescription(outcomeDescription);
+        Assert.assertNotNull(marketOutcome, String.format(OUTCOME_FOUND, outcomeDescription),
+                String.format(OUTCOME_NOT_FOUND, outcomeDescription));
+
+    }
+
+    public void addSuspendedOutcomeToBetSlip(final Market market, final String outcomeDescription)
+            throws ConfigurationException, IOException {
+        addSelectionToBetSlip(market, outcomeDescription);
+
+    }
+
+    public void verifySelectionNotAddedToBetSlip(final String outcomeDescription) {
+        final BetSlipSelection desiredSelection = getSelectionByDescriptionFromBetSlip(outcomeDescription);
+        Assert.assertTrue(desiredSelection == null, String.format(SELECTION_NOT_IN_BETSLIP, outcomeDescription),
+                String.format(SELECTION_IN_BETSLIP, outcomeDescription));
+    }
+
+    public BetSlipSelection getSelectionByDescriptionFromBetSlip(final String outcomeDescription) {
+        final BetSlip betslip = getLiveBettingPage().getBetSlip();
+        final List<BetSlipSelection> betSelections = betslip.getBetslipSelections();
+        BetSlipSelection desiredSelection = null;
+        for (BetSlipSelection selection : betSelections) {
+            if (outcomeDescription.equals(selection.getDescription())) {
+                desiredSelection = selection;
+                break;
+            }
+        }
+        return desiredSelection;
+    }
+
+    public void verifyMarketExists(final Market market) {
+        Assert.assertNotNull(market, "Market found", "Market not found");
+    }
+
+    public void verifySuspendedOutcomeOddNotDisplayed(final String outcomeDescription) {
+        verifyOutcomeOddNotDisplayed(outcomeDescription);
+    }
+
+    public void verifyOutcomeIsNotSuspended(final String outcomeDescription) throws ConfigurationException, IOException {
+        final MarketOutcome marketOutcome =
+                (new WaitUtils()).waitForOutcomeToUnSuspend(getLiveBettingPage().getMarkets().get(0), outcomeDescription);
+        Assert.assertFalse(marketOutcome.isSuspended(), String.format(OUTCOME_NOT_SUSPENDED, outcomeDescription),
+                String.format(OUTCOME_SUSPENDED, outcomeDescription));
+    }
+
+    public MarketOutcome verifyOutcomeFound(final Market market, final String outcomeDescription) {
+        final MarketOutcome marketOutcome = market.getOutcomeByDescription(outcomeDescription);
+        Assert.assertNotNull(marketOutcome, String.format(OUTCOME_FOUND, outcomeDescription),
+                String.format(OUTCOME_NOT_FOUND, outcomeDescription));
+        return marketOutcome;
+    }
+
+    public void verifyOutcomeOddNotDisplayed(final String outcomeDescription) {
+        final Market market = getLiveBettingPage().getMarkets().get(0);
+        verifyMarketExists(market);
+        final MarketOutcome marketOutcome = verifyOutcomeFound(market, outcomeDescription);
+        final String price = marketOutcome.getPrice();
+        final boolean priceFound = Pattern.matches(price, ODD_REGEX);
+        Assert.assertFalse(priceFound, String.format(OUTCOME_PRICE_NOT_DISPLAYED, outcomeDescription, price),
+                String.format(OUTCOME_PRICE_DISPLAYED, outcomeDescription, price));
+
+    }
+
+    public void verifyOutcomeOddDisplayed(final String outcomeDescription) throws ConfigurationException, IOException,
+            InterruptedException {
+        final Market market = getLiveBettingPage().getMarkets().get(0);
+        verifyMarketExists(market);
+        final MarketOutcome marketOutcome =
+                (new WaitUtils()).waitForOutcomeToDisplay(market.getMarketTitle(), outcomeDescription);
+        Thread.sleep(2000);
+        final String price = marketOutcome.getPrice();
+        final boolean priceFound = Pattern.matches(ODD_REGEX, price);
+        Assert.assertTrue(priceFound, String.format(OUTCOME_PRICE_DISPLAYED, outcomeDescription, price),
+                String.format(OUTCOME_PRICE_NOT_DISPLAYED, outcomeDescription, price));
+
+    }
+
+    public void addSelection(final String selection, final String marketTitle) {
+        verifyMarketExistInCouponArea(marketTitle);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        market.clickOnOutcomeByDescription(selection);
+    }
+
+    public void goToEventInDomain(final String gameId, final String domain) throws ConfigurationException {
+        final String appUrl = constructAppUrl(domain);
+        if (domain.equals("lv")) {
+            getLiveBettingPage().goToEvent(gameId);
+
+        } else if (domain.equals("eu")) {
+            webDriver.get(String.format("%s/event/%s", appUrl, gameId));
+        }
+    }
+
+    public String constructAppUrl(final String domain) throws ConfigurationException {
+        String appUrl = StringUtils.EMPTY;
+        if (domain.equals("lv")) {
+            appUrl = getLiveBettingPage().getPageURL();
+        } else if (domain.equals("eu")) {
+            appUrl = "http://live." + getHostDetails(domain);
+        }
+        return appUrl;
+    }
+
+    public String getHostDetails(final String domain) throws ConfigurationException {
+        final String hostDetails =
+                ConfigManager.getEnv() + "." + BrandDomain.getDomainByExtension(domain).getBrandName() + "." + domain;
+        return hostDetails;
+    }
+        
+    public void verifyOutcomeHighlighted(final String marketTitle, final String outcomeDescription)
+            throws ConfigurationException, IOException {
+        final MarketOutcome marketOutcome = verifyOutcomeWithDescriptionDisplays(marketTitle, outcomeDescription);
+        Assert.assertTrue(marketOutcome.isHighlighted(),
+                String.format(OUTCOME_HIGHLIGHTED, outcomeDescription, marketTitle),
+                String.format(OUTCOME_NOT_HIGHLIGHTED, outcomeDescription, marketTitle));
+    }
+    
+    public void verifyOutcomeNotHighlighted(final String marketTitle, final String outcomeDescription)
+            throws ConfigurationException, IOException {
+        final MarketOutcome marketOutcome = verifyOutcomeWithDescriptionDisplays(marketTitle, outcomeDescription);
+        Assert.assertTrue(!marketOutcome.isHighlighted(),
+                String.format(OUTCOME_NOT_HIGHLIGHTED, outcomeDescription, marketTitle),
+                String.format(OUTCOME_HIGHLIGHTED, outcomeDescription, marketTitle));
+    }
+        
+    public void verifyExpectedPriceDisplayed(final Event event, final String expectedPrice, final String outcomeDesc,final String marketTitle) throws ConfigurationException, IOException{
+        Market market = verifyMarketExistInCouponArea(marketTitle);
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.setTimeOut(getAtmosphereUpdate());
+        waitUtils.waitForPriceUpdate(event, marketTitle, outcomeDesc, expectedPrice);
+        market = verifyMarketExistInCouponArea(marketTitle);
+        final MarketOutcome marketOutcome = market.getOutcomeByDescription(outcomeDesc);
+        Assert.assertEquals(
+            expectedPrice,
+            marketOutcome.getPrice(),
+            String.format(EXPECTED_PRICE_DISPLAYED, expectedPrice),
+            String.format(EXPECTED_PRICE_NOT_DISPLAYED, expectedPrice,
+                    marketOutcome.getPrice()));
+    }
+}

@@ -1,0 +1,61 @@
+package internal.qaauto.inrunning.tom.leftnav;
+
+import internal.qaauto.inrunning.tom.coupons.LeftNavEvent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavEventInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingEvent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingEventInterface;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public class UpcomingEventsComponent extends LeftNavEventsComponent implements UpcomingEventsComponentInterface {
+
+    public UpcomingEventsComponent(final WebElement leftNavUpcomingMenu){
+        setComponent(leftNavUpcomingMenu);
+    }
+
+    @Override
+    protected SportInterface newSport(final WebElement sportContainerWE) {
+        return new UpcomingEventsSport(sportContainerWE);
+    }
+
+    @Override
+    public LeftNavUpcomingEvent newLeftNavEvent(final WebElement leftNavEventWebElement) {
+        return new LeftNavUpcomingEvent(leftNavEventWebElement);
+    }
+
+    @Override
+    public LeftNavEvent getLeftNavEventByName(final String title, final String sport){
+        final SportInterface sportContainer = getSportByTitle(sport);
+        if(sportContainer == null){
+            return null;
+        }
+        sportContainer.expand();
+        final LeftNavEvent navUpcomingEvent = sportContainer.getUpcomingEventByName(title);
+        if(navUpcomingEvent == null){
+            return null;
+        }
+        return navUpcomingEvent;
+    }
+
+
+    @Override
+    public boolean isCollapsed() {
+        return false;
+    }
+
+    @Override
+    public LeftNavUpcomingEventInterface getUpcomingEventByTitle(String title) {
+        final LeftNavEventInterface coupon = getLeftNavEventByTitle(title);
+        if(coupon == null){
+            return null;
+        }
+        return getUpcomingEvent(getLeftNavEventByTitle(title));
+
+    }
+
+    private LeftNavUpcomingEventInterface getUpcomingEvent(final LeftNavEventInterface coupon){
+        return ((LeftNavUpcomingEventInterface)coupon);
+    }
+}

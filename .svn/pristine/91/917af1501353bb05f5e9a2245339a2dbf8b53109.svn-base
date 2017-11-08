@@ -1,0 +1,22 @@
+Meta:
+@author rkora
+@story BGSIR_950
+@functionality qbm
+@functionality login
+@testType regression
+
+Narrative:
+As a player
+I tried to login with Invalid credentials it should redirect to Login page
+So that user knows he entered invalid Login details
+
+Scenario:Invalid login redirection to Login Page
+Meta:
+@scenarioname redirectionToLoginPage
+Given user is at live betting page
+And a user tried to loggedIn with Invalid username '<Username>' and password '<Password>'
+Then user should be redirected to LogIn page
+
+Examples:
+| Username | Password |
+| Testing  | password |

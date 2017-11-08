@@ -1,0 +1,134 @@
+package internal.qaauto.inrunning.tom.leftnav;
+
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import internal.qaauto.inrunning.tom.coupons.*;
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+
+public abstract class Sport extends InRunningComponent implements SportInterface {
+
+    private static final String COUPON_SELECTOR = ":scope>ul>li";
+
+    private static final String TITLE_SELECTOR = "h4";
+
+    private By titleLocator = new By.ByCssSelector(TITLE_SELECTOR);
+
+    private By couponLocator = new By.ByCssSelector(COUPON_SELECTOR);
+
+    @Override
+    public String getTitle() {
+        List<WebElement> titleWebElements = getWebElement().findElements(titleLocator);
+        if(titleWebElements == null || titleWebElements.size() == 0){
+            return StringUtils.EMPTY;
+        }
+        return titleWebElements.get(0).getText();
+    }
+
+    @Override
+    public List<LeftNavEvent> getEvents(){
+        final WebElement sportContainerWebElement = getWebElement();
+        final List<WebElement> couponWebElements = sportContainerWebElement.findElements(couponLocator);
+        if(couponWebElements == null || couponWebElements.size() == 0){
+            return null;
+        }
+        final List<LeftNavEvent> sportContainerCoupons = new LinkedList<LeftNavEvent>();
+        for(WebElement couponWebElement : couponWebElements){
+            sportContainerCoupons.add(newLeftNavEvent(couponWebElement));
+        }
+        return sportContainerCoupons;
+    }
+
+    public abstract LeftNavEvent newLeftNavEvent(WebElement couponWebElement);
+
+    @Override
+    public void collapse() {
+        if(isCollapsed() == Boolean.FALSE){
+            getTitleWebElement().click();
+        }
+    }
+
+    @Override
+    public void expand() {
+        if(isCollapsed()){
+            getTitleWebElement().click();
+        }
+    }
+
+    private WebElement getTitleWebElement(){
+        return getWebElement().findElement(titleLocator);
+    }
+
+    @Override
+    public boolean isCollapsed() {
+        List<LeftNavEvent> leftNavEvents = getEvents();
+        if(leftNavEvents == null){
+            return Boolean.TRUE;
+        }
+        for(LeftNavEventInterface leftNavEvent : leftNavEvents){
+            if(leftNavEvent.getWebElement().isDisplayed() == Boolean.TRUE){
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
+    }
+
+    private LeftNavEvent getLeftNavEventByName(final String name){
+        List<LeftNavEvent> leftNavEvents = getEvents();
+        if(leftNavEvents == null){
+            return null;
+        }
+        for(LeftNavEvent leftNavEvent : leftNavEvents){
+            if(name.equals(leftNavEvent.getName())){
+                return leftNavEvent;
+            }
+        }
+        return null;
+    }
+
+    public LeftNavLiveNowEvent getLiveNowEventByName(final String name){
+        LeftNavEventInterface leftNavEvent = getLeftNavEventByName(name);
+        if(leftNavEvent == null){
+            return null;
+        }
+        if(leftNavEvent instanceof LeftNavLiveNowEvent){
+            return (LeftNavLiveNowEvent)leftNavEvent;
+        }
+        return null;
+    }
+
+    public LeftNavUpcomingEvent getUpcomingEventByName(final String name){
+        LeftNavEvent leftNavEvent = getLeftNavEventByName(name);
+        if(leftNavEvent == null){
+            return null;
+        }
+        if(leftNavEvent instanceof LeftNavUpcomingEvent){
+            return (LeftNavUpcomingEvent)leftNavEvent;
+        }
+        return null;
+    }
+
+    public List<LeftNavLiveNowEvent> getLiveNowEvents(){
+        List<LeftNavEvent> coupons = getEvents();
+        if((coupons == null) || (coupons.size() == 0) || (coupons.get(0) instanceof LeftNavUpcomingEvent)){
+            return null;
+        }
+        return (List<LeftNavLiveNowEvent>)(List<?>)coupons;
+    }
+
+    public List<LeftNavUpcomingEventInterface> getUpcomingEvents(){
+        List<LeftNavEvent> coupons = getEvents();
+        if((coupons == null) || (coupons.size() == 0) || (coupons.get(0) instanceof LeftNavLiveNowEvent)){
+            return null;
+        }
+        return (List<LeftNavUpcomingEventInterface>)(List<?>)coupons;
+    }
+
+}

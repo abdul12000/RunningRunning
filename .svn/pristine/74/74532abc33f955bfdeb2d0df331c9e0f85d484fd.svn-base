@@ -1,0 +1,24 @@
+Narrative:
+As a player
+I want Live coupons to display in three columns markets with three betting selections
+
+Meta:
+@author rkora
+@Story BGSIR98
+@functionality markets
+
+Scenario: The number of betting selections offered for a market type is three, markets has to be displayed in three columns layout coupon.
+
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|
+And Add 3 column layout market which has <MarketTitle>
+When player navigates to above event
+Then the list of markets of the selected event are displayed in the coupon area
+And the market which has <MarketTitle> should display 3 column layout
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |MarketTitle|
+|12345      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-103|Extra Market 1|
+

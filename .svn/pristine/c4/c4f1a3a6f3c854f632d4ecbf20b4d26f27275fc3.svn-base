@@ -1,0 +1,57 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import internal.qaauto.inrunning.tom.Utilties.QBMStatus;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 30/10/2014.
+ */
+public class QuickBetMode extends InRunningComponent implements QuickBetModeInterface {
+
+    private static final String BUTTON_TAG = "button";
+
+    private By qbmButtonLocator = new By.ByCssSelector(BUTTON_TAG);
+
+    public QuickBetMode(final WebElement quickBetModeWebElement){
+        setComponent(quickBetModeWebElement);
+    }
+
+    public void enable(){
+        final WebElement qbmButton = getQBMButton();
+        if(qbmButton != null){
+            if(!isActive()) {
+                qbmButton.click();
+            }
+        }
+    }
+
+    public void disable(){
+        WebElement qbmButton = getQBMButton();
+        if(qbmButton != null){
+            if(isActive()){
+                qbmButton.click();
+            }
+        }
+    }
+
+    public boolean isActive(){
+        WebElement qbmButton = getQBMButton();
+        if(qbmButton == null){
+            return false;
+        }
+        String qbmStatus = qbmButton.getText();
+        return QBMStatus.On.getStatus().equals(qbmStatus);
+    }
+
+    private WebElement getQBMButton(){
+        List<WebElement> qbmWebElements = getWebElement().findElements(qbmButtonLocator);
+        if(qbmWebElements == null && qbmWebElements.size() == 0){
+            return null;
+        }
+        return qbmWebElements.get(0);
+    }
+}

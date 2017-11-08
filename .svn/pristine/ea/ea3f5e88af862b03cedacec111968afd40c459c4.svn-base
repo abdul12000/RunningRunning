@@ -1,0 +1,8 @@
+<sportMessage>
+   <sports>
+      <sportDto>
+         <code>${code}</code>
+         <description>${desc}</description>
+      </sportDto>
+   </sports>
+</sportMessage>

@@ -1,0 +1,19 @@
+package internal.qaauto.inrunning.tom.Utilties;
+
+
+/**
+ * Created by Harish Renukunta on 30/10/2014.
+ */
+public enum QBMStatus {
+    On("ON"), Off("OFF");
+
+    private String status;
+
+    QBMStatus(final String status){
+        this.status = status;
+    }
+
+    public String getStatus(){
+        return status;
+    }
+}

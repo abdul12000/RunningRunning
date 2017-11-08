@@ -1,0 +1,17 @@
+package internal.qaauto.inline.tom.leftnav;
+
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public interface LeftNavLiveNowMenuInterface {
+    public String getTitle();
+    public WebElement getLiveNowMenu();
+    public List<SportsContainerInterface> getSportsContainers();
+    public boolean isCollapsed();
+    public void expand();
+    public void collapse();
+}

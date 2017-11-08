@@ -1,0 +1,20 @@
+Narrative:
+
+As a player
+I want correct score markets to be displayed with their corresponding layouts in the Live coupon
+so that I can easily identify the selections to place wagers
+
+Meta:
+@author rkora
+@story BGSIR399
+Scenario: verify correct score market layout should be applied to the marketType 10
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|proptypeid|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|<proptypeid>|
+When user navigate to a Single Game View page of a Live Event <<GameId>>
+Then the market which has <<MarketTitle>> should display <ColumnLayout>
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |ColumnLayout       |<proptypeid>|
+|12345      |Soccer   |Home_Story     |Away_Story       |33              |In Progress |AUTOTEST-BGSIR-104|Outcome next play          |Extra Market 1    |three-columns-prop |     17          |

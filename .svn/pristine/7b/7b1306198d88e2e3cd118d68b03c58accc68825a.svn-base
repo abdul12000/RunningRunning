@@ -1,0 +1,19 @@
+<eventTypeMessage>
+   <eventTypes>
+      <eventTypeDto>
+         <allowUnListedCompetitors>${allow}</allowUnListedCompetitors>
+         <code>${code}</code>
+         <defaultStopTimeOffSet>${default}</defaultStopTimeOffSet>
+         <description>${desc}</description>
+         <eventConditionValues/>
+         <groupTypeCode>${group}</groupTypeCode>
+         <maxCompetitors>${maxcomp}</maxCompetitors>
+         <note/>
+         <requireRotationNumbers>${require}</requireRotationNumbers>
+         <scoreDescription>${scoreDesc}</scoreDescription>
+         <scoreType>${scoreType}</scoreType>
+	 <sport>${sportId}</sport>
+	 <tradingGroup>${tradingGroup}</tradingGroup>
+      </eventTypeDto>
+   </eventTypes>
+</eventTypeMessage>

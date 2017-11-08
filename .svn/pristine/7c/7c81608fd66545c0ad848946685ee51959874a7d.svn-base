@@ -1,0 +1,66 @@
+Narrative:
+As a player
+I want coupons to display up-to-date information
+so that I can place my wagers according to the information in the coupon
+
+Meta:
+@author rkora
+@story BGSIR_570
+@functionality markets
+
+Scenario: verify Live Coupon Prices Information to be automatically updated
+
+Given user created the event with the  below data
+|GameId     |Sport      |MarketNameToCreate  |MarketTitle   |League Id  |Status      |
+|<GameId>   |<Sport>    |<MarketNameToCreate>|<MarketTitle> |<League Id>|<Status>    |
+When player navigates to above event
+And price is updated for one of the outcome <OutcomeDesc> with Win <WinValue> and risk <RiskValue>
+Then Expected price <Price> for the outcome<OutcomeDesc> should be displayed
+
+Examples:
+|<GameId>   |<Sport>    |<MarketNameToCreate>|<MarketTitle>               |OutcomeDesc    |WinValue|RiskValue|Price|<League Id>|<Status>    |
+|57049      |Football   |Moneyline           |EXTRA MARKET MONEY LINE 1   |HOME           |  24    |20       | +120|5          |In Progress |
+|57047      |Football   |Point Spread        |EXTRA MARKET POINTS SPREAD 2|AWAY           |  24    |20       | +120|5          |In Progress |
+|57048      |Football   |Total               |EXTRA MARKET TOTAL 3        |Under          |  24    |20       | +120|5          |In Progress |
+|57050      |Football   |Outcome next play   |EXTRA MARKET 4              |Pass Completion|  24    |20       | +120|5          |In Progress |
+|57051      |Tennis     |Outcome next play   |EXTRA MARKET 1              |Pass Incomplete|  24    |20       | +120|325        |In Progress |
+|57052      |Tennis     |Point Spread        |EXTRA MARKET POINTS SPREAD 2|Federer        |  24    |20       | +120|325        |In Progress |
+|57053      |Tennis     |Total               |EXTRA MARKET TOTAL 3        |Under          |  24    |20       | +120|325        |In Progress |
+|57054      |Hockey     |Outcome next play   |EXTRA MARKET 1              |Pass Incomplete|  24    |20       | +120|50         |In Progress |
+|57055      |Hockey     |Point Spread        |EXTRA MARKET POINTS SPREAD 2|Red Wings      |  24    |20       | +120|50         |In Progress |
+|57056      |Hockey     |Total               |EXTRA MARKET TOTAL 3        |Over           |  24    |20       | +120|50         |In Progress |
+|57057      |Basketball |Outcome next play   |EXTRA MARKET 1              |Pass Incomplete|  24    |20       | +120|2          |In Progress |
+|57058      |Basketball |Point Spread        |EXTRA MARKET POINTS SPREAD 2|AWAY           |  24    |20       | +120|2          |In Progress |
+|57059      |Basketball |Total               |EXTRA MARKET TOTAL 3        |Under          |  24    |20       | +120|2          |In Progress |
+|57060      |Soccer     |Outcome next play   |EXTRA MARKET 1              |Pass Completion|  24    |20       | +120|33         |In Progress |
+|57061      |Soccer     |Point Spread        |EXTRA MARKET POINTS SPREAD 2|AWAY           |  24    |20       | +120|33         |In Progress |
+|57062      |Soccer     |Total               |EXTRA MARKET TOTAL 3        |Under          |  24    |20       | +120|33         |In Progress |
+
+Scenario: verify Live Coupon Prices Information to be automatically updated after login
+
+Given user created the event with the  below data
+|GameId     |Sport      |MarketNameToCreate  |MarketTitle   |League Id  |Status      |
+|<GameId>   |<Sport>    |<MarketNameToCreate>|<MarketTitle> |<League Id>|<Status>    |
+And a user logged in with username '<Username>' and password '<Password>'
+When user navigates to above event
+And price is updated for one of the outcome <OutcomeDesc> with Win <WinValue> and risk <RiskValue>
+Then Expected price <Price> for the outcome<OutcomeDesc> should be displayed
+
+Examples:
+|<GameId>   |<Sport>    |<MarketNameToCreate>|<MarketTitle>               |OutcomeDesc    |WinValue|RiskValue|Price|<League Id>|<Status>    |Username|Password |
+|57049      |Football   |Moneyline           |EXTRA MARKET MONEY LINE 1   |HOME           |  24    |20       | +120|5          |In Progress |2393086 |testing  |
+|57047      |Football   |Point Spread        |EXTRA MARKET POINTS SPREAD 2|AWAY           |  24    |20       | +120|5          |In Progress |2393086 |testing  |
+|57048      |Football   |Total               |EXTRA MARKET TOTAL 3        |Under          |  24    |20       | +120|5          |In Progress |2393086 |testing  |
+|57050      |Football   |Outcome next play   |EXTRA MARKET 4              |Pass Completion|  24    |20       | +120|5          |In Progress |2393086 |testing  |
+|57051      |Tennis     |Outcome next play   |EXTRA MARKET 1              |Pass Incomplete|  24    |20       | +120|325        |In Progress |2393086 |testing  |
+|57052      |Tennis     |Point Spread        |EXTRA MARKET POINTS SPREAD 2|Federer        |  24    |20       | +120|325        |In Progress |2393086 |testing  |
+|57053      |Tennis     |Total               |EXTRA MARKET TOTAL 3        |Under          |  24    |20       | +120|325        |In Progress |2393086 |testing  |
+|57054      |Hockey     |Outcome next play   |EXTRA MARKET 1              |Pass Incomplete|  24    |20       | +120|50         |In Progress |2393086 |testing  |
+|57055      |Hockey     |Point Spread        |EXTRA MARKET POINTS SPREAD 2|Red Wings      |  24    |20       | +120|50         |In Progress |2393086 |testing  |
+|57056      |Hockey     |Total               |EXTRA MARKET TOTAL 3        |Over           |  24    |20       | +120|50         |In Progress |2393086 |testing  |
+|57057      |Basketball |Outcome next play   |EXTRA MARKET 1              |Pass Incomplete|  24    |20       | +120|2          |In Progress |2393086 |testing  |
+|57058      |Basketball |Point Spread        |EXTRA MARKET POINTS SPREAD 2|AWAY           |  24    |20       | +120|2          |In Progress |2393086 |testing  |
+|57059      |Basketball |Total               |EXTRA MARKET TOTAL 3        |Under          |  24    |20       | +120|2          |In Progress |2393086 |testing  |
+|57060      |Soccer     |Outcome next play   |EXTRA MARKET 1              |Pass Completion|  24    |20       | +120|33         |In Progress |2393086 |testing  |
+|57061      |Soccer     |Point Spread        |EXTRA MARKET POINTS SPREAD 2|AWAY           |  24    |20       | +120|33         |In Progress |2393086 |testing  |
+|57062      |Soccer     |Total               |EXTRA MARKET TOTAL 3        |Under          |  24    |20       | +120|33         |In Progress |2393086 |testing  |

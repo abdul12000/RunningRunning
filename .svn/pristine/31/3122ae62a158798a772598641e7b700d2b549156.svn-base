@@ -1,0 +1,60 @@
+package internal.qaauto.inrunning.tom;
+
+import internal.qaauto.inrunning.tom.betslip.BetSlip;
+import internal.qaauto.inrunning.tom.betslip.QuickBetMode;
+import internal.qaauto.inrunning.tom.coupons.LeftNavEvent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowEvent;
+import internal.qaauto.inrunning.tom.leftnav.BetSlipModeComponentInterface;
+import internal.qaauto.inrunning.tom.leftnav.LeftNavMenu;
+import internal.qaauto.inrunning.tom.leftnav.LiveNowEventsComponent;
+import internal.qaauto.inrunning.tom.leftnav.UpcomingEventsComponent;
+import internal.qaauto.inrunning.tom.markets.Market;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 03/10/2014.
+ */
+public interface LiveBettingPage {
+
+    public LeftNavMenu getLeftNav();
+
+    public LiveNowEventsComponent getLiveNowCouponsComponent();
+
+    LeftNavLiveNowEvent getLiveNowEventByName(final String sport, final String eventName);
+
+    LeftNavEvent getUpcomingEventByName(final String sport, final String eventName);
+
+    public UpcomingEventsComponent getUpcomingEventsComponent();
+
+    public EventComponentInterface getEventsComponent();
+
+    public List<Market> getMarkets();
+
+    public Market getMarketByTitle(final String title);
+
+    public BetSlipModeComponentInterface getBetSlipModeComponent();
+
+    public BetSlip getBetSlip();
+
+    public WebElement getChildWebElement(By childElement);
+
+    void setOddsFormat(final String oddsFormat);
+
+    public void go();
+
+    public void refresh();
+
+    void goToEvent(final String gameId);
+
+    QuickBetMode getQuickBetMode();
+
+    public String getTimeZone();
+
+    List<LeftNavLiveNowEvent> getLiveNowEventsBySport(final String sport);
+    
+    void login(final String uname, final String pwd);
+
+}

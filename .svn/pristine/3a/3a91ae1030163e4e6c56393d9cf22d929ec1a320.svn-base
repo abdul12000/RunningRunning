@@ -1,0 +1,13 @@
+package internal.qaauto.inline.tom.markets;
+
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 06/10/2014.
+ */
+public interface MarketOutcomeInterface {
+    public WebElement getMarketOutcome();
+    public String getDescription();
+    public String getPrice();
+    public String getArrowDetail();
+}

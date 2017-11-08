@@ -1,0 +1,22 @@
+package internal.qaauto.inline.tom.leftnav;
+
+import internal.qaauto.inline.tom.coupons.LeftNavCouponInterface;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public class LiveNowSportsContainer extends SportsContainer{
+
+    public LiveNowSportsContainer(WebElement sportsContainer) {
+        super(sportsContainer);
+    }
+
+    @Override
+    public List<LeftNavCouponInterface> getCoupons() {
+        return null;
+    }
+
+}

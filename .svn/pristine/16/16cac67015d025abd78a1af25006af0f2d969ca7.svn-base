@@ -1,0 +1,49 @@
+Meta:
+@story BGSIR_362
+@functionality leftnav
+
+Narrative:
+As a player
+I want left nav to highlight the event that it is displayed in single page view page
+so that I am easily able to identify the selected event in the left nav
+
+
+Scenario: Event is highlighted in Live Now when selected
+Meta:
+@scenarioName BGSIR362_HighlightLiveNowEventWhenSelected
+@author Harish
+@testType regression
+Given user created an event with below data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|
+And player is at live betting page
+When I select above Live Now event
+Then event link in left nav live now events component is highlighted
+
+Examples:
+|Meta:|<GameId> |<Sport>   |<Home Team>  |<Away Team>            |<League Id>  |<Status>     |<Period>|<AwayTeam NickName>        |<HomeTeam NickName>  |<Description>|
+|     |36201     |Football  |Buffalo Bills|Arizona Cardinals      |5            |In Progress  |2       |AT_Nick_36201             |HT_Nick              |AUTOTEST_Football_Display|
+|     |36202    |Soccer    |Algeria      |Anguilla               |33           |In Progress  |1       |Anguilla_Nick_36202        |Algeria_Nick         |AUTOTEST_SortSportsGroups|
+|     |36203     |Tennis    |Home_17301   |Away_17301             |325          |In Progress  |1       |HM_17301_Nick_36203       |AW_17301_Nick        |AUTOTEST_BGSIR891_Tennis|
+|     |36204     |Hockey    |Boston Bruins|Anaheim Ducks          |50           |In Progress  |1       |BostonBruins_Nick_36204   |Anaheim_Nick         |AUTOTEST_BGSIR91_Hocker|
+|     |36205     |Basketball|Atlanta Hawks|Denver Nuggets         |2            |In Progress  |2       |Atlanta_Nick_36205        |Denver_Nick          |AUTOTEST_BGSIR91_Basketball|
+
+Scenario: Event is highlighted in Live Now when navigated directly to event page
+Meta:
+@scenarioName BGSIR362_HighlightLiveNowEventWhenNavigated
+@author Harish
+@testType regression
+Given user created an event with below data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|
+And player is at live betting page
+When player navigates to above event
+Then event link in left nav live now events component is highlighted
+
+Examples:
+|Meta:|<GameId> |<Sport>   |<Home Team>  |<Away Team>            |<League Id>  |<Status>     |<Period>|<AwayTeam NickName>  |<HomeTeam NickName>  |<Description>|
+|     |36201     |Football  |Buffalo Bills|Arizona Cardinals      |5            |In Progress  |2       |AT_Nick_36201              |HT_Nick              |AUTOTEST_Football_Display|
+|     |36202    |Soccer    |Algeria      |Anguilla               |33           |In Progress  |1       |Anguilla_Nick_36202        |Algeria_Nick         |AUTOTEST_SortSportsGroups|
+|     |36203     |Tennis    |Home_17301   |Away_17301             |325          |In Progress  |1       |HM_17301_Nick_36203        |AW_17301_Nick        |AUTOTEST_BGSIR891_Tennis|
+|     |36204     |Hockey    |Boston Bruins|Anaheim Ducks          |50           |In Progress  |1       |BostonBruins_Nick_36204    |Anaheim_Nick         |AUTOTEST_BGSIR91_Hocker|
+|     |36205     |Basketball|Atlanta Hawks|Denver Nuggets         |2            |In Progress  |2       |Atlanta_Nick_36205         |Denver_Nick          |AUTOTEST_BGSIR91_Basketball|

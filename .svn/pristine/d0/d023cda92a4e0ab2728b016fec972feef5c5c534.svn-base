@@ -1,0 +1,31 @@
+package internal.qaauto.inline.tom;
+
+import internal.qaauto.inline.tom.betslip.BetSlipInterface;
+import internal.qaauto.inline.tom.leftnav.LeftNavLiveNowMenuInterface;
+import internal.qaauto.inline.tom.leftnav.LeftNavUpcomingMenuInterface;
+import internal.qaauto.inline.tom.markets.MarketInterface;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 03/10/2014.
+ */
+public interface LiveBettingPageInterface {
+
+    public LeftNavLiveNowMenuInterface getLeftNavLiveNowMenu();
+
+    public LeftNavUpcomingMenuInterface getLeftNavUpcomingCouponsMenu();
+
+    public List<MarketInterface> getMarkets();
+
+    public MarketInterface getMarketByTitle(final String title);
+
+    public BetSlipInterface getBetSlip();
+
+    public WebElement getChildWebElement(By childElement);
+
+    public void setOddSelector(final String odds);
+
+}

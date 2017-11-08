@@ -1,0 +1,32 @@
+package internal.qaauto.inrunning.tom.leftnav;
+
+import internal.qaauto.inrunning.tom.InRunningComponentInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavCouponInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowCouponInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingCouponInterface;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public interface SportContainerInterface extends InRunningComponentInterface {
+
+    public String getTitle();
+
+    public List<LeftNavCouponInterface> getCoupons();
+
+    LeftNavLiveNowCouponInterface getLiveNowCouponByName(final String name);
+
+    LeftNavUpcomingCouponInterface getUpcomingCouponByName(final String name);
+
+    List<LeftNavLiveNowCouponInterface> getLiveNowCoupons();
+
+    List<LeftNavUpcomingCouponInterface> getUpcomingCoupons();
+
+    public void collapse();
+
+    public void expand();
+
+    public boolean isCollapsed();
+}

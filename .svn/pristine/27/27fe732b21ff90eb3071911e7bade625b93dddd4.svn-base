@@ -1,0 +1,19 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.inrunning.tom.InRunningComponentInterface;
+
+/**
+ * @author rkora on 30/10/2014.
+ */
+public interface BetSlipSelectionInterface extends InRunningComponentInterface {
+
+    String getDescription();
+
+    String getPrice();
+
+    void delete();
+
+    boolean isDisplayed();
+
+    void setRiskAmount(final String amount);
+}

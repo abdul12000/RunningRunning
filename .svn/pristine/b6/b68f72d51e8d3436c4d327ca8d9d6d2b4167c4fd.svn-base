@@ -1,0 +1,16 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.inrunning.tom.InRunningComponentInterface;
+import internal.qaauto.inrunning.tom.Utilties.QBMStatus;
+
+/**
+ * Created by Harish Renukunta on 30/10/2014.
+ */
+public interface QuickBetModeInterface extends InRunningComponentInterface {
+
+    void enable();
+
+    void disable();
+
+    boolean isActive();
+}

@@ -1,0 +1,80 @@
+package internal.qaauto.inrunning.framework;
+
+import internal.qaauto.framework.reporter.Reporter;
+import internal.qaauto.framework.testCase.webTestsCase.BaseTestCase;
+import internal.qaauto.framework.testCase.webTestsCase.BaseWebDriverTestCase;
+import internal.qaauto.inrunning.steps.ObjectFactory;
+import internal.qaauto.inrunning.tom.LiveBettingPageInterface;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Line;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.tom.EventPubPXPManager;
+import org.apache.commons.configuration.ConfigurationException;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * @author rkora on 16/10/2014.
+ */
+public class InRunningBaseStep extends BaseTestCase {
+
+    protected Event getEvent(){
+        return getScenarioContext().getEvent();
+    }
+
+    protected ScenarioContext getScenarioContext(){
+        return InRunningTestCase.getScenarioContext();
+    }
+
+
+    protected ExecutionContext getExecutionContext(){
+        return InRunningTestCase.getExecutionContext();
+    }
+    protected EventPubPXPManager getManager() throws ConfigurationException {
+        return InRunningTestCase.getExecutionContext().getManager();
+    }
+
+    protected void closeObsoleteEvents() throws IOException, ConfigurationException {
+        getScenarioContext().cleanUpEvents();
+    }
+
+    protected LiveBettingPageInterface getLiveBettingPage(){
+        return ObjectFactory.getLiveBettingPage();
+    }
+
+    protected List<Line> getLinesFromEvent(){
+        final Event event = getEvent();
+        if(event.getLines() == null){
+            return null;
+        }
+        return event.getLines();
+    }
+
+    protected List<String> getLineDescriptionsFromEvent(){
+        final List<Line> lines = getLinesFromEvent();
+        if(lines == null){
+            return null;
+        }
+        final List<String> lineDescriptions = new LinkedList<String>();
+        for(final Line line : lines){
+            lineDescriptions.add(line.getDisplayText());
+        }
+        return lineDescriptions;
+    }
+
+    protected Line getLineByDescription(final String lineDisplayText){
+        final List<Line> lines = getLinesFromEvent();
+        if(lines == null){
+            return null;
+        }
+
+        for(final Line line : lines){
+            if(lineDisplayText.equals(line.getDisplayText())){
+                return line;
+            }
+        }
+        return null;
+
+    }
+}

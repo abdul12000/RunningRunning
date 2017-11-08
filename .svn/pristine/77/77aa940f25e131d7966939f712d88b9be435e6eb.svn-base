@@ -1,0 +1,287 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.BetslipHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.LiveBettingPage;
+import internal.qaauto.inrunning.tom.Utilties.OutcomeStatus;
+import internal.qaauto.inrunning.tom.Utilties.QBMStatus;
+import internal.qaauto.inrunning.tom.betslip.QuickBetMode;
+import org.apache.commons.lang.StringUtils;
+import org.jbehave.core.annotations.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by rkora on 28/11/2014.
+ */
+public class QBMSteps extends InRunningBaseStep {
+
+    private static final String QBM_ACTIVE = "Quick Bet Mode Active";
+
+    private static final String QBM_IN_ACTIVE = "Quick Bet Mode in active";
+
+    private static final String RIGHT_NAV_DISPLAYED = "Right nav displayed";
+
+    private static final String RIGHT_NAV_NOT_DISPLAYED = "Right nav not displayed";
+
+    private static final String QBM_STATUS_MATCH = "QBM status match. Status:%s";
+
+    private static final String QBM_STATUS_MIS_MATCH = "QBM status mis match. Expected:%s, Actual:%s";
+
+    private static final String QBM_ENABLED = "QBM is in enabled status";
+
+    private static final String QBM_DISABLED = "QBM is in disabled status";
+
+    private static final String HIGHLIGHTED_STAKE_MATCH = "Highlighted stake match. Stake highlighted:%s";
+
+    private static final String HIGHLIGHTED_STAKE_MISMATCH = "Incorrect stake highlighted. Expected:%s Actual:%s";
+
+    private static final int TIMEOUT = 6000;
+
+    private BetslipHelperMethods betslipHelperMethods = HelperFactory.getBetslipStepsHelper();
+
+    @Given("QBM is in Off state")
+    @When("I select OFF in the QBM selector")
+    @Aliases(values = { "QBM is in deactivate state", "QBM is deactivated" })
+    public void quickBetModeOff() {
+        getLiveBettingPage().getQuickBetMode().disable();
+    }
+
+    @Given("QBM is in active state")
+    @When("I select ON in the QBM selector")
+    @Aliases(values = { "select ON in the QBM selector" })
+    public void quickBetModeOn() {
+        getLiveBettingPage().getQuickBetMode().enable();
+    }
+
+    @When("player select QBM as preferred wager placement mode")
+    @Aliases(values = { "Quick Bet Mode is activated" })
+    @Then("QBM is activated")
+    public void verifyQBMIsActivated() {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        qbm.enable();
+        Assert.assertTrue(qbm.isActive(), QBM_ACTIVE, QBM_IN_ACTIVE);
+    }
+
+    @Given("QBM is activated")
+    @When("QBM is activated")
+    @Aliases(values = {"player tries to change mode to QBM"})
+    public void activateQBM() {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        qbm.enable();
+    }
+
+    @Then("QBM should be in disabled state")
+    public void verifyQBMIsDisabled() {
+        final QuickBetMode qbmMode = getLiveBettingPage().getQuickBetMode();
+        Assert.assertTrue(!qbmMode.isEnabled(), QBM_DISABLED, QBM_ENABLED);
+    }
+
+    @Given("HTML5 Live Client with QBM as wager placement mode")
+    public void html5LiveClientWithQBMOn() {
+        getLiveBettingPage().go();
+        verifyQBMIsActivated();
+    }
+
+    @Given("wager placement selector in the right nav")
+    public void verifyQBMInRightNav() {
+        final LiveBettingPage liveBettingPage = getLiveBettingPage();
+        final By rightNavLocator = new By.ByCssSelector("#rightCol");
+        final WebElement rightNav = liveBettingPage.getChildWebElement(rightNavLocator);
+        Assert.assertTrue(rightNav.isDisplayed(), RIGHT_NAV_DISPLAYED, RIGHT_NAV_NOT_DISPLAYED);
+    }
+
+    @Then("the amount selected by default as stake amount is $5")
+    public void verifyDefaultStake(final String amount) {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        final String defaultStake = qbm.getStake();
+        Assert.assertTrue(defaultStake.equals(amount), String.format("Default Stake is displayed :%s", defaultStake),
+                String.format("Default Stake is not displayed : %s", defaultStake));
+
+    }
+
+    @When("player clicks on $Amount")
+    public void clickOnAmount(@Named("Amount")
+    final int amount) {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        qbm.clickOn(amount);
+    }
+
+    @Then("the $Amount selected will be displayed in the default stake field")
+    public void verifyStakeAmount(@Named("Amount")
+    final String amount) {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        Assert.assertTrue(qbm.getStake().equals(amount), String.format("Default Stake is displayed :%s", amount),
+                String.format("Default Stake is not displayed : %s", amount));
+
+    }
+
+    @Then("amount $Amount will be selected as stake")
+    public void verifyStakeAmount1(final String stakeAmount) {
+        verifyStakeAmount(stakeAmount);
+    }
+
+    @When("player introduced amount <Amount> in the default stake input field")
+    public void setStakeAmount(@Named("Amount")
+    final String amount) {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        qbm.setStake(amount);
+    }
+
+    @When("player enters $amount in input field")
+    public void enterStakeAmount(final String amount) {
+        setStakeAmount(amount);
+    }
+
+    @Then("<Amount> button is highlighted in the default stake selector component")
+    public void verifyAmountButtonHighlighted(@Named("Amount")
+    final String expectedHighlightStake) {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        final String actualHighlightedStake = qbm.getHighlightedStake();
+        Assert.assertEquals(expectedHighlightStake, actualHighlightedStake, String.format(
+                "%s button is Highlighted in the default stake selector component", expectedHighlightStake), String.format(
+                "Expected %s amount button but the highlighted amount button :%s", expectedHighlightStake,
+                actualHighlightedStake));
+    }
+
+    @Then("<Amount> should display the Expected <Behavior>")
+    public void verifyAcceptedBehavior(@Named("Amount")
+    final String amount, @Named("Behavior")
+    final String behavior) {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        final String stakeValue = qbm.getStake();
+        String actualBehavior = StringUtils.EMPTY;
+        if (stakeValue.equals(amount)) {
+            actualBehavior = "Accepted";
+        } else {
+            actualBehavior = "Not Accepted";
+        }
+        Assert.assertEquals(behavior, actualBehavior, String.format("Expected behavior is :%s", behavior),
+                String.format("Actual behavior is :%s", actualBehavior));
+
+    }
+
+    @Then("none of the buttons are highlighted in the default stake selector component")
+    public void verifyNoQBMButtonsHighlighted() {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        final String highlightedQBMButtonText = qbm.getHighlightedStake();
+        Assert.assertTrue((highlightedQBMButtonText == StringUtils.EMPTY), "No buttons are Highlighted",
+                String.format("one of the Stake selector button is highlighted : %s", highlightedQBMButtonText));
+    }
+
+    @Then("Default stake selector is displayed")
+    public void verifyDefaultStakeSelectorDisplayed() {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        Assert.assertTrue(qbm.isDefaultStakeSelectorDisplayed(), "Default Stake Selector is Displayed",
+                "Default Stake Selector is not Displayed");
+    }
+
+    @Then("Default stake selector is not displayed")
+    public void verifyDefaultStakeSelectorNotDisplayed() {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        Assert.assertFalse(qbm.isDefaultStakeSelectorDisplayed(), "Default Stake Selector is not Displayed",
+                "Default Stake Selector is Displayed");
+
+    }
+
+    @Then("the input field accept up to 4 numerical digits <Expected Stake>")
+    public void verifyMaxLengthQBMStake(@Named("Expected Stake")
+    final String expectedStake) {
+        final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+        final String actualStake = qbm.getStake();
+        Assert.assertEquals(expectedStake, actualStake,
+                String.format("Input field accept up to 4 numerical digits:%s", expectedStake),
+                String.format("Input field accepted more than 4 numerical digits. Expected:%s Actual:%s", expectedStake,
+                        actualStake));
+    }
+
+    @Then("QBM should get enabled")
+    @Aliases(values = { "QBM should be enabled by default" })
+    public void verifyQBMEnabled() {
+        final QuickBetMode qbmMode = getLiveBettingPage().getQuickBetMode();
+        Assert.assertTrue(qbmMode.isEnabled(), QBM_ENABLED, QBM_DISABLED);
+    }
+
+    public void verifyQBMStatus(final QBMStatus qbmStatus) {
+        final QuickBetMode qbmMode = getLiveBettingPage().getQuickBetMode();
+        Assert.assertEquals(qbmStatus, qbmMode.getStatus(), String.format(QBM_STATUS_MATCH, qbmStatus.getStatus()),
+                String.format(QBM_STATUS_MIS_MATCH, qbmStatus.getStatus(), qbmMode.getStatus()));
+    }
+
+    @When("I set the <Amount> and click on <Arrow> arrow")
+    public void setAmount(@Named("Amount")
+    final String amount, @Named("Arrow")
+    final String arrow) {
+        final QuickBetMode quickBetMode = getLiveBettingPage().getQuickBetMode();
+        quickBetMode.setStake(amount);
+        quickBetMode.click(arrow);
+    }
+
+    @Then("the amount in the default stake input field will be modified to <Expected Amount>")
+    public void verifyAmountInInputStakeField(@Named("<Expected Amount>")
+    final String expectedAmount) {
+        final QuickBetMode quickBetMode = getLiveBettingPage().getQuickBetMode();
+        final String actualAmount = quickBetMode.getStake();
+        Assert.assertEquals(expectedAmount, actualAmount, String.format(
+                "Expected Amount :%s is displayed in the default stake input field", expectedAmount), String.format(
+                "Amount :%s displayed in the Default Stake input field is not the Expected Amount:%s", actualAmount,
+                expectedAmount));
+    }
+
+    @Then("the relevant <Default stake selector> should be highlighted")
+    public void getHighlightedStake(@Named("<Default stake selector>")
+    final String expectedStakeSelector) {
+        final QuickBetMode quickBetMode = getLiveBettingPage().getQuickBetMode();
+        final String actualHighlightedStake = quickBetMode.getHighlightedStake();
+        Assert.assertEquals(expectedStakeSelector, actualHighlightedStake, String.format(
+                "Expected Highlighted Stake :%s is displayed", expectedStakeSelector), String.format(
+                "Displayed default Stake selector:%s, Expected Stake selector:%s", actualHighlightedStake,
+                expectedStakeSelector));
+
+    }
+
+    @Then("Selection <<Selection>> is placed for market title <<MarketTitle>> and the button will react when the process is finished")
+    public void verifySelectionPlacedWithQBM(@Named("<Selection>")
+    final String selection, @Named("<MarketTitle>")
+    final String marketTitle) {
+        final OutcomeStatus selectionStatus = betslipHelperMethods.getSelectionStatus(selection, marketTitle);
+        Assert.assertEquals(selectionStatus, OutcomeStatus.ACCEPTED,
+                String.format("QBM bet is placed for Selection: %s that have status : %s", selection, selectionStatus),
+                String.format("QBM bet is not placed for Selection: %s that have status : %s", selection, selectionStatus));
+
+    }
+
+    @Then("<<Selection>> <status> indicator is displayed for 5 seconds for market which has <<MarketTitle>>")
+    public void verifyResultIndicatorTimeout(@Named("<Selection>")
+    final String selection, @Named("status")
+    final String status, @Named("<MarketTitle>")
+    final String marketTitle) throws InterruptedException {
+        final OutcomeStatus outcomeStatus = betslipHelperMethods.getSelectionStatus(selection, marketTitle);
+        if (outcomeStatus.equals(OutcomeStatus.REJECTED) || outcomeStatus.equals(OutcomeStatus.REJECTED)) {
+            Thread.sleep(TIMEOUT);
+            final OutcomeStatus outcomeStatusAfter =
+                    getLiveBettingPage().getMarketByTitle(marketTitle).getOutcomeByDescription(selection).getStatus();
+            Assert.assertTrue(outcomeStatusAfter.equals(OutcomeStatus.IDLE), "Result indicator is displayed for 5 seconds",
+                    "Result indicator displayed more than 5 seconds");
+        }
+
+    }
+
+    @Then("Default stake amount in the input will be the amount defined in user preference")
+    public void verifyHighlightedDefaultStake() {
+        try {
+            final int defaultAmount = Integer.parseInt(getScenarioContext().getTempStorage().get("DefaultAmoutInCents")) / 100;
+            final QuickBetMode qbm = getLiveBettingPage().getQuickBetMode();
+            final String highlightedStake = qbm.getHighlightedStake();
+            Assert.assertEquals(highlightedStake, String.valueOf(defaultAmount),
+                    String.format(HIGHLIGHTED_STAKE_MATCH, highlightedStake),
+                    String.format(HIGHLIGHTED_STAKE_MISMATCH, defaultAmount, highlightedStake));
+
+        } catch (Exception ex) {
+            Assert.fail(ex.getMessage());
+        }
+    }
+
+}

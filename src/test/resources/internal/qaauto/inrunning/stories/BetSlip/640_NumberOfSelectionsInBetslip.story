@@ -1,0 +1,110 @@
+Meta:
+@author rkora
+@story BGSIR_640
+@functionality betslip
+
+Narrative:
+As a player
+I want the number of selections to be displayed on top of the Bet slip
+so that I know the number of outcomes that I have added previously
+
+Scenario: Bet slip display the number of selections
+Meta:
+@testType regression
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+Then Betslip count should be zero
+When player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then the number of selections <<Selection count>> displayed in the Bet slip
+
+Examples:
+|<GameId>   |<Sport>    |<Selection>    |<Selection count>|<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |
+|6401       |Football   |Pass Completion|       1         |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |
+
+Scenario: Bet slip display the number of selections after login
+Meta:
+@testType smoke
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+And player loggedIn and navigate to the above event
+When Bet slip mode is activated
+Then Betslip count should be zero
+When player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then the number of selections <<Selection count>> displayed in the Bet slip
+
+Examples:
+|<GameId>   |<Sport>    |<Selection>    |<Selection count>|<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |
+|6401       |Football   |Pass Completion|       1         |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |
+
+Scenario: Number of selections is updated when the user adds an outcome to the bet slip
+Meta:
+@testType regression
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+Then Betslip count should be zero
+When player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then the number of selections <<Selection count>> displayed in the Bet slip
+When player add one more selection <<Selection2>> from <<MarketTitle>> to the betslip
+Then number of selections count <<Selection count2>> should be updated and displayed in the Bet slip
+
+Examples:
+|<GameId>   |<Sport>    |<Selection>    |<Selection2>|<Selection count>|<Selection count2>|<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |
+|6402       |Football   |Pass Completion| Rush       |    1            |       2          |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |
+
+Scenario: Number of selections is updated when the user adds an outcome to the bet slip after login
+Meta:
+@testType regression
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+And player loggedIn and navigate to the above event
+When Bet slip mode is activated
+Then Betslip count should be zero
+When player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then the number of selections <<Selection count>> displayed in the Bet slip
+When player add one more selection <<Selection2>> from <<MarketTitle>> to the betslip
+Then number of selections count <<Selection count2>> should be updated and displayed in the Bet slip
+
+Examples:
+|<GameId>   |<Sport>    |<Selection>    |<Selection2>|<Selection count>|<Selection count2>|<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |
+|6402       |Football   |Pass Completion| Rush       |    1            |       2          |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |
+
+Scenario: Number of selections is updated when the user removes an outcome to the bet slip
+Meta:
+@testType regression
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+Then Betslip count should be zero
+When player add <Selection>,<Selection2> of <<MarketTitle>> to the betslip
+Then the number of selections <<Selection count>> displayed in the Bet slip
+When player delete the <Selection> in the betslip
+Then number of selections count <<Selection count2>> should be updated and displayed in the Bet slip
+
+Examples:
+|<GameId>   |<Sport>    |Selection      |Selection2|<Selection count>|<Selection count2>|<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |
+|6403       |Football   |Pass Completion| Rush       |    2            |       1          |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play |Extra Market 1    |
+
+Scenario: Number of selections is updated when the user removes an outcome to the bet slip after login
+Meta:
+@testType regression
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When a player loggedIn and navigate to above event
+And Bet slip mode is activated
+Then Betslip count should be zero
+When player add <Selection>,<Selection2> of <<MarketTitle>> to the betslip
+Then the number of selections <<Selection count>> displayed in the Bet slip
+When player delete the <Selection> in the betslip
+Then number of selections count <<Selection count2>> should be updated and displayed in the Bet slip
+
+Examples:
+|<GameId>   |<Sport>    |Selection      |Selection2|<Selection count>|<Selection count2>|<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>    |
+|6403       |Football   |Pass Completion| Rush     |    2            |       1          |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1   |

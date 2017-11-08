@@ -1,0 +1,50 @@
+Meta:
+@author rkora
+@story BGSIR_284
+@functionality betslip
+
+Narrative:
+As a player
+I want Bet Slip provides remove selection option
+so that I will be able to delete selection from the Bet slip if needed
+
+
+
+Scenario: Selection is removed from Betslip
+
+Meta:
+@scenarioName BGSIR284_RemoveSelection
+@testType regression
+
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+When player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+When player delete the <<Selection>> in the betslip
+Then the <<Selection>> is removed from the betslip
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Selection>|
+|12345      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |Pass Completion|
+
+Scenario: Selection is removed from Betslip with more than one selections
+
+Meta:
+@scenarioName BGSIR284_RemoveOneOfSelection
+@testType smoke
+
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+And player navigate to a Single Game View page of a Live Event <<GameId>>
+When player add <Selection>,<Selection2> of <<MarketTitle>> to the betslip
+And player delete the <Selection> in the betslip
+Then the <Selection> is removed from the betslip
+And <Selection2> is displayed in the betslip
+
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |Selection|Selection2|
+|28401      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |Pass Completion|Rush|

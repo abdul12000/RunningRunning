@@ -1,0 +1,50 @@
+As a player
+I want upcoming events to be displayed grouped by Sport and under a specified Sport header
+so that I can identify easily to which Sport belongs every event
+
+Meta:
+@story BGSIR274
+
+Scenario:All upcoming event hyperlinks will be filtered firstly by Sport in the same business determined order (provided by Event Publishing)
+Meta:
+@author Harish
+@scenarioName BGSIR274_SportSortOrder
+@testType regression
+Given events are created using below data:
+|GameId |Sport   |Home Team      |Away Team              |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description|
+|1234   |Football  |Buffalo Bills|Arizona Cardinals      |5          |Upcoming   |AT_Nick            |HT_Nick            |AUTOTEST_Football_SortSportsGroup|
+|12546  |Soccer    |Algeria      |Anguilla               |33         |Upcoming   |Anguilla_Nick      |Algeria_Nick       |AUTOTEST_SortSportsGroups|
+|4356   |Tennis    |Home_17301   |Away_17301             |325        |Upcoming   |HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR54_Tennis|
+|3678   |Hockey    |Boston Bruins|Anaheim Ducks          |50         |Upcoming   |BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR54_Hocker|
+|3677   |Basketball|Atlanta Hawks|Denver Nuggets         |2          |Upcoming   |Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR54_Basketball|
+|3275   |Baseball  |Team Canada  |Team China             |24          |Upcoming  |TC_Nick            |TChina_Nick        |AUTOTEST_BGSIR54_Baseball|
+When player navigate to any In-Running page
+Then player should see groups in Upcoming events component in below order:
+|Sport|
+|Football|
+|Basketball|
+|Hockey|
+|Tennis|
+|Soccer|
+|Baseball|
+
+Scenario: Live Now event will be displayed under a corresponding Sport name
+Meta:
+@author Harish
+@scenarioName BGSIR274_DisplayCouponUnderSport
+@testType regression
+Given an event is created using below data:
+|GameId   |Sport   |Home Team    |Away Team              |League Id    |Status       |AwayTeam NickName    |HomeTeam NickName    |Description|
+|<GameId> |<Sport> |<Home Team>  |<Away Team>            |<League Id>  |<Status>     |<AwayTeam NickName>  |<HomeTeam NickName>  |<Description>|
+When player navigate to any In-Running page
+Then Upcoming Coupons component should display a sport group with header <<Sport>>
+And above created event should be displayed under sport <<Sport>> in Upcoming Coupons component
+
+Examples:
+|<GameId> |<Sport>   |<Home Team>  |<Away Team>            |<League Id>  |<Status>  |<AwayTeam NickName>  |<HomeTeam NickName>  |<Description>|
+|1234     |Football  |Buffalo Bills|Arizona Cardinals      |5            |Upcoming  |AT_Nick              |HT_Nick              |AUTOTEST_Football_Display|
+|12546    |Soccer    |Algeria      |Anguilla               |33           |Upcoming  |Anguilla_Nick        |Algeria_Nick         |AUTOTEST_SortSportsGroups|
+|4356     |Tennis    |Home_17301   |Away_17301             |325          |Upcoming  |HM_17301_Nick        |AW_17301_Nick        |AUTOTEST_BGSIR54_Tennis|
+|3678     |Hockey    |Boston Bruins|Anaheim Ducks          |50           |Upcoming  |BostonBruins_Nick    |Anaheim_Nick         |AUTOTEST_BGSIR54_Hocker|
+|3677     |Basketball|Atlanta Hawks|Denver Nuggets         |2            |Upcoming  |Atlanta_Nick         |Denver_Nick          |AUTOTEST_BGSIR54_Basketball|
+|3275     |Baseball  |Team Canada  |Team China             |24           |Upcoming  |TC_Nick              |TChina_Nick          |AUTOTEST_BGSIR54_Baseball|

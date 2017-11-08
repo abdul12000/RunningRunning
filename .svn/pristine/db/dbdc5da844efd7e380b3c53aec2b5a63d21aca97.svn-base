@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suggestedWagersMessage>
+  <suggestedWagers>
+    <suggestedWager>
+      <win>${win}</win>
+      <risk>${risk}</risk>
+      <odds>${odds}</odds>
+      <oddsRisk>${oddsRisk}</oddsRisk>
+      <oddsWin>${oddsWin}</oddsWin>
+    </suggestedWager>
+  </suggestedWagers>
+</suggestedWagersMessage>

@@ -1,0 +1,70 @@
+package internal.qaauto.inline.tom.leftnav;
+
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public class LeftNavLiveNowMenu implements LeftNavLiveNowMenuInterface {
+
+    private static final String TITLE_SELECTOR = "";
+
+    private static final String SPORTS_CONTAINER_CLASS = "";
+
+    private By titleLocator = new By.ByCssSelector(TITLE_SELECTOR);
+
+    private By sportsContainerSelector = new By.ByCssSelector(SPORTS_CONTAINER_CLASS);
+
+    private WebElement liveNowMenu;
+
+    public LeftNavLiveNowMenu(final WebElement liveNowMenu){
+        this.liveNowMenu = liveNowMenu;
+    }
+
+    @Override
+    public String getTitle() {
+        final List<WebElement> titleWebElement = liveNowMenu.findElements(titleLocator);
+        if(titleWebElement.size() == 0){
+            return StringUtils.EMPTY;
+        }
+        return titleWebElement.get(0).getText();
+     }
+
+    @Override
+    public WebElement getLiveNowMenu() {
+        return liveNowMenu;
+    }
+
+    @Override
+    public List<SportsContainerInterface> getSportsContainers() {
+        List<WebElement> sportsContainerWebElements = liveNowMenu.findElements(sportsContainerSelector);
+        if(sportsContainerWebElements.size() == 0){
+            return null;
+        }
+        List<SportsContainerInterface> sportsContainers = new LinkedList<SportsContainerInterface>();
+        for(WebElement sportsContainerWebElement : sportsContainerWebElements){
+            sportsContainers.add(new SportsContainer(sportsContainerWebElement));
+        }
+        return sportsContainers;
+    }
+
+    @Override
+    public boolean isCollapsed() {
+        return false;
+    }
+
+    @Override
+    public void expand() {
+
+    }
+
+    @Override
+    public void collapse() {
+
+    }
+}

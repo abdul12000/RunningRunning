@@ -1,0 +1,24 @@
+Meta:
+@author rkora
+@story BGSIR_695
+@functionality qbm
+@testType regression
+
+Narrative:
+As a player
+I want to see the error message when I am logged out and try to place a bet
+so that I know why a wager has not been placed
+
+Scenario: QBM - Display validation error message when the user is logged out
+Given user created the event with the  below data
+ |GameId     |Sport  |League Id  |Status     |MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<League Id>|<Status>   |<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+And QBM is activated
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then rejected class is applied to the selection <<Selection>> of market <<MarketTitle>>
+And a generic error message 'You must be logged in to place a bet.' to be displayed
+
+Examples:
+|<GameId>   |<Sport>    |<League Id>    |<Status>    |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |
+|69501      |Football   |5              |In Progress |Outcome next play   |Extra Market 1    |Pass Completion|

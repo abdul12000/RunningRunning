@@ -1,0 +1,31 @@
+<wagerReferralFilter>
+    <playerGroupCodes>
+        <playerGroup>${playerGroup}</playerGroup>
+        <playerGroup>${playerGroup2}</playerGroup>
+        <playerGroup>${playerGroup3}</playerGroup>
+        <playerGroup>${playerGroup4}</playerGroup>
+    </playerGroupCodes>
+    <wagerTypes>
+        <wagerType>${wagerType}</wagerType>
+        <wagerType>${wagerType2}</wagerType>
+        <wagerType>${wagerType3}</wagerType>
+        <wagerType>${wagerType4}</wagerType>
+    </wagerTypes>
+    <reviewer>${reviewer}</reviewer>
+    <host>${host}</host>
+    <active>${active}</active>
+    <lastLogin>${lastLogin}</lastLogin>
+    <lastLogout>${lastLogout}</lastLogout>
+    <eventTypeCodes>
+        <eventType>${eventType}</eventType>
+        <eventType>${eventType2}</eventType>
+        <eventType>${eventType3}</eventType>
+        <eventType>${eventType4}</eventType>
+    </eventTypeCodes>
+    <tradingGroupCodes>
+        <tradingGroup>${tradingGroup}</tradingGroup>
+        <tradingGroup>${tradingGroup2}</tradingGroup>
+        <tradingGroup>${tradingGroup3}</tradingGroup>
+        <tradingGroup>${tradingGroup4}</tradingGroup>
+    </tradingGroupCodes>
+</wagerReferralFilter>

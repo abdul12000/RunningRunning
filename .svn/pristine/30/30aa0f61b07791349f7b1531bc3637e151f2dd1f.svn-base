@@ -1,0 +1,17 @@
+Meta:
+@author rkora
+@story BGSIR_476
+@functionality betslip
+@testType regression
+
+Narrative:
+As a player
+I want Account balance to be displayed in the bottom area of the Bet slip
+so that I know the amount of money that I have in my account to place wagers
+
+
+Scenario: Account Balance is displayed in Bet slip
+Given a player loggedIn and navigate to live betting page
+When CWF provides account balance
+And Bet slip mode is activated
+Then Account balance will be displayed in the bottom area of the Bet slip

@@ -1,0 +1,84 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.tom.LiveBettingPageInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowCouponInterface;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.CouponStepsHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingCouponInterface;
+import internal.qaauto.inrunning.tom.markets.MarketInterface;
+import internal.qaauto.inrunning.tom.markets.OutcomeInterface;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import org.jbehave.core.annotations.Named;
+import org.jbehave.core.annotations.Then;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 21/10/2014.
+ */
+public class CouponSteps extends InRunningBaseStep {
+
+    private static final String COUPON_TITLE_MATCH = "Coupon title match. Coupon title:%s";
+
+    private static final String COUPON_TITLE_MISMATCH = "Coupon title mismatch. App.title:%s Expected:%s";
+
+    private static final String UPCOMING_COUPON_WITH_TITLE_DISPLAYED = "Upcoming coupon displayed with title.Coupon name %s";
+
+    private static final String UPCOMING_COUPON_WITH_TITLE_NOT_DISPLAYED = "Upcoming coupon not found with title %s";
+
+    private CouponStepsHelperMethods couponStepsHelper = HelperFactory.getCouponStepsHelper();
+
+
+    private LiveBettingPageInterface getLiveBettingPage() {
+        return ObjectFactory.getLiveBettingPage();
+    }
+
+    @Then("Event name in Live Now link will be displayed in the top row of the link as '<<AwayTeam NickName>><Team Separator><<HomeTeam NickName>>'")
+    public void verifyCouponTitle(@Named("<AwayTeam NickName>") final String awayTeamNickName,@Named("Team Separator")final String symbol, @Named("<HomeTeam NickName>") final String homeTeamNickName){
+        final Event event = getEvent();
+        LeftNavLiveNowCouponInterface liveNowCoupon = couponStepsHelper.getLeftNavLiveNowCouponByGameID(event.getGameId());
+        final String title = liveNowCoupon.getTitle();
+        final String expectedTitle = String.format("%s %s %s",awayTeamNickName, symbol, homeTeamNickName);
+        Assert.assertEquals(title, expectedTitle, String.format(COUPON_TITLE_MATCH, title),
+                String.format(COUPON_TITLE_MISMATCH, title, expectedTitle));
+
+    }
+
+    @Then("Event name in Live Now link will be displayed in the top row of the link as '<<HomeTeam NickName>><Team Separator><<AwayTeam NickName>>'")
+    public void verifyCouponTitleEuropeanFormatEvent(@Named("<AwayTeam NickName>") final String awayTeamNickName,@Named("Team Separator")final String symbol, @Named("<HomeTeam NickName>") final String homeTeamNickName){
+        final Event event = getEvent();
+        LeftNavLiveNowCouponInterface liveNowCoupon = couponStepsHelper.getLeftNavLiveNowCouponByGameID(event.getGameId());
+        final String title = liveNowCoupon.getTitle();
+        final String expectedTitle = String.format("%s %s %s",homeTeamNickName, symbol, awayTeamNickName );
+        Assert.assertEquals(title, expectedTitle, String.format(COUPON_TITLE_MATCH, title),
+                String.format(COUPON_TITLE_MISMATCH, title, expectedTitle));
+
+    }
+
+    @Then("Event Name in Upcoming events will be displayed in the top row as '<<AwayTeam NickName>> <Team Separator> <<HomeTeam NickName>>'")
+    public void verifyUpcomingEventNameUSFormat(@Named("<AwayTeam NickName>") final String awayTeamShortName, @Named("Team Separator") final String teamSeparator, @Named("<HomeTeam NickName>") final String homeTeamShortName){
+        final Event event = getEvent();
+        final String couponName = String.format("%s %s %s", awayTeamShortName, teamSeparator, homeTeamShortName);
+        LeftNavUpcomingCouponInterface upcomingCoupon = couponStepsHelper.getLeftNavUpcomingCouponByTitle(couponName);
+        Assert.assertNotNull(upcomingCoupon, String.format(UPCOMING_COUPON_WITH_TITLE_DISPLAYED, couponName),String.format(UPCOMING_COUPON_WITH_TITLE_NOT_DISPLAYED, couponName));
+    }
+
+    @Then("Event Name in Upcoming events will be displayed in the top row as '<<HomeTeam NickName>><Team Separator><<AwayTeam NickName>>'")
+    public void verifyUpcomingCouponTitleInEuropeanFormatEvent(@Named("<AwayTeam NickName>") final String awayTeamShortName,@Named("Team Separator")final String teamSeparator, @Named("<HomeTeam NickName>") final String homeTeamShortName){
+        final Event event = getEvent();
+        final String couponName = String.format("%s %s %s", homeTeamShortName, teamSeparator, awayTeamShortName );
+        LeftNavUpcomingCouponInterface upcomingCoupon = couponStepsHelper.getLeftNavUpcomingCouponByTitle(couponName);
+        Assert.assertNotNull(upcomingCoupon, String.format(UPCOMING_COUPON_WITH_TITLE_DISPLAYED, couponName),String.format(UPCOMING_COUPON_WITH_TITLE_NOT_DISPLAYED, couponName));
+    }
+
+    @Then("price displayed for all outcomes of market <<MarketName>> in coupon area should be <OddsDisplayed>")
+    public void verifyOddsOfAllOutcomes(@Named("<MarketName>")final String marketName,@Named("OddsDisplayed") final String expectedOdd) {
+        final MarketInterface market = getLiveBettingPage().getMarketByTitle(marketName);
+        List<OutcomeInterface> outcomes = market.getOutcomes();
+        for(OutcomeInterface outcome : outcomes){
+            couponStepsHelper.verifyOddsOfOutcome(outcome,expectedOdd);
+        }
+    }
+}

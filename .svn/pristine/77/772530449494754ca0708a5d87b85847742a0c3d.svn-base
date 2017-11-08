@@ -1,0 +1,300 @@
+package internal.qaauto.inrunning.utils;
+
+import com.google.common.base.Predicate;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.LiveBettingPage;
+import internal.qaauto.inrunning.tom.markets.Market;
+import internal.qaauto.inrunning.tom.markets.MarketOutcome;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.UtilsPXP;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Line;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.LineFactory;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.NewPlayOutcomeLine;
+import org.apache.commons.configuration.ConfigurationException;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.support.ui.FluentWait;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Created by Harish Renukunta on 12/11/2014.
+ */
+public class WaitUtils extends InRunningBaseStep {
+
+    private int maxTimeOut = 5;
+
+    public void setTimeOut(final int seconds) {
+        maxTimeOut = seconds;
+    }
+
+    public int getTimeOut() {
+        return maxTimeOut;
+    }
+
+    public void waitForMarketToDisplayInCoupon(final LiveBettingPage page,
+            final String marketTitle) {
+        final FluentWait<LiveBettingPage> wait = new FluentWait<LiveBettingPage>(
+                page);
+        wait.pollingEvery(500, TimeUnit.MILLISECONDS).withTimeout(maxTimeOut,
+                TimeUnit.SECONDS);
+        wait.until(new Predicate<LiveBettingPage>() {
+            @Override
+            public boolean apply(LiveBettingPage input) {
+                try {
+                    if (page.getMarketByTitle(marketTitle) == null) {
+                        return Boolean.FALSE;
+                    } else {
+                        return Boolean.TRUE;
+                    }
+                } catch (final StaleElementReferenceException ex) {
+                    return Boolean.FALSE;
+                }
+            }
+        });
+    }
+
+    public void waitForMarketWithTitleSuspended(final String marketTitle)
+            throws ConfigurationException, IOException {
+        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+        final LiveBettingPage page = getLiveBettingPage();
+        final FluentWait<LiveBettingPage> fWait = new FluentWait<LiveBettingPage>(
+                page);
+        fWait.pollingEvery(500, TimeUnit.MILLISECONDS).withTimeout(maxTimeOut,
+                TimeUnit.SECONDS);
+        try {
+            fWait.until(new Predicate<LiveBettingPage>() {
+                @Override
+                public boolean apply(LiveBettingPage page) {
+                    boolean suspensionStatus = false;
+                    final Market market;
+                    try {
+                        market = page.getMarketByTitle(marketTitle);
+                        if (market != null) {
+                            suspensionStatus = market.isSuspended();
+                        }
+                    } catch (final StaleElementReferenceException ex) {
+                        return false;
+                    }
+                    return suspensionStatus;
+
+                }
+            });
+        } catch (Exception ex) {
+            return;
+        }
+
+    }
+
+    public void waitForMarketWithTitleUnSuspended(final String marketTitle)
+            throws ConfigurationException, IOException {
+        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+        final LiveBettingPage page = getLiveBettingPage();
+        final FluentWait<LiveBettingPage> fWait = new FluentWait<LiveBettingPage>(
+                page);
+        fWait.pollingEvery(500, TimeUnit.MILLISECONDS).withTimeout(maxTimeOut,
+                TimeUnit.SECONDS);
+        try {
+            fWait.until(new Predicate<LiveBettingPage>() {
+                @Override
+                public boolean apply(LiveBettingPage page) {
+                    boolean suspensionStatus = false;
+                    final Market market;
+                    try {
+                        market = page.getMarketByTitle(marketTitle);
+                        if (market != null) {
+                            suspensionStatus = market.isSuspended();
+                        }
+                    } catch (final StaleElementReferenceException ex) {
+                        return false;
+                    }
+                    return !suspensionStatus;
+
+                }
+            });
+        } catch (Exception ex) {
+            return;
+        }
+
+    }
+
+    public void waitForMarketWithTitleToDisappear(final String marketTitle)
+            throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line extraMarket = LineFactory.getLineInstance(
+                NewPlayOutcomeLine.MARKET_NAME, event);
+        extraMarket.setDisplayText("Extra Market 2");
+        event.addLine(extraMarket);
+        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+        final LiveBettingPage page = getLiveBettingPage();
+        final FluentWait<LiveBettingPage> fWait = new FluentWait<LiveBettingPage>(
+                page);
+        fWait.pollingEvery(500, TimeUnit.MILLISECONDS).withTimeout(maxTimeOut,
+                TimeUnit.SECONDS);
+        try {
+            fWait.until(new Predicate<LiveBettingPage>() {
+                @Override
+                public boolean apply(LiveBettingPage page) {
+                    boolean marketNotExists = false;
+                    final Market market;
+                    try {
+                        market = page.getMarketByTitle(marketTitle);
+                        marketNotExists = (market == null);
+
+                    } catch (final StaleElementReferenceException ex) {
+                        return false;
+                    }
+                    return marketNotExists;
+
+                }
+            });
+        } catch (Exception ex) {
+            return;
+        }
+    }
+
+    public void waitForOutcomeToDisappear(final String marketTitle,
+            final String outcomeDesc) throws ConfigurationException,
+            IOException {
+        final FluentWait<LiveBettingPage> fWait = new FluentWait<LiveBettingPage>(
+                getLiveBettingPage());
+        fWait.pollingEvery(1000, TimeUnit.MILLISECONDS).withTimeout(maxTimeOut,
+                TimeUnit.SECONDS);
+
+        try {
+            fWait.until(new Predicate<LiveBettingPage>() {
+                @Override
+                public boolean apply(LiveBettingPage page) {
+                    boolean outcomeStatus = false;
+                    try {
+                        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+                        final Market market = page
+                                .getMarketByTitle(marketTitle);
+                        final MarketOutcome outcome = market
+                                .getOutcomeByDescription(outcomeDesc);
+                        outcomeStatus = (outcome == null);
+                    } catch (StaleElementReferenceException | ConfigurationException | IOException EX) {
+                        return false;
+                    }
+                    return outcomeStatus;
+                }
+            });
+        } catch (Exception ex) {
+            return;
+        }
+
+    }
+
+    public void waitForOutcomeToDisplay(final String marketTitle,
+            final String outcomeDesc) throws ConfigurationException,
+            IOException {
+        final FluentWait<LiveBettingPage> fWait = new FluentWait<LiveBettingPage>(
+                getLiveBettingPage());
+        fWait.pollingEvery(1000, TimeUnit.MILLISECONDS).withTimeout(maxTimeOut,
+                TimeUnit.SECONDS);
+        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+
+        try {
+            fWait.until(new Predicate<LiveBettingPage>() {
+                @Override
+                public boolean apply(LiveBettingPage page) {
+                    boolean outcomeStatus = false;
+                    try {
+                        final Market market = page
+                                .getMarketByTitle(marketTitle);
+                        final MarketOutcome outcome = market
+                                .getOutcomeByDescription(outcomeDesc);
+                        outcomeStatus = (outcome != null);
+                    } catch (StaleElementReferenceException EX) {
+                        return false;
+                    }
+                    return outcomeStatus;
+                }
+            });
+        } catch (Exception ex) {
+            return;
+        }
+
+    }
+
+    public void waitForPriceUpdate(final String outcomeDesc, final String expectedPrice)
+            throws ConfigurationException, IOException {
+        final LiveBettingPage page = getLiveBettingPage();
+        final MarketOutcome marketOutcome = page.getMarkets().get(0).getOutcomeByDescription(outcomeDesc);
+        final FluentWait<MarketOutcome> fWait = new FluentWait<MarketOutcome>(marketOutcome);
+        fWait.pollingEvery(500, TimeUnit.MILLISECONDS).withTimeout(30,
+                TimeUnit.SECONDS);
+        try {
+            fWait.until(new Predicate<MarketOutcome>() {
+                @Override
+                public boolean apply(MarketOutcome marketOutcome) {
+                    boolean isPriceUpdated = false;
+                    try {
+                        isPriceUpdated = expectedPrice.equals(marketOutcome.getPrice());
+                        if (!isPriceUpdated) {
+                            getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+                        }
+                    } catch (final Exception ex) {
+                        return false;
+                    }
+                    return isPriceUpdated;
+                }
+            });
+        } catch (Exception ex) {
+            return;
+        }
+
+    }
+
+    public void waitForHandicapUpdate(final String handicapValue, String marketTitle) {
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        final FluentWait<Market> fWait = new FluentWait<Market>(market);
+        fWait.pollingEvery(500, TimeUnit.MILLISECONDS).withTimeout(maxTimeOut,
+                TimeUnit.SECONDS);
+        try {
+            fWait.until(new Predicate<Market>() {
+                @Override
+                public boolean apply(Market market) {
+                    boolean isHandicapUpdated = false;
+                    try {
+                        final MarketOutcome marketOutcome = market.getOutcomeByPosition(0);
+                        isHandicapUpdated = handicapValue.equals(marketOutcome.getHandicapValue());
+                        if (!isHandicapUpdated) {
+                            getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+                        }
+                    } catch (final Exception ex) {
+                        return false;
+                    }
+                    return isHandicapUpdated;
+                }
+            });
+        } catch (Exception ex) {
+            return;
+        }
+    }
+
+    public void waitForQBMBetToPlaced(final String marketTitle, final String outcomeDesc) {
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        final FluentWait<Market> fWait = new FluentWait<Market>(market);
+        fWait.pollingEvery(500, TimeUnit.MILLISECONDS).withTimeout(60,
+                TimeUnit.SECONDS);
+        try {
+            fWait.until(new Predicate<Market>() {
+                @Override
+                public boolean apply(Market market) {
+                    boolean isQBMBetPlaced = false;
+                    try {
+                        final MarketOutcome marketOutcome = market.getOutcomeByDescription(outcomeDesc);
+                        isQBMBetPlaced = marketOutcome.isQBMBetPlaced();
+                    } catch (final StaleElementReferenceException ex) {
+                        return false;
+                    }
+                    return isQBMBetPlaced;
+                }
+            });
+        } catch (Exception ex) {
+            return;
+        }
+    }
+}

@@ -1,0 +1,44 @@
+Narrative:
+As a player
+I want betting button to be able to support different format prices
+so that I will see my preferred format price in the bet buttons in the coupon area
+
+Meta:
+@story BGSIR106
+
+Scenario:
+Meta:
+@author Harish
+@scenarioName OddsFormat
+@testType regression
+@run
+Given user created an event with below data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|
+And add an extra market with win and risk same for all outcomes:
+|MarketName    |Win     |Risk   |
+|<MarketName>  |<Win>   |<Risk> |
+When player navigates to above event
+And selects '<OddsFormat>' as odds format
+Then price displayed for all outcomes of market <<MarketName>> in coupon area should be <OddsDisplayed>
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<AwayTeam NickName>|<HomeTeam NickName>|<Description>      |<MarketName>    |<Win>  |<Risk> |OddsFormat   |OddsDisplayed  |
+||2314       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 1  |1000   |1     |Fractional    |1000/1        |
+||2315       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |1000   |1     |American      |+100000       |
+||2316       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |1000   |1     |Decimal       |1001.00       |
+||2317       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 1  |1      |1000  |Fractional    |1/1000       |
+||2318       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |1      |1000  |American      |-100000       |
+||2319       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |1      |1000  |Decimal       |1.00         |
+||2320       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |11     |4     |American      |+275         |
+||2321       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |11     |4     |Fractional    |11/4         |
+||2322       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |11     |4     |Decimal       |3.75         |
+||2323       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |1      |1     |American      |EVEN         |
+||2324       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |1      |1     |Fractional    |1/1          |
+||2325       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |1      |1     |Decimal       |2.00         |
+||2326       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |2      |5     |American      |-250         |
+||2327       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |2      |5     |Fractional    |2/5          |
+||2328       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |2      |5     |Decimal       |1.40         |
+||2329       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |4      |5     |American      |-125         |
+||2330       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |4      |5     |Fractional    |4/5          |
+||2331       |Football   |Home_Story     |Away_Story     |5              |In Progress |NickAway           |NickHome           |AUTOTEST-BGSIR-106 |Extra Market 2  |4      |5     |Decimal       |1.80         |

@@ -1,0 +1,24 @@
+Meta:
+@story BGSIR_266
+@functionality leftnav
+@run false
+
+Narrative:
+As a player 
+I want to be redirected to Single Game view page for a live event after selecting Live link in Sports 
+so that I will be able to place wagers in the Live Event
+					 
+Scenario:  Redirection to Live event single game page view from 'Live Betting Available' link in Sports
+Meta:
+@scenarioName BGSIR_266_RedirectFromSportsPage
+@author Harish
+@testType regression
+@run false
+Given player is at sports page of <domain> domain
+When player selects live betting
+Then player should be redirected to the single game page view of first event of first sport group
+
+Examples:
+|Meta:|Domain|
+|     |eu	 |
+

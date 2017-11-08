@@ -1,0 +1,48 @@
+package internal.qaauto.inline.tom.leftnav;
+
+import internal.qaauto.inline.tom.coupons.LeftNavCouponInterface;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+
+public abstract class SportsContainer implements SportsContainerInterface {
+
+    private String name;
+
+    private WebElement sportsContainer;
+
+    public SportsContainer(WebElement sportsContainer){
+        this.sportsContainer = sportsContainer;
+    }
+
+    public WebElement getSportsContainer(){
+        return sportsContainer;
+    }
+
+    @Override
+    public String getTitle() {
+        return null;
+    }
+
+    @Override
+    public abstract List<LeftNavCouponInterface> getCoupons();
+
+    @Override
+    public void collapse() {
+
+    }
+
+    @Override
+    public void expand() {
+
+    }
+
+    @Override
+    public boolean isCollapsed() {
+        return false;
+    }
+}

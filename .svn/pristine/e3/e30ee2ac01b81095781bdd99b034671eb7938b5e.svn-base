@@ -1,0 +1,40 @@
+Meta:
+@author rkora
+@story BGSIR_265
+@functionality couponarea
+@testType regression
+
+Narrative:
+As a player
+I want single game view page for the top Live event to be displayed
+if I click in 'Live Betting' tab in Sports or when I navigate to Live Client home page
+so that I can place bets in live event
+
+Scenario: Home page redirects to the top in progress event available
+Meta:
+@scenarioName BGSIR_265_NavigateToFirstLiveNowEvent
+
+Given an event is created using below data:
+|GameId     |Sport  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |
+|<GameId>   |<Sport>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|
+When player navigates to Live betting home page
+Then player should be redirected to the first live event in api response
+
+Examples:
+| <GameId> | <Sport>  | <League Id> | <Status>   | <AwayTeam NickName> | <HomeTeam NickName> |
+| 26501    | Football | 5           | In Progress| FA_story            | FH_story            |
+
+
+Scenario: Home page redirects to the top in progress event available
+Meta:
+@scenarioName BGSIR_265_NavigateToFirstLiveNowEvent_domain
+Given an event is created using below data:
+|GameId     |Sport  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |
+|<GameId>   |<Sport>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|
+When player navigatest to live betting page of domain <Domain>
+Then player should be redirected to the first live event in api response
+
+Examples:
+| <GameId> | <Sport>  | <League Id> | <Status>    | <AwayTeam NickName> | <HomeTeam NickName> | Domain |
+| 26502    | Football | 5           | In Progress | F_story             | FH_story            | eu     |
+| 26503    | Football | 5           | In Progress | F_story             | FH_story            | lv     |

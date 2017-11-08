@@ -1,0 +1,21 @@
+Narrative:
+As a player
+I want Single Game View Page to display coupon for the selected Live event in the left nav
+so that I will be able to place wagers for the selected event
+
+@Meta:
+@author rkroa
+@Story BGSIR359
+
+Scenario: Live coupon to be displayed in Single Game View page
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |AwayTeam NickName  |HomeTeam NickName  |League Id  |Status     |Description|MarketNameToCreate|MarketTitle|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<AwayTeam NickName>|<HomeTeam NickName>|<League Id>|<Status>   |<Description>|<MarketNameToCreate>|<MarketTitle>|
+When I navigate to In-Running page
+And select the event <<GameId>> displayed in the left nav under Live now
+Then the list of markets of the selected event are displayed in the coupon area
+
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<AwayTeam NickName>|<HomeTeam NickName>|<League Id>    |<Status>   |<Description>      |<MarketNameToCreate>|<MarketTitle>|
+|12345      |Football   |Home_BGSIR359  |Away_BGSIR359  |NickAway           |NickHome           |5              |In Progress|AUTOTEST-BGSIR359  |Outcome next play   |Extra Market 1|

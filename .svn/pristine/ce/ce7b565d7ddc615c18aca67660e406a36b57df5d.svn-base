@@ -1,0 +1,88 @@
+package internal.qaauto.inrunning.tom.leftnav;
+
+import internal.qaauto.inrunning.tom.coupons.LeftNavCouponInterface;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 16/10/2014.
+ */
+public abstract class LeftNavCouponsComponent extends LeftNavMenuComponent implements LeftNavCouponsComponentInterface {
+
+    private static final String SPORT_CONTAINER_SELECTOR = "";
+
+    private static final String COUPON_SELECTOR = "li";
+
+    private static final String TITLE_SELECTOR = "h1";
+
+    private By sportContainerLocator = new By.ByCssSelector(SPORT_CONTAINER_SELECTOR);
+
+    private By titleLocator = new By.ByCssSelector(TITLE_SELECTOR);
+
+    private By couponLocator = new By.ByCssSelector(COUPON_SELECTOR);
+
+    @Override
+    public List<SportContainerInterface> getSportsContainers() {
+        WebElement component = getWebElement();
+        List<WebElement> sportsContainerWebElements = component.findElements(sportContainerLocator);
+        if (sportsContainerWebElements == null || sportsContainerWebElements.size() == 0) {
+            return null;
+        }
+
+        List<SportContainerInterface> sportsContainers = new LinkedList<SportContainerInterface>();
+        for (WebElement sportContainerWE : sportsContainerWebElements) {
+            sportsContainers.add(newSportContainer(sportContainerWE));
+        }
+        return sportsContainers;
+    }
+
+    protected abstract SportContainerInterface newSportContainer(WebElement sportContainerWE);
+
+    @Override
+    public String getTitle() {
+        final WebElement couponComponent = getWebElement();
+        final WebElement titleWebElement = couponComponent.findElement(titleLocator);
+        if(titleWebElement == null){
+            return null;
+        }
+        return titleWebElement.getText();
+    }
+
+    @Override
+    public List<LeftNavCouponInterface> getCoupons(){
+        /*
+        final List<SportContainerInterface> sportsContainers = getSportsContainers();
+        if(sportsContainers == null){
+            return null;
+        }
+        final List<LeftNavCouponInterface> leftNavCoupons = new LinkedList<LeftNavCouponInterface>();
+        for(final SportContainerInterface sportContainer : sportsContainers){
+            leftNavCoupons.addAll(sportContainer.getCoupons());
+        }
+        */
+        final List<LeftNavCouponInterface> leftNavCoupons = new LinkedList<LeftNavCouponInterface>();
+
+        final List<WebElement> couponWebElements = getWebElement().findElements(couponLocator);
+        for(WebElement couponWebElement : couponWebElements){
+            leftNavCoupons.add(newCoupon(couponWebElement));
+        }
+        return leftNavCoupons;
+    }
+
+    public abstract LeftNavCouponInterface newCoupon(final WebElement couponWebElement);
+
+    @Override
+    public LeftNavCouponInterface getCouponByTitle(final String title){
+        List<LeftNavCouponInterface> coupons = getCoupons();
+        for(LeftNavCouponInterface coupon : coupons){
+            if(title.equals(coupon.getTitle())){
+                return coupon;
+            }
+
+        }
+        return null;
+    }
+}

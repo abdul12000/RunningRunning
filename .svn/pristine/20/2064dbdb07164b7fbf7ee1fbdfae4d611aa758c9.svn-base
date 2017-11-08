@@ -1,0 +1,20 @@
+package internal.qaauto.inrunning.tom.coupons;
+
+/**
+ * Created by Harish Renukunta on 03/10/2014.
+ */
+public interface LeftNavCouponInterface extends CouponInterface {
+
+    public String getSport();
+
+    public String getCouponDescription();
+
+    public void collapse();
+
+    public void expand();
+
+    public boolean isCollapsed();
+
+    public String getTitle();
+
+}

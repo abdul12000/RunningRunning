@@ -1,0 +1,14 @@
+package internal.qaauto.inline.tom.leftnav;
+
+/**
+ * Created by Harish Renukunta on 06/10/2014.
+ */
+public interface LeftNavMenuInterface {
+
+    public String getHeader();
+
+    public void collapseAll();
+
+    public void expandAll();
+
+}

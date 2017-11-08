@@ -1,0 +1,25 @@
+Narrative:
+As a player
+I want live coupon to indicate with a visual display when markets are suspended
+so that I will know in which market I can place wagers
+
+Meta:
+@author rkora
+@story BGSIR101
+
+Scenario: Suspended markets
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+And suspend the market <<MarketNameToCreate>>
+When player navigates to above event
+Then there will be no betting available on the <<MarketTitle>>
+And buttons for <<MarketTitle>> outcomes will be displayed as greyed out
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |
+|12345      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-story    |Outcome next play   |Extra Market 1    |
+|12346      |Soccer     |Home_story     |Away_story     |33             |In Progress |AUTOTEST-story    |Outcome next play   |Extra Market 1    |
+|12347      |Tennis     |Home_story     |Away_story     |325            |In Progress |AUTOTEST-story    |Outcome next play   |Extra Market 1    |
+|12348      |Hockey     |Home_story     |Away_story     |50             |In Progress |AUTOTEST-story    |Outcome next play   |Extra Market 1    |
+|12349      |Basketball |Home_story     |Away_story     |2              |In Progress |AUTOTEST-story    |Outcome next play   |Extra Market 1    |

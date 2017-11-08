@@ -1,0 +1,57 @@
+Meta:
+@story BGSIR_691
+@functionality betslip
+
+Narrative:
+As a player 
+I want to see the error messages on the betslip when the status of the outcome has been marked as Not Visible 
+so that I know why a wager has not been placed 
+					 
+Scenario:  Message when outcome is 'Not Visible'
+Meta:
+@scenarioName BGSIR_691_ErrorMessage_NotVisibleSelection
+@testType regression
+@author Harish 
+Given an event is created using below data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName           |HomeTeam NickName           |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Away Team>_<GameId>        |<Home Team>_<GameId>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+And player navigate to a Single Game View page of a Live Event <<GameId>>
+When player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+When selection '<<Selection>>' of market '<<MarketTitle>>' is made invisible
+Then '<Message>' message is displayed in the Bet Slip for selection '<<Selection>>'
+When selection '<<Selection>>' of market '<<MarketTitle>>' is added back in backend
+Then '<Message>' message is not displayed in the Bet Slip for selection '<<Selection>>'
+And '<Message1>' message is displayed in the Bet Slip for selection '<<Selection>>'
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<Description>    |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |Message									   |Message1|
+|     |69101      |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AUTOTEST_BGSIR691|Outcome next play   |Extra Market 1    |Pass Completion|The selection you have made no longer exists.|Selection is now available|
+|     |69102      |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|AUTOTEST_BGSIR691|Outcome next play   |Extra Market 1    |Pass Completion|The selection you have made no longer exists.|Selection is now available|
+ 
+
+Scenario:  Message when outcome is 'Not Visible'
+Meta:
+@scenarioName BGSIR_691_ErrorMessage_MultipleSelections_NotVisibleSelection
+@testType smoke
+@author Harish 
+Given an event is created using below data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName           |HomeTeam NickName           |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Away Team>_<GameId>        |<Home Team>_<GameId>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+And player navigate to a Single Game View page of a Live Event <<GameId>>
+When player add below selections to betslip:
+|Selection     |MarketTitle|
+|<Selection>   |<MarketTitle>|
+|<Selection1>  |<MarketTitle>|
+When selection '<<Selection>>' of market '<<MarketTitle>>' is made invisible
+Then '<Message>' message is displayed in the Bet Slip for selection '<<Selection>>'
+And '<Message>' message is not displayed in the Bet Slip for selection '<<Selection1>>'
+When selection '<<Selection>>' of market '<<MarketTitle>>' is added back in backend
+Then '<Message>' message is not displayed in the Bet Slip for selection '<<Selection>>'
+And '<Message1>' message is displayed in the Bet Slip for selection '<<Selection>>'
+And '<Message1>' message is not displayed in the Bet Slip for selection '<<Selection1>>'
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<Description>    |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |<Selection1>|Message									   |Message1|
+|     |69101      |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AUTOTEST_BGSIR691|Outcome next play   |Extra Market 1    |Pass Completion|Turnover    |The selection you have made no longer exists.|Selection is now available|
+|     |69102      |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|AUTOTEST_BGSIR691|Outcome next play   |Extra Market 1    |Pass Completion|Turnover    |The selection you have made no longer exists.|Selection is now available|

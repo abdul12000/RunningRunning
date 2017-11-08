@@ -1,0 +1,39 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.inrunning.tom.InRunningComponentInterface;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 06/10/2014.
+ */
+public interface BetSlip extends InRunningComponentInterface {
+
+    int getSelectionCount();
+
+    List<BetSlipSelection> getBetslipSelections();
+
+    BetSlipSelection getSelectionByPosition(final int selectionPosition);
+
+    BetSlipSelection getSelectionByDescription(final String desc);
+
+    String getTotalStake();
+
+    boolean isBetslipModeActive();
+
+    void placeBets();
+
+    String getMessage();
+
+    String getAccountBalance();
+
+    boolean isAccountBalanceTextDisplayed();
+
+    String getErrorMessage();
+
+    boolean isPlaceBetButtonDisabled();
+
+    boolean isFreeBetBalanceDisplayed();
+
+    boolean isFreeBetTextDisplayed();
+}

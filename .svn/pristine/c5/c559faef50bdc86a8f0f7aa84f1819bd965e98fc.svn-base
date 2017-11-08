@@ -1,0 +1,579 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.BetslipHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.inrunning.tom.betslip.BetSlip;
+import internal.qaauto.inrunning.tom.betslip.BetSlipModeComponent;
+import internal.qaauto.inrunning.tom.betslip.BetSlipSelection;
+import internal.qaauto.inrunning.utils.WaitUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jbehave.core.annotations.Aliases;
+import org.jbehave.core.annotations.Named;
+import org.jbehave.core.annotations.Then;
+import org.jbehave.core.annotations.When;
+import org.jbehave.core.model.ExamplesTable;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Harish Renukunta on 30/10/2014.
+ */
+public class BetSlipSteps extends InRunningBaseStep {
+
+    private static final String SELECTION = "Selection";
+
+    private static final String BETSLIP_DISPLAYED = "Betslip found";
+
+    private static final String BETSLIP_NOT_DISPLAYED = "Betslip not found";
+
+    private static final String MESSAGE_DISPLAYED_FOR_SELECTION_DISPLAYED = "Message '%s' for selection '%s' displayed";
+
+    private static final String MESSAGE_DISPLAYED_FOR_SELECTION_NOT_DISPLAYED = "Message '%s' for selection '%s' not displayed";
+
+    private static final String SELECTION_ADDED_ONCE = "Selection %s appeared only once";
+
+    private static final String SELECTION_ADDED_ONCE_FAIL = "Selection %s is appeared more than once. Count:%s";
+
+    private static final int TIMEOUT = 2000;
+
+    private BetslipHelperMethods betslipHelperMethods = HelperFactory.getBetslipStepsHelper();
+
+    @Then("Betslip is not displayed in the right nav")
+    public void verifyBetSlipIsInNotDisplayed() {
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        Assert.assertTrue(betSlip == null, BETSLIP_NOT_DISPLAYED, BETSLIP_DISPLAYED);
+    }
+
+    @Then("Betslip mode is activated and Betslip is displayed in the right nav")
+    @Aliases(values = { "Betslip should still be displayed",
+            "Bet slip mode is active (toggle is off) and displayed in right nav" })
+    public void verifyBetSlipIsDisplayed() {
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        Assert.assertTrue(betSlip.getWebElement().isDisplayed(), BETSLIP_DISPLAYED, BETSLIP_NOT_DISPLAYED);
+    }
+
+    @Then("$Selection of $MarketTitle should be displayed in the betslip")
+    @Aliases(values = { "Then <<Selection>> of <<MarketTitle>> should still be displayed in the betslip" })
+    public void verifyBetAddedToBetSlip(@Named("<Selection>") final String selection,
+            @Named("<MarketTitle>") final String marketTitle) {
+        final boolean isBetDisplayed = betslipHelperMethods.isBetDisplayedInBetslip(selection, marketTitle);
+        Assert.assertTrue(isBetDisplayed,
+                String.format("Expected bet is displayed in the betslip :%s", selection),
+                String.format("Expected bet is not displayed in the betslip:%s", selection));
+
+    }
+
+    @Then("below selections should be displayed in the betslip $selectionsTable")
+    public void verifySelectionsAddedToBetslip(final ExamplesTable selectionTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < selectionTable.getRowCount(); rowNo++) {
+            final Map<String, String> selectionData = utils.getParamsFromExamplesTable(selectionTable, rowNo);
+            verifySelectionInTheBetSlip(selectionData.get(SELECTION));
+        }
+    }
+
+    @When("player delete the <<Selection>> in the betslip")
+    public void deleteTheSelection(@Named("<Selection>") final String selection) {
+        BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        if (betSlipSelection != null) {
+            betSlipSelection.delete();
+        }
+    }
+
+    @When("player delete the <Selection> in the betslip")
+    public void deletetheSelection(@Named("Selection") final String selection) {
+        deleteTheSelection(selection);
+    }
+
+    @When("player remove selection '<<Selection>>' from betslip")
+    public void removeSelection(@Named("<Selection>") final String selection) {
+        deleteTheSelection(selection);
+    }
+
+    @When("player remove selection <<Selection2>> from betslip")
+    public void removeSelection2(@Named("<Selection2>") final String selection) {
+        deleteTheSelection(selection);
+    }
+
+    @When("player removes all bet selections")
+    public void removeAllSelectionsFromBetslip() {
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        final List<BetSlipSelection> betSelections = betSlip.getBetslipSelections();
+        for (BetSlipSelection betSelection : betSelections) {
+            betSelection.delete();
+        }
+    }
+
+    @Then("the $Selection is removed from the betslip")
+    public void verifySelectionIsRemoved(@Named("Selection") final String selection) {
+        BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        BetSlipSelection betSlipSelection = betSlip.getSelectionByDescription(selection);
+        Assert.assertTrue(betSlipSelection == null, "Bet is not displayed in the betslip", "Bet is displayed in the betslip");
+    }
+
+    @Then("selection <<Selection>> is removed from betslip")
+    public void verifySelection1IsRemoved(@Named("<Selection>") final String selection) {
+        verifySelectionIsRemoved(selection);
+    }
+
+    @Then("<Selection2> is displayed in the betslip")
+    public void verifySelectionInTheBetSlip(@Named("Selection2") final String selection) {
+        BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        Assert.assertTrue(betSlipSelection.getDescription().equals(selection),
+                String.format("Selection is Displayed in the betslip : %s", selection),
+                String.format("Selection is Displayed in the betslip : %s", selection));
+    }
+
+    @Then("<<Selection>> is displayed in the betslip")
+    public void verifySelectionInBetSlip(@Named("<Selection>") final String selection) {
+        verifySelectionInTheBetSlip(selection);
+    }
+
+    @Then("Selection description <Selection> should display in the betslip")
+    public void verifySelectionDescriptionInBetSlip(@Named("<Selection>") final String selection) {
+        BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        Assert.assertTrue(betSlipSelection.getDescription().equalsIgnoreCase(selection),
+                String.format("Selection is Displayed in the betslip : %s", selection),
+                String.format("Selection is Displayed in the betslip : %s", selection));
+    }
+
+    @When("player introduce the <risk> amount to the <<Selection>>")
+    public void setRiskAmount(@Named("risk") final String amount, @Named("<Selection>") final String selection) {
+        BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        betSlipSelection.setRiskAmount(amount);
+    }
+
+    @When("player introduce the <ToWin> amount to the $Selection")
+    public void setToWinAmount(@Named("ToWin") final String amount, @Named("<Selection>") final String selection) {
+        BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        betSlipSelection.setToWinAmount(amount);
+    }
+
+    @When("enter the risk $Amount to $Selection,$Selection2")
+    public void setRiskAmount2(@Named("Amount") final String amount, @Named("Selection") final String selection,
+            @Named("Selection2") final String selection2) {
+        BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        betSlip.getSelectionByDescription(selection).setRiskAmount(amount);
+        betSlip.getSelectionByDescription(selection2).setRiskAmount(amount);
+
+    }
+
+    @Then("Total $Stake will be displayed in the bottom of the betslip")
+    public void verifyTotalStake(@Named("Stake") final String stake) {
+        BetSlip betslip = getLiveBettingPage().getBetSlip();
+        Assert.assertTrue(betslip.getTotalStake().equals(stake), String.format("Total stake is displayed :%s", stake),
+                String.format("Total stake is not displayed :%s", stake));
+    }
+
+    @Then("<ToWin> amount is displayed based on price and the stake value of <Selection>")
+    public void verifyToWinAmount(@Named("ToWin") final String toWin, @Named("<Selection>") final String selection) {
+        final BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        Assert.assertEquals(toWin, betSlipSelection.getToWinValue(),
+                String.format("Expected To Win Amount is Displayed :%s", toWin),
+                String.format("Expected To Win Amount is not Displayed :%s", betSlipSelection.getToWinValue()));
+    }
+
+    @Then("<risk> amount is displayed based on price and the stake value of <Selection>")
+    public void verifyRiskAmount(@Named("risk") final String risk, @Named("<Selection>") final String selection) {
+        final BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        Assert.assertEquals(risk, betSlipSelection.getRiskValue(),
+                String.format("Expected Risk Amount is Displayed :%s", risk),
+                String.format("Expected Risk Amount is not Displayed :%s", betSlipSelection.getRiskValue()));
+    }
+
+    @Then("Selection <<Selection>> price <Price> should display in the betslip")
+    public void verifyPriceInBetslipSelection(@Named("<Selection>") final String selection,
+            @Named("Price") final String price) {
+        final BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        Assert.assertEquals(price, betSlipSelection.getPrice(),
+                String.format("Selection Price is displayed int the Betslip : %s", price),
+                String.format("Selection Price : %s is not displayed int the Betslip : %s", price,
+                        betSlipSelection.getPrice()));
+    }
+
+    @Then("Selection <<Selection>> Should display Event Description <<Description>> should be in the betslip")
+    public void verifySelectionEventDescriptionInBetslip(@Named("<Selection>") final String selection,
+            @Named("<Description>") final String description) {
+        final BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        final String actualEventDescription = betSlipSelection.getSelectionEventDescription();
+        Assert.assertEquals(description, actualEventDescription, String.format(
+                "Event Description is displayed in the Betslip Selection : %s", description), String.format(
+                "Event Description expected : %s not displayed in the Betslip Selection actual : %s", description,
+                actualEventDescription));
+    }
+
+    @Then("Market Title <<MarketTitle>>  for Selection <<Selection>> should be displayed in the bet slip")
+    public void verifyMarketTitleInBetslipSelection(@Named("<MarketTitle>") final String marketTitle,
+            @Named("<Selection>") final String selection) {
+        final BetSlipSelection betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        final String actualMarketTitle = betSlipSelection.getMarketTitle();
+        Assert.assertEquals(marketTitle, actualMarketTitle, String.format(
+                        "Market title : %s is displayed for the Betslip Selection", marketTitle,
+                        betSlipSelection.getDescription()),
+                String.format(
+                        "Actual Market Title :%s \n Expected Market title : %s \n is not displayed for the Betslip Selection",
+                        actualMarketTitle, marketTitle, betSlipSelection.getDescription()));
+    }
+
+    @When("player select Bet slip as preferred wager placement mode")
+    @Aliases(values = { "Bet slip mode is activated" })
+    public void activeBetslipMode() {
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        if (betSlip == null) {
+            getLiveBettingPage().getQuickBetMode().disable();
+        }
+    }
+
+    @Then("the number of selections <<Selection count>> displayed in the Bet slip")
+    public void verifyNumberOfSelections(@Named("<Selection count>") final int selectionCount) {
+        verifyNumberOfSelectionsInBetSlip(selectionCount);
+    }
+
+    @Then("all $SelectionCount selections should be displayed in betslip")
+    public void verifyNumberOfSelectionsInBetSlip(final int selectionCount) {
+        betslipHelperMethods.verifyNumberOfSelection(selectionCount);
+    }
+
+    @Then("Betslip count should be zero")
+    public void verifyEmptyBetslipCount() {
+        verifyNumberOfSelections(0);
+    }
+
+    @Then("number of selections count <<Selection count2>> should be updated and displayed in the Bet slip")
+    public void verifyUpdatedBetslipCount(@Named("<Selection count2>") final int selectionCount) {
+        verifyNumberOfSelections(selectionCount);
+    }
+
+    @When("clicks on place bet")
+    public void clickOnPlaceBet() {
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        betSlip.placeBets();
+    }
+
+    @Then("betslip should display wager place message <Wager Placed msg>")
+    public void verifySuccessfulMessage(@Named("Wager Placed Msg") final String wagerPlaceMsg) {
+        betslipHelperMethods.verifySuccessfulBetPlacementMessage(wagerPlaceMsg);
+    }
+
+    @Then("betslip should display wager placing message <Placing Message>")
+    public void verifyPlacingMessage(@Named("Placing Message") final String placingMessage) throws InterruptedException {
+        Thread.sleep(TIMEOUT);
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        final String actualPlacingMessage = betSlip.getMessage();
+        Assert.assertEquals(placingMessage, actualPlacingMessage, "Placing message is displayed",
+                "Placing message is not displayed");
+    }
+
+    @Then("Account balance will be displayed in the bottom area of the Bet slip")
+    public void verifyAccountBalance() {
+        betslipHelperMethods.verifyAccountBalanceDisplayed();
+    }
+
+    @Then("by default risk field of last added selection should have focus")
+    public void verifyLastAddedSelectionRiskFieldHasFocus() {
+        BetSlipSelection betSlipSelection = betslipHelperMethods.getLastSelection();
+        betslipHelperMethods.verifyBetSlipSelection(betSlipSelection);
+        betslipHelperMethods.verifySelectionRiskFieldHasFocus(betSlipSelection);
+    }
+
+    @Then("11th selection should not be added to betslip")
+    public void verify11thSelectionIsNotAdded() {
+        verifyNumberOfSelections(10);
+    }
+
+    @Then("display error message \"Maximum Number of Selections in Bet Slip Exceeded.\" in betslip")
+    public void verifyMaxSelectionsErrorMessage() {
+        betslipHelperMethods.verifyErrorMessage("Maximum Number of Selections in Bet Slip Exceeded.");
+    }
+
+    @Then("an error message '$errorMessage' is displayed in betslip")
+    @Aliases(values = { "error message '$errorMessage' should still be displayed in betslip" })
+    public void verifyBetSlipModeErrorMessage(final String errorMessage) {
+        betslipHelperMethods.verifyBetSlipModeErrorMessage(errorMessage);
+    }
+
+    @Then("message '$message' should be displayed in qbm mode")
+    public void verifyBetSlipModeMessage(final String errorMessage) {
+        betslipHelperMethods.verifyBetSlipModeMessage(errorMessage);
+    }
+
+    @Then("error message '$errorMessage' is not displayed in betslip")
+    public void verifyBetSlipModeErrorMessageNotDisplayed(final String errorMessage) {
+        betslipHelperMethods.verifyBetSlipModeErrorMessageNotDisplayed(errorMessage);
+    }
+
+    @Then("a generic error message '$errorMsg' to be displayed")
+    public void verifyGeneralErrorMessage(final String errorMsg) throws InterruptedException {
+        betslipHelperMethods.verifyBetSlipGeneralErrorMessage(errorMsg);
+    }
+
+    @Then("message 'Please add selections to your Bet Slip' should be displayed")
+    public void verifyAddSelectionsMsg() {
+        betslipHelperMethods.verifyMessage("Please add selections to your Bet Slip.");
+    }
+
+    @Then("message '$message' should not be displayed in betslip")
+    public void verifyMessageNotDisplayed(final String message) {
+        betslipHelperMethods.verifyMessageNotDisplayed(message);
+    }
+
+    @Then("user is not logged in message to be displayed in the betslip")
+    public void verifyNotLoggedInMessage() {
+        final BetSlipModeComponent betSlipModeComponent = getLiveBettingPage().getBetSlipModeComponent();
+        final String actualMessageText = betSlipModeComponent.getGeneralErrorMessage();
+        Assert.assertEquals("You must be logged in to place a bet.", actualMessageText, "Not Logged in message Displayed",
+                "Not Logged in message is not displayed");
+    }
+
+    @Then("<SuspendedMsg> message is displayed in the Bet Slip for suspended selection <<Selection>>")
+    public void verifySelectionSuspendedMessage(@Named("SuspendedMsg") final String suspendedSelectionMsg,
+            @Named("<Selection>") final String selection) {
+        final String selectionMessage = betslipHelperMethods.getSelectionMessage(selection);
+        Assert.assertEquals(suspendedSelectionMsg, selectionMessage, String.format("Selection : %s is Suspended", selection),
+                String.format("Selection : %s is not Suspended", selection));
+    }
+
+    @Then("'<Message>' message is displayed in the Bet Slip for selection '$selection'")
+    public void verifySelectionNotVisibleMessage(@Named("Message") final String message,
+            @Named("<Selection>") final String selection) {
+        verifySelectionMessage(message, selection);
+    }
+
+    @Then("'<Message>' message is not displayed in the Bet Slip for selection '<<Selection1>>'")
+    public void verifySelection1NotVisibleMessageNotDisplayed(@Named("Message") final String message,
+            @Named("<Selection1>") final String selection) {
+        verifySelectionMessageNotDisplayed(message, selection);
+    }
+
+    public void verifySelectionMessageNotDisplayed(final String message, final String selection) {
+        final String selectionMessage = betslipHelperMethods.getSelectionMessage(selection);
+        Assert.assertTrue(!message.equals(selectionMessage),
+                String.format(MESSAGE_DISPLAYED_FOR_SELECTION_NOT_DISPLAYED, message, selection),
+                String.format(MESSAGE_DISPLAYED_FOR_SELECTION_DISPLAYED, message, selection));
+    }
+
+    @Then("'<Message1>' message is displayed in the Bet Slip for selection '$selection'")
+    public void verifySelectionMessage1(@Named("Message1") final String message, @Named("<Selection>") final String selection) {
+        verifySelectionMessage(message, selection);
+    }
+
+    public void verifySelectionMessage(final String message, final String selection) {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.setTimeOut(5);
+        waitUtils.waitForSelectionMessageInBetSlip(selection, message);
+        final String selectionMessage = betslipHelperMethods.getSelectionMessage(selection);
+        Assert.assertEquals(message, selectionMessage,
+                String.format(MESSAGE_DISPLAYED_FOR_SELECTION_DISPLAYED, message, selection),
+                String.format(MESSAGE_DISPLAYED_FOR_SELECTION_NOT_DISPLAYED, message, selection));
+    }
+
+    @Then("'<Message>' message is not displayed in the Bet Slip for selection '<<Selection>>'")
+    public void verifySelectionNotVisibleMessageNotDisplayed(@Named("Message") final String message,
+            @Named("<Selection>") final String selection) {
+        final String selectionMessage = betslipHelperMethods.getSelectionMessage(selection);
+        Assert.assertTrue(!selection.equals(selectionMessage),
+                String.format(MESSAGE_DISPLAYED_FOR_SELECTION_NOT_DISPLAYED, message, selection),
+                String.format(MESSAGE_DISPLAYED_FOR_SELECTION_DISPLAYED, message, selection));
+    }
+
+    @Then("'<Message1>' message is not displayed in the Bet Slip for selection '<<Selection1>>'")
+    public void verifySelection1NotVisibleMessage1NotDisplayed(@Named("Message1") final String message,
+            @Named("<Selection1>") final String selection) {
+        verifySelectionMessageNotDisplayed(message, selection);
+    }
+
+    @Then("<SelectionMsg> message is displayed for all the selections in the Bet Slip")
+    public void verifySuspendedMessageForAllSelections(@Named("SelectionMsg") final String selectionMsg) {
+        Assert.assertTrue(betslipHelperMethods.verifyAllSelectionsMsg(selectionMsg),
+                String.format("All selections displayed : %s", selectionMsg),
+                String.format("All selections not displayed suspended message: %s", selectionMsg));
+    }
+
+    @Then("<UnSuspendedMsg> message is displayed in the Bet Slip for suspended selection <<Selection>>")
+    public void verifySelectionUnSuspendedMessage(@Named("UnSuspendedMsg") final String unSuspendedSelectionMsg,
+            @Named("<Selection>") final String selection) throws InterruptedException {
+        Thread.sleep(TIMEOUT);// In order to wait for the updated msg else it is retrieving the previous suspended msg
+        final String selectionMessage = betslipHelperMethods.getSelectionMessage(selection);
+        Assert.assertEquals(unSuspendedSelectionMsg, selectionMessage,
+                String.format("Selection %s is now available", selection),
+                String.format("Selection %s is not available", selection));
+    }
+
+    @Then("<UnSuspendedMsg> message is displayed for all the selections in the Bet Slip")
+    public void verifyUnSuspendedMessageForAllSelections(@Named("SelectionMsg") final String selectionMsg)
+            throws InterruptedException {
+        Thread.sleep(TIMEOUT);// In order to wait for the updated msg else it is retrieving the previous suspended msg
+        Assert.assertTrue(betslipHelperMethods.verifyAllSelectionsMsg(selectionMsg),
+                String.format("All selections displayed : %s", selectionMsg),
+                String.format("All selections not displayed suspended message: %s", selectionMsg));
+    }
+
+    @Then("the updated price <Price> should be automatically updated in the Bet slip for selection <<Selection>>")
+    public void verifyUpdatedPrice(@Named("Price") final String price, @Named("<Selection>") final String selection) {
+        final String updatedPrice = betslipHelperMethods.getUpdatedPrice(price, selection);
+        Assert.assertEquals(price, updatedPrice, String.format("Price: %s is automatically updated in the betslip", price),
+                String.format("Price: %s is not automatically updated in the betslip", price));
+    }
+
+    @Then("the updated prices should be automatically updated in the Bet slip for the below selections $selectionTable")
+    public void verifyUpdatedPrices(final ExamplesTable selectionsTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < selectionsTable.getRowCount(); rowNo++) {
+            final Map<String, String> selectionData = utils.getParamsFromExamplesTable(selectionsTable, rowNo);
+            verifyUpdatedPrice(selectionData.get("Price"), selectionData.get("Selection"));
+        }
+    }
+
+    @Then("relevant price change arrow <Arrow> should be displayed")
+    public void verifyPriceChangeArrow(@Named("Arrow") final String expectedPriceChangeArrow,
+            @Named("<Selection>") final String selection) {
+        final String actualPriceChangeArrow = betslipHelperMethods.getPriceChangeArrow(selection, expectedPriceChangeArrow);
+        Assert.assertEquals(expectedPriceChangeArrow, actualPriceChangeArrow, String.format(
+                "Expected Price change arrow :%s is displayed", expectedPriceChangeArrow), String.format(
+                "Expected price change arrow :%s is not displayed and the arrow i.e displayed is : %s",
+                expectedPriceChangeArrow, actualPriceChangeArrow));
+    }
+
+    @Then("relevant price change arrows should be displayed for the below selections $arrowTable")
+    public void verifyPriceChangeArrows(final ExamplesTable arrowTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < arrowTable.getRowCount(); rowNo++) {
+            final Map<String, String> arrowData = utils.getParamsFromExamplesTable(arrowTable, rowNo);
+            verifyPriceChangeArrow(arrowData.get("Arrow"), arrowData.get("Selection"));
+        }
+    }
+
+    @Then("the price change message should be displayed for the below selections $messageTable")
+    public void verifyPriceChangeMessage(final ExamplesTable messageTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < messageTable.getRowCount(); rowNo++) {
+            final Map<String, String> messageData = utils.getParamsFromExamplesTable(messageTable, rowNo);
+            final String actualMsg = betslipHelperMethods.getDisplayedPriceChangeMsg(messageData);
+            final String expectedMsg = betslipHelperMethods.getExpectedMessage(rowNo, messageData);
+            final String actualMessage = actualMsg.replace("\n", " ");
+            Assert.assertEquals(expectedMsg, actualMessage,
+                    String.format("Expected price change message :%s", expectedMsg),
+                    String.format("Actual displayed price change message : %s\n Expected message:%s", actualMsg, expectedMsg));
+        }
+    }
+
+    @Then("the message border should display below color $selectionTable")
+    public void verifyMsgBorderColor(final ExamplesTable selectionTable) {
+        final Utils utils = new Utils();
+        String failSelections= StringUtils.EMPTY;
+        for (int rowNo = 0; rowNo < selectionTable.getRowCount(); rowNo++) {
+            final Map<String, String> selectionData = utils.getParamsFromExamplesTable(selectionTable, rowNo);
+            final String selection=selectionData.get(SELECTION);
+            final String actualBorderColor=betslipHelperMethods.getMsgBorderColor(selection);
+            final String expectedBorderColor=selectionData.get("Color");
+            if(!expectedBorderColor.equals(actualBorderColor)){
+                failSelections+="\n"+selection+",";
+            }
+        }
+        Assert.assertTrue(failSelections.isEmpty(),"Expected border colors are displayed for the selection",String.format("Expected border colors are not displayed for below selection :%s",failSelections));
+
+    }
+
+
+
+    @Then("place bet button should be in disabled state")
+    public void verifyPlaceBetIsDisabled() {
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        Assert.assertTrue(betSlip.isPlaceBetButtonDisabled(), "Place bet button is disabled",
+                "Place bet button is not disabled");
+    }
+
+    @When("player introduce the risk amount for the below selections $selectionTable")
+    public void setRiskAmount(final ExamplesTable selectionTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < selectionTable.getRowCount(); rowNo++) {
+            final Map<String, String> selectionData = utils.getParamsFromExamplesTable(selectionTable, rowNo);
+            final String amount = selectionData.get("Amount");
+            setRiskAmount(amount, selectionData.get(SELECTION));
+        }
+    }
+
+    @When("player introduced the To Win amount for the below selections $selectionTable")
+    public void setToWinAmount(final ExamplesTable selectionTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < selectionTable.getRowCount(); rowNo++) {
+            final Map<String, String> selectionData = utils.getParamsFromExamplesTable(selectionTable, rowNo);
+            final String amount = selectionData.get("Amount");
+            setRiskAmount(amount, selectionData.get(SELECTION));
+        }
+    }
+
+    @Then("<<Selection>> of <<MarketTitle>> should be added only once")
+    public void verifySelectionIsAddedToBetslipOnlyOnce(@Named("<Selection>") final String selection) {
+        final int selectionCount = getSelectionCountInBetSlip(selection);
+        Assert.assertEquals(selectionCount, 1, String.format(SELECTION_ADDED_ONCE, selection),
+                String.format(SELECTION_ADDED_ONCE_FAIL, selection, selectionCount));
+    }
+
+    @Then("relevant <Selection2> should be disabled in the betslip")
+    public void verifySelectionDisabled(@Named("Selection2") final String selection) {
+        new WaitUtils().waitForSelectionMessage(selection);
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        final BetSlipSelection betSlipSelection = betSlip.getSelectionByDescription(selection);
+        final boolean isSuspended = betSlipSelection.isSelectionSuspended();
+        Assert.assertTrue(isSuspended, String.format("%s : selection is disabled in the betslip", selection),
+                String.format("%s : selection is not disabled in the betslip", selection));
+    }
+
+    @Then("relevant below selections should be disabled in the betslip $selectionsTable")
+    public void verifyDisabledSelection(final ExamplesTable selectionTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < selectionTable.getRowCount(); rowNo++) {
+            Map<String, String> selectionData = utils.getParamsFromExampleTableRow(selectionTable, rowNo);
+            verifySelectionDisabled(selectionData.get(SELECTION));
+        }
+    }
+
+    @Then("Free bet balance should be displayed in the Betslip mode")
+    public void verifyFreeBetBalanceInBetslipMode() {
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        boolean freeBetDisplayed = Boolean.FALSE;
+        if (betSlip.isFreeBetTextDisplayed() && betSlip.isFreeBetBalanceDisplayed()) {
+            freeBetDisplayed = Boolean.TRUE;
+        }
+        Assert.assertTrue(freeBetDisplayed, "Free bet balance is displayed in Bet slip mode",
+                "Free bet balance is not displayed in Bet slip mode");
+    }
+
+    @Then("Free bet balance should be displayed in the QBM mode")
+    public void verifyFreeBetBalanceInQBMMode() {
+        final BetSlipModeComponent betSlipModeComponent = getLiveBettingPage().getBetSlipModeComponent();
+        boolean freeBetDisplayed = Boolean.FALSE;
+        if (betSlipModeComponent.isFreeBetTextDisplayed() && betSlipModeComponent.isFreeBetBalanceDisplayed()) {
+            freeBetDisplayed = Boolean.TRUE;
+        }
+        Assert.assertTrue(freeBetDisplayed, "Free bet balance is displayed in Quick bet mode",
+                "Free bet balance is not displayed in Quick bet mode");
+    }
+
+    @Then("elipses should be displayed for the selection <Outcome Description>")
+    public void verifyElipsesForSelectionDesc(@Named("<Outcome Description>") final String outcomeDesc) {
+        final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+        final BetSlipSelection betSlipSelection = betSlip.getSelectionByDescription(outcomeDesc);
+        final boolean elipsesDisplayed = betSlipSelection.isElipsesApplied();
+        Assert.assertTrue(elipsesDisplayed, "Elipses is displayed for the selection",
+                "Elipses is not displayed for the selection");
+    }
+
+    public int getSelectionCountInBetSlip(final String selection) {
+        final BetSlip betslip = getLiveBettingPage().getBetSlip();
+        final List<BetSlipSelection> betSlipSelections = betslip.getBetslipSelections();
+        int selectionCount = 0;
+        for (BetSlipSelection betSlipSelection : betSlipSelections) {
+            if (selection.equals(betSlipSelection.getDescription())) {
+                selectionCount += 1;
+            }
+        }
+        return selectionCount;
+    }
+
+}

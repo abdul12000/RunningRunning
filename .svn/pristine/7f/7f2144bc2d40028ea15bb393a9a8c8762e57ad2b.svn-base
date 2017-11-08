@@ -1,0 +1,30 @@
+Meta:
+@author rkora
+@story BGSIR_359
+@functionality leftnav
+
+Narrative:
+As a player
+I want Single Game View Page to display coupon for the selected Live event in the left nav
+so that I will be able to place wagers for the selected event
+
+
+Scenario: Live coupon to be displayed in Single Game View page
+
+Meta:
+@scenarioName BGSIR359_VerifyLiveCouponDisplayedInSingleGameViewPage
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |AwayTeam NickName  |HomeTeam NickName  |League Id  |Status     |Description|MarketNameToCreate|MarketTitle|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<AwayTeam NickName>|<HomeTeam NickName>|<League Id>|<Status>   |<Description>|<MarketNameToCreate>|<MarketTitle>|
+When player navigate to any In-Running page
+And I select above Live Now event
+Then the list of markets of the selected event are displayed in the coupon area
+
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<AwayTeam NickName>|<HomeTeam NickName>|<League Id>    |<Status>   |<Description>      |<MarketNameToCreate>|<MarketTitle>|
+|35901      |Football   |Home_story     |Away_story     |NickAway_<GameId>  |NickHome_<GameId>  |5              |In Progress|AUTOTEST-story     |Outcome next play   |Extra Market 1|
+|35902      |Soccer     |Home_story     |Away_story     |NickAway_<GameId>  |NickHome_<GameId>  |33             |In Progress|AUTOTEST-story     |Outcome next play   |Extra Market 1|
+|35903      |Tennis     |Home_story     |Away_story     |NickAway_<GameId>  |NickHome_<GameId>  |325            |In Progress|AUTOTEST-story     |Outcome next play   |Extra Market 1|
+|35904      |Hockey     |Home_story     |Away_story     |NickAway_<GameId>  |NickHome_<GameId>  |50             |In Progress|AUTOTEST-story     |Outcome next play   |Extra Market 1|
+|35905      |Basketball |Home_story     |Away_story     |NickAway_<GameId>  |NickHome_<GameId>  |2              |In Progress|AUTOTEST-story     |Outcome next play   |Extra Market 1|

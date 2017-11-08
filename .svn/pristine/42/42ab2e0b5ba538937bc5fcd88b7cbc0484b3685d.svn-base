@@ -1,0 +1,211 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.EventStepsHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.EventBuilder;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.UtilsPXP;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Line;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Outcome;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.LineFactory;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.NewPlayOutcomeLine;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.tom.EventPubPXPManager;
+import org.apache.commons.configuration.ConfigurationException;
+import org.jbehave.core.annotations.*;
+import org.jbehave.core.model.ExamplesTable;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author rkora on 14/10/2014.
+ */
+public class EventSteps extends InRunningBaseStep {
+
+    private EventStepsHelperMethods eventStepsHelperMethods = HelperFactory.getEventStepsHelper();
+
+    private final String MARKET_CLOSE_FAIL = "Market %s couldn't be closed";
+
+    @Given("create a upcoming event")
+    public void givenCreateAUpcomingEvent() throws IOException, ConfigurationException {
+        final Map<String, String> params = new HashMap<>();
+        params.put(EventBuilder.GAME_ID, "45446");
+        params.put(EventBuilder.SPORT, "Football");
+        params.put(EventBuilder.HOME_TEAM, "Jbehave1");
+        params.put(EventBuilder.AWAY_TEAM, "Jbehave2");
+        params.put(EventBuilder.LEAGUE_ID, "5");
+        params.put(EventBuilder.LEAGUE_NAME, "NFL");
+        params.put(EventBuilder.DESCRIPTION, "Jbehave sample Test");
+        final Event event = EventBuilder.buildEvent(params);
+        getScenarioContext().setEvent(event);
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        reporter.info("Upcoming Event has created");
+    }
+
+    @Given("user created the event with the  below data $eventTable")
+    @Aliases(values = { "user created an event with below data:$eventTable",
+            "events are created using below data:$eventTable",
+            "an event is created using below data:$eventTable" ,
+            "an upcoming event created using below data:$eventTable"})
+    public void createEvent(ExamplesTable eventTable) throws IOException, ConfigurationException, ParseException {
+        closeObsoleteEvents();
+        final Utils utils = new Utils();
+        for(int rowNo = 0; rowNo < eventTable.getRowCount(); rowNo++) {
+            //final Event event = eventStepsHelperMethods.createEvent(utils.getParamsFromScenarioTable(eventTable));
+            final Event event = eventStepsHelperMethods.createEvent(utils.getParamsFromExampleTableRow(eventTable,rowNo));
+            getScenarioContext().setEvent(event);
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        }
+    }
+
+    @Given("add an extra market with win and risk same for all outcomes:$marketDataTable")
+    public void addExtraLineWithSameRiskAndWinForAllOutcomes(final ExamplesTable marketDataTable)
+            throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        Line line = null;
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < marketDataTable.getRowCount(); rowNo++) {
+            final Map<String, String> marketData = utils.getParamsFromExamplesTable(marketDataTable, rowNo);
+            line = eventStepsHelperMethods.createExtraLine(marketData, event);
+            setWinAndRiskForAllOutcomes(line, marketData.get("Win"), marketData.get("Risk"));
+            event.addLine(line);
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Given("add an extra market using below details:$marketDataTable")
+    @Aliases(values={"add extra markets using below details:$marketDataTable"})
+    public void addExtraMarket(final ExamplesTable marketDataTable) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        Line line = null;
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < marketDataTable.getRowCount(); rowNo++) {
+            final Map<String, String> marketData = utils.getParamsFromExamplesTable(marketDataTable, rowNo);
+            line = eventStepsHelperMethods.createExtraLine(marketData, event);
+            event.addLine(line);
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    public void setWinAndRiskForAllOutcomes(final Line line, final String win, final String risk) {
+        for (Outcome outcome : line.getOutcomesList()) {
+            outcome.setWin(win);
+            outcome.setRisk(risk);
+        }
+    }
+
+    @Given("add the markets to the Event: $marketTable")
+    public void addTheMarkets(ExamplesTable marketTable) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        for (Map<String, String> marketData : marketTable.getRows()) {
+            for (Map.Entry<String, String> marketNameColumn : marketData.entrySet()) {
+                final Line line = LineFactory.getLineInstance(NewPlayOutcomeLine.MARKET_NAME, event);
+                line.setDisplayText(marketNameColumn.getValue());
+                line.getOutcomesList().remove(0);
+                line.getOutcomesList().remove(1);
+                event.addLine(line);
+            }
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Given("Add 3 column layout market which has $MarketTitle")
+    public void create3ColumnLayoutMarkets(@Named("MarketTitle") final String marketTitle)
+            throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        event.addLine(eventStepsHelperMethods.createLineWith3ColumnLayout(marketTitle));
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+
+    }
+
+    @When("player navigates to Live event page")
+    public void whenPlayerNavigatesToNFLPage() {
+        webDriver.get("http://bgs-live.ldev.bovada.lv/event/45446");
+
+    }
+
+    @Then("player should see the upcoming NFL event")
+    public void thenPlayerShouldSeeTheUpcomingNFLEvent() {
+        reporter.info("Event is Displayed");
+    }
+
+    @When("update the status of the event from upcoming to live")
+    public void thenUpdateTheStatusOfTheEventFromUpcomingToLive() throws IOException, ConfigurationException {
+        final Event event = getEvent();
+        event.setGameStatusToOpen();
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+
+    }
+
+    @Then("player should see the live now event")
+    public void thenPlayerShouldSeeTheLiveNowEvent() throws InterruptedException {
+        Thread.sleep(5000);
+        reporter.info("Live Event is displayed");
+    }
+
+    @When("add the main markets to the live now event")
+    public void thenAddTheMainMarketsToTheLiveNowEvent() throws ConfigurationException, IOException {
+        Event event = getEvent();
+        event.addLine(LineFactory.getLineInstance("Total", event));
+        event.addLine(LineFactory.getLineInstance("Moneyline", event));
+        event.addLine(LineFactory.getLineInstance("Point Spread", event));
+        event.addLine(LineFactory.getLineInstance("Outcome next play", event));
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Then("player should see the main markets in the live now event")
+    public void thenPlayerShouldSeeTheMainMarketsInTheLiveNowEvent() {
+        reporter.info("Main and Extra markets are displayed in the Live now Event");
+    }
+
+    @Given("an event is created in american format using following data:$eventTable")
+    public void createEventInAmericanFormat(final ExamplesTable eventTable)
+            throws ConfigurationException, IOException, ParseException {
+        final Utils utils = new Utils();
+        EventPubPXPManager manager = getManager();
+        final Map<String, String> params = utils.getParamsFromScenarioTable(eventTable);
+        final Event event = eventStepsHelperMethods.createEventInAmericanFormat(params);
+        getScenarioContext().setEvent(event);
+        manager.update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Given("an event is created in european format using following data:$eventTable")
+    public void createEventInEuropeanForamt(final ExamplesTable eventTable)
+            throws ConfigurationException, IOException, ParseException {
+        final Utils utils = new Utils();
+        EventPubPXPManager manager = getManager();
+        final Map<String, String> params = utils.getParamsFromScenarioTable(eventTable);
+        final Event event = eventStepsHelperMethods.createEventInEuropeanFormat(params);
+        getScenarioContext().setEvent(event);
+        manager.update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("above market is closed")
+    public void associatedMarketClosed() throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = event.getLines().get(0);
+        if(eventStepsHelperMethods.removeLine(event, line)){
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        }
+    }
+
+    @When("market <<MarketName1>> is closed")
+    public void closeMarketByTitleFromEvent(@Named("<MarketName1>") final String marketTitle)
+            throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = getLineByDescription(marketTitle);
+        if((line != null) && eventStepsHelperMethods.removeLine(event, line)){
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        }else {
+            Assert.fail(String.format(MARKET_CLOSE_FAIL, marketTitle));
+        }
+    }
+
+
+
+}

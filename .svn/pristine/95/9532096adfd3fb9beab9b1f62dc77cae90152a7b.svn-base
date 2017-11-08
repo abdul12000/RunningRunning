@@ -1,0 +1,82 @@
+Meta:
+@story BGSIR_275
+@functionality leftnav
+
+Narrative:
+As a player
+I want to be able to expand and collapse sport group in upcoming events component
+so that I will easily navigate to the event where I can place wagers
+
+Scenario: The default for all sport groups in the component will be collapsed so no events will be displayed until sport groups will be expanded
+Meta:
+@scenarioName BGSIR275_UpcomingEventSportGroupsDefaultBehaviour
+@author Harish
+@testType regression
+
+Given events are created using below data:
+|GameId |Sport   |Home Team      |Away Team              |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |CreateOnce|
+|27501  |Football  |Buffalo Bills|Arizona Cardinals      |5          |Upcoming   |AT_Nick            |HT_Nick            |true|
+|27502  |Soccer    |Algeria      |Anguilla               |33         |Upcoming   |Anguilla_Nick      |Algeria_Nick       |true|
+|27503  |Tennis    |Home_17301   |Away_17301             |325        |Upcoming   |HM_17301_Nick      |AW_17301_Nick      |true|
+|27504  |Hockey    |Boston Bruins|Anaheim Ducks          |50         |Upcoming   |BostonBruins_Nick  |Anaheim_Nick       |true|
+|27505  |Basketball|Atlanta Hawks|Denver Nuggets         |2          |Upcoming   |Atlanta_Nick       |Denver_Nick        |true|
+When player navigate to any In-Running page
+Then by default all sport groups in Upcoming events component will be collapsed
+
+Scenario: Only 1 sport can be expanded at any time. By clicking on a sport title header this will force any other sports to collapse
+Meta:
+@scenarioName BGSIR275_OnlyOneSportGroupExpanded
+@author Harish
+@testType regression
+Given events are created using below data:
+|GameId |Sport   | Home Team     |Away Team              |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |CreateOnce|
+|27501  |Football  |Buffalo Bills|Arizona Cardinals      |5          |Upcoming   |AT_Nick            |HT_Nick            |true|
+|27502  |Soccer    |Algeria      |Anguilla               |33         |Upcoming   |Anguilla_Nick      |Algeria_Nick       |true|
+|27503  |Tennis    |Home_17301   |Away_17301             |325        |Upcoming   |HM_17301_Nick      |AW_17301_Nick      |true|
+|27504  |Hockey    |Boston Bruins|Anaheim Ducks          |50         |Upcoming   |BostonBruins_Nick  |Anaheim_Nick       |true|
+|27505  |Basketball|Atlanta Hawks|Denver Nuggets         |2          |Upcoming   |Atlanta_Nick       |Denver_Nick        |true|
+When player navigate to any In-Running page
+Then by default all sport groups in Upcoming events component will be collapsed
+When expands sport <Sport> in Upcoming events component by clicking on it
+Then sport group <Sport> in Upcoming events component should be expanded
+When expand sport <Sport1> in Upcoming events component by clicking on it
+Then sport group <Sport1> in Upcoming events component should be expanded
+And all sport groups other than <Sport1> in Upcoming events component should be collapsed
+
+Examples:
+|Meta:|Sport     |Sport1    |
+|     |Football  |Soccer    |
+|     |Soccer    |Football  |
+|     |Tennis    |Hockey    |
+|     |Hockey    |Tennis    |
+|     |Basketball|Football  |
+
+Scenario: By clicking on an expanded sport it should collapse
+Meta:
+@scenarioName BGSIR275_UpcomingEventSportGroupExpandCollapse
+@author Harish
+@testType regression
+Given events are created using below data:
+|GameId |Sport   |Home Team      |Away Team              |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |CreateOnce|
+|27501   |Football  |Buffalo Bills|Arizona Cardinals      |5          |Upcoming   |AT_Nick            |HT_Nick           |true|
+|27502  |Soccer    |Algeria      |Anguilla               |33         |Upcoming   |Anguilla_Nick      |Algeria_Nick       |true|
+|27503   |Tennis    |Home_17301   |Away_17301             |325        |Upcoming   |HM_17301_Nick      |AW_17301_Nick     |true|
+|27504   |Hockey    |Boston Bruins|Anaheim Ducks          |50         |Upcoming   |BostonBruins_Nick  |Anaheim_Nick      |true|
+|27505   |Basketball|Atlanta Hawks|Denver Nuggets         |2          |Upcoming   |Atlanta_Nick       |Denver_Nick       |true|
+When player navigate to any In-Running page
+And expands sport <Sport> in Upcoming events component by clicking on it
+Then sport group <Sport> in Upcoming events component should be expanded
+When you collapse sport <Sport> in Upcoming events component by clicking on it
+Then sport group <Sport> in Upcoming events component should be collapsed
+
+Examples:
+|Meta:|Sport     |
+|     |Football  |
+|     |Soccer    |
+|     |Tennis    |
+|     |Hockey    |
+|     |Basketball|
+
+
+
+

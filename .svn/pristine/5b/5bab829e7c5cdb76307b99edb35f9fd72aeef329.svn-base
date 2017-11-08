@@ -1,0 +1,22 @@
+Meta:
+@author rkora
+@story BGSIR_624
+@functionality qbm
+@testType regression
+
+
+
+Narrative:
+As a player
+I want the default stake amount selected to be remembered while I am logged in
+so that I do not have to change the value for each wager that I place
+
+Scenario: Default stake amount is remembered by user session
+Given a player loggedIn and navigate to live betting page
+And QBM is activated
+When player introduced amount <Amount> in the default stake input field
+And Bet slip mode is activated
+
+Examples:
+|Amount|
+|10|

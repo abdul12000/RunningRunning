@@ -1,0 +1,81 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.framework.testCase.webTestsCase.BaseTestCase;
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * @author rkora on 30/10/2014.
+ */
+public class BetSlipSelection extends InRunningComponent implements BetSlipSelectionInterface {
+
+    private static final String SELECTION_CLASS = "selection";
+
+    private static final String QBM_ACTIVE = "Quick Bet Mode Active";
+
+    private static final String ODDS_CLASS = "odds";
+
+    private static String DELETE_CLASS = "betAction";
+
+    private final By descriptionLocator = new By.ByClassName(SELECTION_CLASS);
+
+    private final By oddsLocator = new By.ByClassName(ODDS_CLASS);
+
+    private final By deleteBetLocator = new By.ByClassName(DELETE_CLASS);
+
+    public BetSlipSelection(final WebElement betSlip) {
+        setComponent(betSlip);
+    }
+
+    @Override
+    public String getDescription() {
+        final List<WebElement> selectionDescription = getWebElement().findElements(descriptionLocator);
+        if (selectionDescription.isEmpty()) {
+            return StringUtils.EMPTY;
+        }
+        String desc=selectionDescription.get(0).getText();
+       /* if(desc.contains("Pick")){
+            desc=desc.replace("Pick","").trim();
+        }*/
+        return desc;
+    }
+
+    @Override
+    public String getPrice() {
+        final List<WebElement> selectionDescription = getWebElement().findElements(oddsLocator);
+        if (selectionDescription.isEmpty()) {
+            return StringUtils.EMPTY;
+        }
+        return selectionDescription.get(0).getText();
+    }
+
+    @Override
+    public void delete() {
+        final List<WebElement> selectionDescription = getWebElement().findElements(deleteBetLocator);
+        if (selectionDescription.isEmpty()) {
+            BaseTestCase.reporter.info("Delete bet locator is not displayed");
+            return;
+        }
+        selectionDescription.get(0).click();
+    }
+
+    @Override
+    public boolean isDisplayed() {
+        return getWebElement().isDisplayed();
+    }
+
+    @Override
+    public void setRiskAmount(final String amount) {
+        final List<WebElement> risk=getWebElement().findElements(By.className("stake"));
+        if(risk.isEmpty()){
+            BaseTestCase.reporter.info("Risk field is not displayed");
+            return;
+        }
+        risk.get(0).clear();
+        risk.get(0).sendKeys(amount);
+    }
+}

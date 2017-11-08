@@ -1,0 +1,64 @@
+Meta:
+@story BGSIR_327
+@functionality markets
+
+Narrative:
+As a player 
+I want live coupon to indicate with a visual display when outcomes are suspended 
+so that I will know in which outcomes I can place wagers
+					 
+Scenario:  Outcome suspended in the backend will be dispalyed automatically updated 
+and 'suspended' will be displayed instead of odd
+Meta:
+@scenarioName BGSIR_327_SuspendedOutcome_BetslipMode
+@author Harish
+@testType regression
+Given user created the event with the  below data
+|GameId     |Sport      |AwayTeam NickName           |HomeTeam NickName           |MarketNameToCreate  |MarketTitle   |League Id  |Status      |
+|<GameId>   |<Sport>    |<AwayTeam NickName>_<GameId>|<HomeTeam NickName>_<GameId>|<MarketNameToCreate>|<MarketTitle> |<League Id>|<Status>    |
+When player navigates to above event
+And Bet slip mode is activated
+And suspend outcome <Outcome Description> in backend
+Then selection <Outcome Description> in market should display 'Suspended' instead of odd
+When player selects suspended outcome '<Outcome Description>' to add to betslip
+Then the outcome '<Outcome Description>' shouldn't be added to betslip
+Then selection <Outcome Description> in market should display 'Suspended' instead of odd
+When player selects suspended outcome '<Outcome Description>' to add to betslip
+Then the outcome '<Outcome Description>' shouldn't be added to betslip
+When suspended outcome <Outcome Description> is unsuspended in backend
+Then selection <Outcome Description> in market should be unsuspended and displays odd instead of 'Suspended'
+
+Examples:
+| <GameId> | <Sport>  | <AwayTeam NickName> | <HomeTeam NickName>    | <MarketNameToCreate> | <MarketTitle>                       | <League Id> | <Status>    | Outcome Description |
+| 32701    | Football | Buffalo Bills       | Arizona Cardinals      | Point Spread         | EXTRA MARKET POINTS SPREAD Football | 5           | In Progress | AWAY                |
+| 32702    | Football | Buffalo Bills       | Arizona CardinalsTotal | Total                | EXTRA MARKET Total Football         | 5           | In Progress | Under               |
+| 32711    | Football | Buffalo Bills       | Arizona Cardinals      | Point Spread         | EXTRA MARKET POINTS SPREAD Football | 5           | Upcoming    | AWAY                |
+| 32712    | Football | Buffalo Bills       | Arizona CardinalsTotal | Total                | EXTRA MARKET Total Football         | 5           | Upcoming    | Under               |
+Scenario:  Outcome suspended in the backend will be dispalyed automatically after player login
+and 'suspended' will be displayed instead of odd
+Meta:
+@scenarioName BGSIR_327_SuspendedOutcome_BetslipMode_Login
+@author Harish
+@testType regression
+Given user created the event with the  below data
+|GameId     |Sport      |AwayTeam NickName           |HomeTeam NickName           |MarketNameToCreate  |MarketTitle   |League Id  |Status      |
+|<GameId>   |<Sport>    |<AwayTeam NickName>_<GameId>|<HomeTeam NickName>_<GameId>|<MarketNameToCreate>|<MarketTitle> |<League Id>|<Status>    |
+When a player loggedIn and navigate to above event
+And Bet slip mode is activated
+And suspend outcome <Outcome Description> in backend
+Then selection <Outcome Description> in market should display 'Suspended' instead of odd
+When player selects suspended outcome '<Outcome Description>' to add to betslip
+Then the outcome '<Outcome Description>' shouldn't be added to betslip
+When suspended outcome <Outcome Description> is unsuspended in backend
+Then selection <Outcome Description> in market should be unsuspended and displays odd instead of 'Suspended'
+
+
+Examples:
+| <GameId> | <Sport>  | <AwayTeam NickName> | <HomeTeam NickName>    | <MarketNameToCreate> | <MarketTitle>                       | <League Id> | <Status>    | Outcome Description |
+| 32701    | Football | Buffalo Bills       | Arizona Cardinals      | Point Spread         | EXTRA MARKET POINTS SPREAD Football | 5           | In Progress | AWAY                |
+| 32702    | Football | Buffalo Bills       | Arizona CardinalsTotal | Total                | EXTRA MARKET Total Football         | 5           | In Progress | Under               |
+| 32701    | Football | Buffalo Bills       | Arizona Cardinals      | Point Spread         | EXTRA MARKET POINTS SPREAD Football | 5           | Upcoming    | AWAY                |
+| 32702    | Football | Buffalo Bills       | Arizona CardinalsTotal | Total                | EXTRA MARKET Total Football         | 5           | Upcoming    | Under               |
+
+ 
+ 

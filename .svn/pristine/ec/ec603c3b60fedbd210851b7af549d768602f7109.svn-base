@@ -1,0 +1,18 @@
+Meta:
+@author rkora
+@story BGSIR_977
+@functionality betslip
+
+Scenario: Free bet balance display in Betslip mode
+Meta:
+@scenarioname displayFreeBetBalanceInBetslipMode
+Given a player loggedIn and navigate to live betting page
+When Bet slip mode is activated
+Then Free bet balance should be displayed in the Betslip mode
+
+Scenario: Free bet balance display in QBM mode
+Meta:
+@scenarioname displayFreeBetBalanceInQBMMode
+Given a player loggedIn and navigate to live betting page
+When QBM is activated
+Then Free bet balance should be displayed in the QBM mode

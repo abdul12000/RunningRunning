@@ -1,0 +1,86 @@
+Meta:
+@author rkora
+@story BGSIR_622
+@functionality qbm
+@testType regression
+
+Narrative:
+As a player
+I want arrows to be displayed close to input default stake field
+so that I can select my preferred default stake amount
+
+Lifecycle:
+Before:
+Given player is at live betting page
+When Quick Bet Mode is activated
+
+Scenario: Default stake amount is incremented when up arrow is selected
+When I set the <Amount> and click on <Arrow> arrow
+Then the amount in the default stake input field will be modified to <Expected Amount>
+
+Examples:
+| Amount | Arrow | <Expected Amount> |
+| 6      | UP    | 7                 |
+| 100    | UP    | 101               |
+| 222    | UP    | 223               |
+| 1000   | UP    | 1001              |
+| 999    | UP    | 1000              |
+| 0      | UP    | 1                 |
+| 9998   | UP    | 9999              |
+| 5999   | UP    | 6000              |
+| 22     | UP    | 23                |
+| 1507   | UP    | 1508              |
+| 9999   | UP    | 9999              |
+
+Scenario: Default stake amount is decreased when down arrow is selected
+When I set the <Amount> and click on <Arrow> arrow
+Then the amount in the default stake input field will be modified to <Expected Amount>
+
+Examples:
+| Amount | Arrow | <Expected Amount> |
+| 6      | DOWN  | 5                 |
+| 100    | DOWN  | 99                |
+| 222    | DOWN  | 221               |
+| 1000   | DOWN  | 999               |
+| 999    | DOWN  | 998               |
+| 1      | DOWN  | 0                 |
+| 9998   | DOWN  | 9997              |
+| 5999   | DOWN  | 5998              |
+| 22     | DOWN  | 21                |
+| 1507   | DOWN  | 1506              |
+| 0      | DOWN  | 0                 |
+
+
+Scenario: Corresponding button in default amount selector to be highlighted according to entered stake amount
+When I set the <Amount> and click on <Arrow> arrow
+Then the amount in the default stake input field will be modified to <Expected Amount>
+And the relevant <Default stake selector> should be highlighted
+
+
+Examples:
+| Amount | Arrow | <Expected Amount> | <Default stake selector> |
+| 6      | DOWN  | 5                 | 5                        |
+| 4      | UP    | 5                 | 5                        |
+| 2      | DOWN  | 1                 | 1                        |
+| 0      | UP    | 1                 | 1                        |
+| 11     | DOWN  | 10                | 10                       |
+| 9      | UP    | 10                | 10                       |
+| 26     | DOWN  | 25                | 25                       |
+| 24     | UP    | 25                | 25                       |
+| 51     | DOWN  | 50                | 50                       |
+| 49     | UP    | 50                | 50                       |
+| 101    | DOWN  | 100               | 100                      |
+| 99     | UP    | 100               | 100                      |
+| 1      | DOWN  | 0                 |                          |
+| 1      | UP    | 2                 |                          |
+| 25     | DOWN  | 24                |                          |
+| 25     | UP    | 26                |                          |
+| 50     | DOWN  | 49                |                          |
+| 50     | UP    | 51                |                          |
+| 100    | DOWN  | 99                |                          |
+| 100    | UP    | 101               |                          |
+| 1000   | DOWN  | 999               |                          |
+| 5555   | UP    | 5556              |                          |
+| 10     | DOWN  | 9                 |                          |
+| 10     | UP    | 11                |                          |
+

@@ -1,0 +1,9 @@
+Narrative:
+As an automation tester
+I want to be able to open browser
+so that I can execute automation tests
+
+Scenario: Navigate to sportsbook home page
+Given user opens chrome browser
+When navigates to http:\\sports.mdev.bovada.lv
+Then sportsbook page should be displayed

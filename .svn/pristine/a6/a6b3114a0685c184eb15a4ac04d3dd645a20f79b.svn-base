@@ -1,0 +1,109 @@
+package internal.qaauto.inrunning.StepCandidatesHelperMethods;
+
+import internal.qaauto.inrunning.tom.EventBuilder;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Line;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.LineFactory;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.NewPlayOutcomeLine;
+import org.jbehave.core.model.ExamplesTable;
+
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Harish Renukunta on 17/10/2014.
+ */
+public class EventStepsHelperMethods extends InRunningBaseStep {
+
+    private static final int HOURS = -10;
+
+    private static final String WIN = "Win";
+
+    private static final String RISK = "Risk";
+
+    private static final String WIN1 = "Win1";
+
+    private static final String RISK1 = "Risk1";
+
+    private static final String MARKET_NAME = "MarketName";
+
+    private static final String AWAYTEAM_NICKNAME_HEADER = "AwayTeam NickName";
+
+    private static final String HOMETEAM_NICKNAME_HEADER = "HomeTeam NickName";
+
+    public List<String> getMarketsTitleFromEvent(final Event event) {
+        List<Line> lines = event.getLines();
+        if (lines == null || lines.size() == 0) {
+            reporter.info("Markets are not displayed");
+            return null;
+        }
+        List<String> marketsList = new LinkedList<String>();
+        for (Line line : lines) {
+            marketsList.add(line.getDisplayText());
+        }
+        return marketsList;
+    }
+
+    public Event createEvent(final Map<String, String> params) throws ParseException {
+        final Event event = EventBuilder.buildEvent(params);
+        final String newEventTime = new Utils().changeEventTime(event, Calendar.HOUR, HOURS);
+        event.setGameDateUTC(newEventTime);
+        if (params.containsKey(AWAYTEAM_NICKNAME_HEADER)) {
+            event.setAwayTeamNickname(params.get(AWAYTEAM_NICKNAME_HEADER));
+        }
+        if (params.containsKey(HOMETEAM_NICKNAME_HEADER)) {
+            event.setHomeTeamNickname(params.get(HOMETEAM_NICKNAME_HEADER));
+        }
+        return event;
+    }
+
+    public Event createEventInAmericanFormat(final Map<String, String> params) throws ParseException {
+        final Event event = createEvent(params);
+        event.setDisplayAwayTeamFirst(Boolean.TRUE.toString());
+        return event;
+    }
+
+    public Event createEventInEuropeanFormat(final Map<String, String> params) throws ParseException {
+        final Event event = createEvent(params);
+        event.setDisplayAwayTeamFirst(Boolean.FALSE.toString());
+        return event;
+    }
+
+    public Line createLineWith3ColumnLayout(final String marketTitle) {
+        final Line line = LineFactory.getLineInstance(NewPlayOutcomeLine.MARKET_NAME, getEvent());
+        line.setPropId("3");
+        line.setProptypeId("9");
+        line.setDisplayText(marketTitle);
+        line.getOutcomesList().remove(3);
+        return line;
+    }
+
+    public Line createExtraLine(final Map<String, String> params, final Event event){
+        final Line line = LineFactory.createNewPlayOutcomeLine(event);
+        for(Map.Entry<String, String> dataColumn : params.entrySet()){
+            switch(dataColumn.getKey()){
+            case MARKET_NAME:
+                line.setDisplayText(dataColumn.getValue());
+                break;
+            case WIN :
+                line.getOutcomesList().get(0).setWin(dataColumn.getValue());
+                break;
+            case RISK:
+                line.getOutcomesList().get(0).setWin(dataColumn.getValue());
+                break;
+            case WIN1 :
+                line.getOutcomesList().get(0).setWin(dataColumn.getValue());
+                break;
+            case RISK1:
+                line.getOutcomesList().get(0).setWin(dataColumn.getValue());
+                break;
+            }
+        }
+        return line;
+    }
+}

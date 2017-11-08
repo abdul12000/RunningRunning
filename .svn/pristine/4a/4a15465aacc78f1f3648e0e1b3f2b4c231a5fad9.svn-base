@@ -1,0 +1,13 @@
+<wagerMessage>
+   <wagers>
+      <wager>
+         <wagerId>${wagerId}</wagerId>
+         <outcome>${outcome}</outcome>
+         <payout>${payout}</payout>
+         <categoryCode>${categoryCode}</categoryCode>
+         <settlementTime>${settlementTime}</settlementTime>
+         <description>${description}</description>
+         <eventId>${eventId}</eventId>
+      </wager>
+   </wagers>
+</wagerMessage>

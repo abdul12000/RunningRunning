@@ -1,0 +1,207 @@
+Meta:
+@author rkora
+@story BGSIR_784
+@functionality qbm
+@testType regression
+
+Narrative:
+As a player
+I want selection to be disbaled when it is relevant market/outcome is suspended
+so that I can know the invalid bet in the betslip
+
+Scenario: suspend the selection in the betslip by suspending the outcome
+Meta:
+@scenarioname suspendOutcome
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When player navigates to above event
+And player add <Selection>,<Selection2> of <<MarketTitle>> to the betslip
+And suspend selection <Selection2> in backend
+Then relevant  <Selection2> should be disabled in the betslip
+
+Examples:
+| <GameId> | <Sport>  | Selection       | Selection2 | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78401    | Football | Pass Completion | Rush       | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78421    | Football | Pass Completion | Rush       | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+Scenario: suspend the selection in the betslip by suspending the outcome after login
+Meta:
+@scenarioname suspendOutcome_AfterLogin
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When a player loggedIn and navigate to above event
+And player add <Selection>,<Selection2> of <<MarketTitle>> to the betslip
+And suspend selection <Selection2> in backend
+Then relevant  <Selection2> should be disabled in the betslip
+
+Examples:
+| <GameId> | <Sport>  | Selection       | Selection2 | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78411    | Football | Pass Completion | Rush       | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78431    | Football | Pass Completion | Rush       | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+Scenario: Set visibility to false for the selection in the betslip
+Meta:
+@scenarioname invisibleOutcome
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When player navigates to above event
+And player add <Selection>,<Selection2> of <<MarketTitle>> to the betslip
+And make the selection <Selection2> invisible in backend
+Then relevant <Selection2> should be disabled in the betslip
+
+Examples:
+| <GameId> | <Sport>  | Selection       | Selection2 | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78402    | Football | Pass Completion | Turnover   | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78422    | Football | Pass Completion | Turnover   | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+Scenario: Set visibility to false for the selection in the betslip
+Meta:
+@scenarioname invisibleOutcome_AfterLogin
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When a player loggedIn and navigate to above event
+And player add <Selection>,<Selection2> of <<MarketTitle>> to the betslip
+And make the selection <Selection2> invisible in backend
+Then relevant <Selection2> should be disabled in the betslip
+
+Examples:
+| <GameId> | <Sport>  | Selection       | Selection2 | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78412    | Football | Pass Completion | Turnover   | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78432    | Football | Pass Completion | Turnover   | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+Scenario: suspend the market which has relevant selection in the betslip
+Meta:
+@scenarioname suspendMarket
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When player navigates to above event
+And player add below selections to betslip:
+| Selection    | MarketTitle   |
+| <Selection>  | <MarketTitle> |
+| <Selection2> | <MarketTitle> |
+And market '<<MarketTitle>>' is suspended
+Then relevant below selections should be disabled in the betslip
+| Selection    |
+| <Selection>  |
+| <Selection2> |
+
+Examples:
+| <GameId> | <Sport>  | <Selection>     | <Selection2> | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78403    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78423    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+Scenario: suspend the market which has relevant selection in the betslip after login
+Meta:
+@scenarioname suspendMarket_AfterLogin
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When a player loggedIn and navigate to above event
+And player add below selections to betslip:
+| Selection    | MarketTitle   |
+| <Selection>  | <MarketTitle> |
+| <Selection2> | <MarketTitle> |
+And market '<<MarketTitle>>' is suspended
+Then relevant below selections should be disabled in the betslip
+| Selection    |
+| <Selection>  |
+| <Selection2> |
+
+Examples:
+| <GameId> | <Sport>  | <Selection>     | <Selection2> | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78413    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78433    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+
+Scenario: Close the market which has relevant selection in the betslip
+Meta:
+@scenarioname closeMarket
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When player navigates to above event
+And player add below selections to betslip:
+| Selection    | MarketTitle   |
+| <Selection>  | <MarketTitle> |
+| <Selection2> | <MarketTitle> |
+And market '<<MarketTitle>>' is closed
+Then relevant below selections should be disabled in the betslip
+| Selection    |
+| <Selection>  |
+| <Selection2> |
+
+Examples:
+| <GameId> | <Sport>  | <Selection>     | <Selection2> | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78404    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78424    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+Scenario: Close the market which has relevant selection in the betslip after login
+Meta:
+@scenarioname closeMarketAfterLogin
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When a player loggedIn and navigate to above event
+And player add below selections to betslip:
+| Selection    | MarketTitle   |
+| <Selection>  | <MarketTitle> |
+| <Selection2> | <MarketTitle> |
+And market '<<MarketTitle>>' is closed
+Then relevant below selections should be disabled in the betslip
+| Selection    |
+| <Selection>  |
+| <Selection2> |
+
+Examples:
+| <GameId> | <Sport>  | <Selection>     | <Selection2> | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78414    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78434    | Football | Pass Completion | Turnover     | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+Scenario: Close the evnt which has relevant selection in the betslip
+Meta:
+@scenarioname closeEvent
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When player navigates to above event
+And player add below selections to betslip:
+| Selection    | MarketTitle   |
+| <Selection>  | <MarketTitle> |
+| <Selection2> | <MarketTitle> |
+And above event is closed
+Then relevant below selections should be disabled in the betslip
+| Selection    |
+| <Selection>  |
+| <Selection2> |
+
+Examples:
+| <GameId> | <Sport>  | <Selection>     | <Selection2> | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78405    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78425    | Football | Pass Completion | Turnover     | Outcome next play    | Extra Market 1 | 5           | Upcoming    |
+
+Scenario: Close the market which has relevant selection in the betslip after login
+Meta:
+@scenarioname closeEventAfterLogin
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+When a player loggedIn and navigate to above event
+And player add below selections to betslip:
+| Selection    | MarketTitle   |
+| <Selection>  | <MarketTitle> |
+| <Selection2> | <MarketTitle> |
+And above event is closed
+Then relevant below selections should be disabled in the betslip
+| Selection    |
+| <Selection>  |
+| <Selection2> |
+
+Examples:
+| <GameId> | <Sport>  | <Selection>     | <Selection2> | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 78415    | Football | Pass Completion | Rush         | Outcome next play    | Extra Market 1 | 5           | In Progress |
+| 78435    | Football | Pass Completion | Turnover     | Outcome next play    | Extra Market 1 | 5           | Upcoming    |

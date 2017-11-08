@@ -1,0 +1,35 @@
+Narrative:
+As a player
+I want Total Stake to be displayed on the bottom of the Betslip
+so that I am aware of the money that I am risking in total
+
+Meta:
+@author rkora
+@story BGSIR437
+
+
+Scenario: Total Stake to be displayed as 1 bet in the Betslip
+Meta:
+@testType smoke
+@scenarioName TotalStake for asingle bet
+
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+And player navigate to a Single Game View page of a Live Event <<GameId>>
+When player add a <Selection> from <<MarketTitle>> to the betslip
+And player introduce the risk <Amount> to the <Selection>
+Then Total stake <Amount> will be displayed in the bottom of the betslip
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |Selection  |Amount|
+|12345      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-story|Outcome next play   |Extra Market 1    |Pass Completion|2.00  |
+
+Scenario: Total Stake to be displayed. More than one bet in the Betslip
+
+
+Given HTML Live Client
+When I add more than one selection to the betslip
+And I introduce the risk amounts
+Then Total stake amount will be displayed in the bottom of the betslip
+And it will be the sum of all the risk amounts

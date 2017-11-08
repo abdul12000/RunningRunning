@@ -1,0 +1,52 @@
+{
+    "wagers": [{
+      "accountNumber": "${accountNumber}",
+      "currencyCode": "${currencyCode}",
+      "dateResolved": "${dateResolved}",
+      "dateSent": "${dateSent}",
+      "domain": "${domain}",
+      "ipAddress": "${ipAddress}",
+      "locale": "${locale}",
+      "maxRisk": "${maxRisk}",
+      "minRisk": "${minRisk}",
+      "payoutAmount": "${payoutAmount}",
+      "payoutOddsFormat": "${payoutOddsFormat}",
+      "payoutOddsRisk": "${payoutOddsRisk}",
+      "payoutOddsWin": "${payoutOddsWin}",
+      "picks": [{
+        "additionalDescription": "${additionalDescription}",
+        "baseLineType": "${baseLineType}",
+        "choice": "${choice}",
+        "lineChoice": "${lineChoice}",
+        "event": "${event}",
+        "eventDate": "${eventDate}",
+        "eventName": "${eventName}",
+        "eventNote": "${eventNote}",
+        "eventTypeCode": "${eventTypeCode}",
+        "eventTypeDescription": "${eventTypeDescription}",
+        "key": {
+          "pickNumber": "${pickNumber}",
+          "referralID": "${referralIDPick}"
+        },
+        "lineId": "${lineId}",
+        "lineTypeDescription": "${lineTypeDescription}",
+        "payoutOddsFormat": "${payoutOddsFormatPick}",
+        "payoutOddsRisk": "${payoutOddsRiskPick}",
+        "payoutOddsWin": "${payoutOddsWinPick}",
+        "pointAdjustment": "${pointAdjustment}",
+        "pointAdjustmentDescription": "${pointAdjustmentDescription}",
+        "sportName": "${sportName}",
+        "value": "${value}"
+      }],
+	  "placeMethod": "${placeMethod}",
+      "processedBy": "${processedBy}",
+      "referralID": "${referralID}",
+      "riskAmount": "${riskAmount}",
+      "seenByPlayer": "${seenByPlayer}",
+      "status": "${status}",
+      "trueOdds": "${trueOdds}",
+      "type": "${type}",
+      "specifyingRisk": "${specifyingRisk}",
+      "winAmount": "${winAmount}"
+    }]
+}

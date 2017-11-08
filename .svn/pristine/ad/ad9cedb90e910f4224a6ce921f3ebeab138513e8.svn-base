@@ -1,0 +1,151 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.LiveBettingPageInterface;
+import internal.qaauto.inrunning.tom.betslip.BetSlipInterface;
+import internal.qaauto.inrunning.tom.betslip.BetSlipSelectionInterface;
+import internal.qaauto.inrunning.tom.betslip.QuickBetModeInterface;
+import internal.qaauto.inrunning.tom.markets.MarketInterface;
+import internal.qaauto.inrunning.tom.markets.OutcomeInterface;
+import org.apache.commons.lang.StringUtils;
+import org.jbehave.core.annotations.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 30/10/2014.
+ */
+public class BetSlipSteps extends InRunningBaseStep {
+
+    private static final String QBM_ACTIVE = "Quick Bet Mode Active";
+
+    private static final String QBM_IN_ACTIVE = "Quick Bet Mode in active";
+
+    private static final String BETSLIP_DISPLAYED = "Betslip found";
+
+    private static final String BETSLIP_NOT_DISPLAYED = "Betslip not found";
+
+    private static final String RIGHT_NAV_DISPLAYED = "Right nav displayed";
+
+    private static final String RIGHT_NAV_NOT_DISPLAYED = "Right nav not displayed";
+
+    @When("I select OFF in the QBM selector")
+    @Given("QBM is in Off state")
+    @Aliases(values = { "QBM is in deactivate state" })
+    public void quickBetModeOff() {
+        getLiveBettingPage().getQuickBetMode().disable();
+    }
+
+    @Given("QBM is in active state")
+    @When("I select ON in the QBM selector")
+    public void quickBetModeOn() {
+        getLiveBettingPage().getQuickBetMode().enable();
+    }
+
+    @Then("QBM is activated")
+    public void verifyQBMIsActivated() {
+        final QuickBetModeInterface qbm = getLiveBettingPage().getQuickBetMode();
+        qbm.enable();
+        Assert.assertTrue(qbm.isActive(), QBM_ACTIVE, QBM_IN_ACTIVE);
+    }
+
+    @Given("HTML5 Live Client with QBM as wager placement mode")
+    public void html5LiveClientWithQBMOn() {
+        getLiveBettingPage().go();
+        verifyQBMIsActivated();
+    }
+
+    @Then("Betslip is not displayed in the right nav")
+    public void verifyBetSlipIsInNotDisplayed() {
+        final BetSlipInterface betSlip = getLiveBettingPage().getBetSlip();
+        Assert.assertTrue(betSlip == null, BETSLIP_NOT_DISPLAYED, BETSLIP_DISPLAYED);
+    }
+
+    @Then("Betslip mode is activated and Betslip is displayed in the right nav")
+    public void verifyBetSlipIsDisplayed() {
+        final BetSlipInterface betSlip = getLiveBettingPage().getBetSlip();
+        Assert.assertTrue(betSlip.getWebElement().isDisplayed(), BETSLIP_DISPLAYED, BETSLIP_NOT_DISPLAYED);
+    }
+
+    @Given("wager placement selector in the right nav")
+    public void verifyQBMInRightNav() {
+        final LiveBettingPageInterface liveBettingPage = getLiveBettingPage();
+        final By rightNavLocator = new By.ByCssSelector("#rightCol");
+        final WebElement rightNav = liveBettingPage.getChildWebElement(rightNavLocator);
+        Assert.assertTrue(rightNav.isDisplayed(), RIGHT_NAV_DISPLAYED, RIGHT_NAV_NOT_DISPLAYED);
+    }
+
+    @Then("$Selection of $MarketTitle should be displayed in the betslip")
+    public void verifyBetAddedToBetslip(@Named("Selection") final String selection,
+            @Named("<MarketTitle>") final String marketTitle) {
+        BetSlipInterface betSlip = getLiveBettingPage().getBetSlip();
+        BetSlipSelectionInterface betSlipSelection = betSlip.getSelectionByDescription(selection);
+        final MarketInterface market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        final OutcomeInterface outcome = market.getOutcomeByDescription(selection);
+        boolean isBetDisplayedInBetslip = Boolean.TRUE;
+        String outcomeDescription = StringUtils.EMPTY;
+        final String marketName = getEvent().getLines().get(0).getMarketName();
+        if (marketName.equals("Total") || marketName.equals("Point Spread")) {
+            outcomeDescription = outcome.getOutcomeDescription() + " " + outcome.getHandicapValue();
+        } else {
+            outcomeDescription = outcome.getOutcomeDescription();
+        }
+        if (!outcomeDescription.equals(betSlipSelection.getDescription())) {
+            isBetDisplayedInBetslip = Boolean.FALSE;
+            reporter.info("Expected Bet description is not Displayed");
+        }
+        if (!outcome.getPrice().equals(betSlipSelection.getPrice())) {
+            isBetDisplayedInBetslip = Boolean.FALSE;
+            reporter.info("Expected Bet price is not Displayed");
+        }
+        Assert.assertTrue(isBetDisplayedInBetslip && (betSlip.getSelectionCount() == 1),
+                String.format("Expected bet is displayed in the betslip :%s", outcomeDescription),
+                String.format("Expected bet is not displayed in the betslip:%s", outcomeDescription));
+
+    }
+
+    @When("player delete the $Selection in the betslip")
+    public void deleteTheSelection(@Named("Selection") final String selection) {
+        BetSlipSelectionInterface betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        if (betSlipSelection != null) {
+            betSlipSelection.delete();
+        }
+    }
+
+    @Then("the $Selection is removed from the betslip")
+    public void verifySelectionIsRemoved(@Named("Selection") final String selection) {
+        BetSlipInterface betSlip = getLiveBettingPage().getBetSlip();
+        BetSlipSelectionInterface betSlipSelection = betSlip.getSelectionByDescription(selection);
+        Assert.assertTrue(betSlipSelection == null, "Bet is not displayed in the betslip",
+                "Bet is displayed in the betslip");
+    }
+
+    @Then("$Selection is displayed in the betslip")
+    public void verifySelectionInTheBetSlip(@Named("Selection2") final String selection) {
+        BetSlipSelectionInterface betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        Assert.assertTrue(betSlipSelection.getDescription().equals(selection),
+                String.format("Selection is Displayed in the betslip : %s", selection),
+                String.format("Selection is Displayed in the betslip : %s", selection));
+    }
+
+    @When("player introduce the risk $Amount to the $Selection")
+    public void setRiskAmount(@Named("Amount") final String amount, @Named("Selection") final String selection) {
+        BetSlipSelectionInterface betSlipSelection = getLiveBettingPage().getBetSlip().getSelectionByDescription(selection);
+        betSlipSelection.setRiskAmount(amount);
+    }
+    @When("enter the risk $Amount to $Selection,$Selection2")
+    public void setRiskAmount2(@Named("Amount") final String amount, @Named("Selection") final String selection,@Named("Selection2") final String selection2) {
+        BetSlipInterface betSlip=getLiveBettingPage().getBetSlip();
+        betSlip.getSelectionByDescription(selection).setRiskAmount(amount);
+        betSlip.getSelectionByDescription(selection2).setRiskAmount(amount);
+
+    }
+    @Then("Total $Stake will be displayed in the bottom of the betslip")
+    public void verifyTotalStake(@Named("Stake") final String stake) {
+        BetSlipInterface betslip = getLiveBettingPage().getBetSlip();
+        Assert.assertTrue(betslip.getTotalStake().equals(stake), String.format("Total stake is displayed :%s", stake),
+                String.format("Total stake is not displayed :%s", stake));
+    }
+
+}

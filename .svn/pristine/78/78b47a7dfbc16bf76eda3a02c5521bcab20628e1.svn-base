@@ -1,0 +1,42 @@
+package internal.qaauto.inline.tom.markets;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 06/10/2014.
+ */
+public class MarketOutcome implements MarketOutcomeInterface {
+
+    private WebElement marketOutcome;
+
+    private static final String OUTCOME_DESCRIPTION = "";
+
+    private By outcomeDescriptionLocator = new By.ByCssSelector(OUTCOME_DESCRIPTION);
+
+    public MarketOutcome(WebElement marketOutcome){
+        this.marketOutcome = marketOutcome;
+    }
+
+    @Override
+    public WebElement getMarketOutcome() {
+        return marketOutcome;
+    }
+
+    @Override
+    public String getDescription() {
+        return getMarketOutcome().findElement(outcomeDescriptionLocator).getText();
+    }
+
+    @Override
+    public String getPrice() {
+        return null;
+    }
+
+    @Override
+    public String getArrowDetail() {
+        return null;
+    }
+
+
+}

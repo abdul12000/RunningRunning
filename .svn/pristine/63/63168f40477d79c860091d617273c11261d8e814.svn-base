@@ -1,0 +1,127 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.CouponAreaStepsHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.markets.Market;
+import internal.qaauto.inrunning.tom.markets.MarketOutcome;
+import internal.qaauto.inrunning.utils.WaitUtils;
+import org.apache.commons.configuration.ConfigurationException;
+import org.jbehave.core.annotations.Named;
+import org.jbehave.core.annotations.Then;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 31/10/2014.
+ */
+public class CouponAreaSteps extends InRunningBaseStep {
+
+    private CouponAreaStepsHelperMethods couponAreaStepsHelper = HelperFactory.getCouponAreaStepsHelper();
+
+    @Then("market <<MarketName>> should not be visible in coupon area")
+    public void verifyMarketNotVisibleInCouponArea(@Named("<MarketName>") final String marketName)
+            throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyMarketNotVisibleInCouponArea(marketName);
+    }
+
+    @Then("market '<<MarketTitle>>' should disappear from coupon area automatically")
+    public void verifyMarketWithTitleNotVisibleInCouponArea(@Named("<MarketTitle>") final String marketTitle)
+            throws ConfigurationException, IOException {
+        verifyMarketNotVisibleInCouponArea(marketTitle);
+    }
+
+    @Then("market <<MarketName1>> should not be visible in coupon area")
+    public void verifyMarket1NotVisibleInCouponArea(@Named("<MarketName1>") final String marketTitle)
+            throws IOException, ConfigurationException {
+        verifyMarketNotVisibleInCouponArea(marketTitle);
+    }
+
+    @Then("market <<MarketName>> should be displayed in coupon area")
+    public void verifyMarketExist(@Named("<MarketName>") final String marketTitle) {
+        WaitUtils wait = new WaitUtils();
+        wait.waitForMarketToDisplayInCoupon(getLiveBettingPage(), marketTitle);
+        couponAreaStepsHelper.verifyMarketExistInCouponArea(marketTitle);
+    }
+
+    @Then("market <<MarketTitle>> should be displayed in coupon area")
+    public void verifyMarketWithTitleExist(@Named("<MarketTitle>") final String marketTitle) {
+        verifyMarketExist(marketTitle);
+    }
+
+    @Then("market '<<MarketTitle1>>' should be displayed in coupon area automatically")
+    public void verifyMarketWithTitle1Exist(@Named("<MarketTitle1>") final String marketTitle) {
+        verifyMarketExist(marketTitle);
+    }
+
+    @Then("market <<MarketName2>> should still be displayed in coupon Area")
+    public void verifyMarket2Exist(@Named("<MarketName2>") final String marketTitle) {
+        verifyMarketExist(marketTitle);
+    }
+
+    @Then("above markets should be displayed in coupon area")
+    public void verifyMarketsOfEventExistInCouponArea() {
+        final List<String> linesDescription = getLineDescriptionsFromEvent();
+        couponAreaStepsHelper.verifyMarketsExistInCouponArea(linesDescription);
+    }
+
+    @Then("the market which has '<<MarketTitle>>' title should display in <ColumnName> <ColumnLayout> layout")
+    public void verifyColumnLayout(@Named("<MarketTitle>") final String marketTitle,
+            @Named("ColumnName") final String columnName,
+            @Named("ColumnLayout") final String columnLayout) throws InterruptedException {
+        final Market market = couponAreaStepsHelper.verifyMarketExistInCouponArea(marketTitle);
+        Assert.assertTrue(market.isColumnLayoutDisplayed(columnLayout),
+                String.format("Expected market column layout is displayed: %s", columnLayout),
+                String.format("Expected market column layout is not displayed: %s", columnLayout));
+        couponAreaStepsHelper.verifyMarketColumnLayout(columnName, market);
+    }
+
+    @Then("Expected price <Price> for the outcome<OutcomeDesc> should be displayed")
+    public void verifyExpectedPriceDisplayed(@Named("Price") final String expectedPrice,
+            @Named("OutcomeDesc") final String outcomeDesc) throws InterruptedException {
+        final MarketOutcome marketOutcome = getLiveBettingPage().getMarkets().get(0).getOutcomeByDescription(outcomeDesc);
+        Assert.assertEquals(expectedPrice, marketOutcome.getPrice(),
+                String.format("Expected Price is displayed : %s", expectedPrice),
+                String.format("Expected Price :%s is not displayed, Price displayed : %s", expectedPrice,
+                        marketOutcome.getPrice()));
+    }
+
+    @Then("Expected Handicap <ExpectedHandicap> should be displayed for Market <<MarketTitle>>")
+    public void verifyUpdatedHandicapValue(@Named("ExpectedHandicap") final String expectedHandicapValue,
+            @Named("<MarketTitle>") final String marketTitle) {
+        final List<MarketOutcome> marketOutcomes = getLiveBettingPage().getMarketByTitle(marketTitle).getOutcomes();
+        final int handicapCount = couponAreaStepsHelper.getHandicapCount(expectedHandicapValue, marketTitle);
+        Assert.assertTrue(handicapCount == marketOutcomes.size(),
+                String.format("Handicap Value updated for all outcomes of the market : %s", marketTitle),
+                String.format("Handicap Value is not updated for all outcomes of the Market : %s", marketTitle));
+
+    }
+
+    @Then("market '<<MarketTitle>>' in coupon area should appear suspended automatically")
+    public void verifyMarketWithTitleSuspended(@Named("<MarketTitle>") final String marketTitle)
+            throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyMarketWithTitleSuspended(marketTitle);
+    }
+
+    @Then("market '<<MarketTitle>>' should be un suspended automatically")
+    public void verifyMarketWithTitleUnSuspended(@Named("<MarketTitle>") final String marketTitle)
+            throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyMarketWithTitleUnSuspended(marketTitle);
+    }
+
+    @Then("selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' should no longer be available for selection")
+    public void verifyOutcomeWithDescriptionNoDisplay(
+            @Named("<MarketTitle>") final String marketTitle,
+            @Named("<OutcomeDescriptionToClose>") final String outcomeDesc) throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyOutcomeWithDescriptionNoDisplay(marketTitle, outcomeDesc);
+    }
+
+    @Then("selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' should be available for selection")
+    public void verifyOutcomeWithDescriptionDisplays(@Named("<MarketTitle>") final String marketTitle,
+            @Named("<OutcomeDescriptionToClose>") final String outcomeDesc) throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyOutcomeWithDescriptionDisplays(marketTitle, outcomeDesc);
+    }
+
+}

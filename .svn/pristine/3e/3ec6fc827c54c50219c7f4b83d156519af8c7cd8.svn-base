@@ -1,0 +1,15 @@
+package internal.qaauto.inrunning.tests;
+
+import internal.qaauto.framework.testCase.webTestsCase.BaseTestCase;
+import org.testng.annotations.Test;
+
+/**
+ * Created by Harish Renukunta on 03/10/2014.
+ */
+public class TestApp extends BaseTestCase {
+
+    @Test
+    public void testApp(){
+        reporter.pass("Test pass");
+    }
+}

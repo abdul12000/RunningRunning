@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<teaserOptionsCriteriaMessage>
+   <criterias>
+       <criteria>
+           <eventTypes>
+               <eventTypeCode>${eventTypeCode}</eventTypeCode>
+           </eventTypes>
+           <internalID>${internalID}</internalID>
+           <picks>${picks}</picks>  
+       </criteria>
+   </criterias>
+</teaserOptionsCriteriaMessage>

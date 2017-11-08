@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: bodog.soa-services.event-services:event-services-core:1.31">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/bodog/soa-services/event-services/event-services-core/1.31/event-services-core-1.31.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/bodog/soa-services/event-services/event-services-core/1.31/event-services-core-1.31-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/bodog/soa-services/event-services/event-services-core/1.31/event-services-core-1.31-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,91 @@
+package internal.qaauto.inrunning.StepCandidatesHelperMethods;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.steps.ObjectFactory;
+import internal.qaauto.inrunning.tom.LiveBettingPageInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowCoupon;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowCouponInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingCouponInterface;
+import internal.qaauto.inrunning.tom.leftnav.LiveNowCouponsComponentInterface;
+import internal.qaauto.inrunning.tom.leftnav.SportContainerInterface;
+import internal.qaauto.inrunning.tom.leftnav.UpcomingCouponsComponentInterface;
+import internal.qaauto.inrunning.tom.markets.MarketInterface;
+import internal.qaauto.inrunning.tom.markets.OutcomeInterface;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 22/10/2014.
+ */
+public class CouponStepsHelperMethods extends InRunningBaseStep {
+
+    private final static String ODDS_MATCH = "Odds match. Price:%s";
+
+    private final static String ODDS_MISMATCH = "Odds mismatch. Outcome desc:%s Expected:%s Actual:%s";
+
+    private final static String COUPON_FOUND = "Coupon with title %s found";
+
+    private final static String COUPON_NOT_FOUND = "Coupon with title %s not found";
+
+    private final static String SPORT_GROUP_COLLAPSED = "Sport group %s collapsed";
+
+    private final static String SPORT_GROUP_EXPANDED = "Sport group %s expanded";
+
+    private final static String SPORT_GROUP_FOUND = "Sport group %s found";
+
+    private final static String SPORT_GROUP_NOT_FOUND = "Sport group %s not found";
+
+    private UpcomingCouponsComponentInterface getUpcomingCouponsComponent() {
+        return getLiveBettingPage().getUpcomingCouponsComponent();
+    }
+
+    private LiveNowCouponsComponentInterface getLiveNowCouponsComponent() {
+        return getLiveBettingPage().getLiveNowCouponsComponent();
+    }
+
+    public LeftNavLiveNowCouponInterface getLeftNavLiveNowCouponByGameID(final String gameID) {
+        LiveNowCouponsComponentInterface liveNowCouponsComponent = getLiveNowCouponsComponent();
+        LeftNavLiveNowCouponInterface liveNowCoupon = (LeftNavLiveNowCoupon) liveNowCouponsComponent.getCouponByGameID(gameID);
+        return liveNowCoupon;
+    }
+
+    public LeftNavUpcomingCouponInterface getLeftNavUpcomingCouponByTitle(final String title) {
+        UpcomingCouponsComponentInterface upcomingCouponsComponent = getUpcomingCouponsComponent();
+        return upcomingCouponsComponent.getUpcomingCouponByTitle(title);
+    }
+
+    public void verifyOddsOfOutcome(final OutcomeInterface outcome, final String expectedOdd) {
+        final String outcomePrice = outcome.getPrice();
+        Assert.assertEquals(expectedOdd, outcomePrice, String.format(ODDS_MATCH, expectedOdd),
+                String.format(ODDS_MISMATCH, outcome.getDescription(), expectedOdd,
+                        outcomePrice));
+    }
+
+    public void verifyLiveNowCouponExists(final String sport, final String couponTitle){
+        final LeftNavLiveNowCouponInterface liveNowCoupon = getLiveBettingPage().getLiveNowCouponsComponent().getLiveNowCouponByName(sport,couponTitle);
+        Assert.assertNotNull(liveNowCoupon, String.format(COUPON_FOUND, couponTitle), String.format(COUPON_NOT_FOUND, couponTitle));
+    }
+
+    public boolean isSportGroupCollapsed(final SportContainerInterface sportGroup){
+        return sportGroup.isCollapsed();
+    }
+
+    public void verifySportGroupInLiveNowCollapsed(final String sport){
+        final LiveNowCouponsComponentInterface liveNowComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        final SportContainerInterface sportContainer = liveNowComponent.getSportContainerByTitle(sport);
+        verifySportGroupExist(sportContainer, sport);
+        Assert.assertTrue(isSportGroupCollapsed(sportContainer), String.format(SPORT_GROUP_COLLAPSED,sport), String.format(SPORT_GROUP_EXPANDED,sport));
+    }
+    public void verifySportGroupExist(final SportContainerInterface sportContainer, final String sport){
+        Assert.assertNotNull(sportContainer, String.format(SPORT_GROUP_FOUND,sport), String.format(SPORT_GROUP_NOT_FOUND, sport));
+    }
+
+    public void verifySportGroupInLiveNowExpanded(final String sport){
+        final LiveNowCouponsComponentInterface liveNowComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        final SportContainerInterface sportContainer = liveNowComponent.getSportContainerByTitle(sport);
+        verifySportGroupExist(sportContainer, sport);
+        Assert.assertTrue(!isSportGroupCollapsed(sportContainer), String.format(SPORT_GROUP_EXPANDED,sport), String.format(SPORT_GROUP_COLLAPSED,sport));
+    }
+
+}

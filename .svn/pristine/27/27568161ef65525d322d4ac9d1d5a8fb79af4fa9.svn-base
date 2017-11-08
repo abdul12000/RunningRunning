@@ -1,0 +1,91 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import internal.qaauto.inrunning.tom.Utilties.QBMStatus;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 30/10/2014.
+ */
+public class QuickBetModeImpl extends InRunningComponent implements QuickBetMode {
+
+    private static final String BUTTON_TAG = "button";
+
+    private static final String INPUT_TAG = "input";
+
+    private static final By stakeLocator = By.tagName(INPUT_TAG);
+
+    private static final By qbmButtonLocator = new By.ByCssSelector(BUTTON_TAG);
+
+    private static final String STAKE_SELECTOR_CSS = "li>button";
+
+    private static final By qbmStakeLocator = new By.ByCssSelector(STAKE_SELECTOR_CSS);
+
+    public QuickBetModeImpl(final WebElement quickBetModeWebElement) {
+        setComponent(quickBetModeWebElement);
+    }
+
+    public void enable() {
+        final WebElement qbmButton = getQBMButton();
+        if (qbmButton != null) {
+            if (!isActive()) {
+                qbmButton.click();
+            }
+        }
+    }
+
+    public void disable() {
+        WebElement qbmButton = getQBMButton();
+        if (qbmButton != null) {
+            if (isActive()) {
+                qbmButton.click();
+            }
+        }
+    }
+
+    public boolean isActive() {
+        WebElement qbmButton = getQBMButton();
+        if (qbmButton == null) {
+            return false;
+        }
+        String qbmStatus = qbmButton.getText();
+        return QBMStatus.On.getStatus().equals(qbmStatus);
+    }
+
+    @Override
+    public String getStake() {
+        final String stakeValue = getWebElement().findElement(stakeLocator).getAttribute("value");
+        return stakeValue;
+    }
+
+    @Override
+    public void clickOn(final int amount) {
+        final List<WebElement> defaultStakes = getWebElement().findElements(qbmStakeLocator);
+        for (WebElement defaultStake : defaultStakes) {
+            final int stakeAmount = Integer.parseInt(defaultStake.getText());
+            if (stakeAmount == amount) {
+                defaultStake.click();
+                return;
+            }
+
+        }
+    }
+
+    @Override
+    public void setStake(final String value) {
+        final WebElement stakeValue = getWebElement().findElement(stakeLocator);
+        stakeValue.clear();
+        stakeValue.sendKeys(value);
+    }
+
+    private WebElement getQBMButton() {
+        List<WebElement> qbmWebElements = getWebElement().findElements(qbmButtonLocator);
+        if (qbmWebElements == null && qbmWebElements.size() == 0) {
+            return null;
+        }
+        return qbmWebElements.get(0);
+    }
+}

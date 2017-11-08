@@ -1,0 +1,28 @@
+<wagerRuleMessage>
+  <limitRules>
+    <limit>
+      <eventTypeCode>${eventTypeCode}</eventTypeCode>
+      <id>${id}</id>
+      <lineType>${lineType}</lineType>
+      <maximum>${maximum}</maximum>
+      <tradingGroup>${tradingGroup}</tradingGroup>
+      <wagerType>${wagerType}</wagerType>
+    </limit>
+	<limit>
+      <eventTypeCode>${eventTypeCode2}</eventTypeCode>
+      <id>${id2}</id>
+      <lineType>${lineType2}</lineType>
+      <maximum>${maximum2}</maximum>
+      <tradingGroup>${tradingGroup2}</tradingGroup>
+      <wagerType>${wagerType2}</wagerType>
+    </limit>
+	<limit>
+      <eventTypeCode>${eventTypeCode3}</eventTypeCode>
+      <id>${id3}</id>
+      <lineType>${lineType3}</lineType>
+      <maximum>${maximum3}</maximum>
+      <tradingGroup>${tradingGroup3}</tradingGroup>
+      <wagerType>${wagerType3}</wagerType>
+    </limit>
+  </limitRules>
+</wagerRuleMessage>

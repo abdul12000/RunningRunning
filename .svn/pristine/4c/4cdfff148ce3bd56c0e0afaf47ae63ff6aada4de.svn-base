@@ -1,0 +1,336 @@
+package internal.qaauto.inrunning.tom;
+
+/**
+ * @author rkora on 13/10/2014.
+ */
+import internal.qaauto.framework.Assert;
+import internal.qaauto.framework.reporter.Reporter;
+import internal.qaauto.framework.reporter.ReporterTestListener;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.games.EventFactory;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.LineHandicap;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Outcome;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.LineFactory;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.outcomes.AbstractLineOutcome;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.scoreboard.PossessionSpecifiScoreboard;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+
+/**
+ * Builder for {@link Event} objects from data provided by the data sheets.
+ *
+ * @author jcmata
+ */
+public class EventBuilder {
+
+    /**
+     * Column name for the Offensive team as oteamid in the data sheets This field is for {@link PossessionSpecifiScoreboard}
+     * ,for {@link PXPConstants#BASEBALL_ID} and {@link PXPConstants#FOOTBALL_ID} sports.
+     */
+    public static final String TEAM_WITH_POSSESION = "oteamid";
+
+    /**
+     * Column name for the GameId in the data sheets
+     */
+    public static final String GAME_ID = "GameId";
+
+    /**
+     * Column name for the Description in the data sheets.
+     */
+    public static final String DESCRIPTION = "Description";
+
+    /**
+     * Column name for the LeagueId in the data sheets.
+     */
+    public static final String LEAGUE_ID = "League Id";
+
+    /**
+     * Column name for the League Name in the data sheets.
+     */
+    public static final String LEAGUE_NAME = "League Name";
+
+    /**
+     * Column name for the Home Team in the data sheets.
+     */
+    public static final String HOME_TEAM = "Home Team";
+
+    /**
+     * Column name for the Away Team in the data sheets.
+     */
+    public static final String AWAY_TEAM = "Away Team";
+
+    /**
+     * Column name for the Sport in the data sheets.
+     */
+    public static final String SPORT = "Sport";
+
+    /**
+     * Column name for the Status in the data sheets.
+     */
+    public static final String STATUS = "Status";
+
+    /**
+     * Column name for Period in the data sheets.
+     */
+    public static final String PERIOD = "Period";
+
+    /**
+     * Column name for Game Time in the data sheets.
+     */
+    public static final String GAMETIME = "Game Time";
+
+    /**
+     * Column name for Username in the data sheets.
+     */
+    public static final String USERNAME = "Username";
+
+    /**
+     * Column name for Password in the data sheets.
+     */
+    public static final String PASSWORD = "Password";
+
+    /**
+     * Column name for Game Time in the data sheets.
+     */
+    public static final String ODD_FORMAT = "OddFormat";
+
+    /**
+     * Column name for DisplayAwayFirst flag.
+     */
+    public final static String DISPLAY_AWAY_TEAM_FIRST = "DisplayAwayTeamFirst";
+
+    private static final Reporter reporter = ReporterTestListener.getReporter();
+
+    private static final String UNKNOWN_PARAMETER =
+            "Parameter %s is not supported by the Event Builder. Please add it, if you need it.";
+
+    private static final EventBuilder INSTANCE = new EventBuilder();
+
+    private static final String GAME_ID_FOUND_MSG = "GameId %s found in XLS file.";
+
+    private static final String GAME_ID_NULL_MSG = "ERROR : GameId not found in XLS file.";
+
+    public static final String MARKET_NAME = "MarketName";
+
+    public static final String MARKET_NAME_2 = "MarketNameToCreate";
+
+    public static final String RISK_HOME = "Risk Home";
+
+    public static final String RISK_DRAW = "Risk Draw";
+
+    public static final String RISK_AWAY = "Risk Away";
+
+    public static final String RISK_OVER = "Risk Over";
+
+    public static final String RISK_UNDER = "Risk Under";
+
+    public static final String RISK_EXTRA = "Risk Extra";
+
+    public static final String WIN_HOME = "Win Home";
+
+    public static final String WIN_AWAY = "Win Away";
+
+    public static final String WIN_DRAW = "Win Draw";
+
+    public static final String WIN_OVER = "Win Over";
+
+    public static final String WIN_UNDER = "Win Under";
+
+    public static final String WIN_EXTRA = "Win Extra";
+
+    public static final String EXPECTED_HOME = "Expected Home";
+
+    public static final String EXPECTED_AWAY = "Expected Away";
+
+    public static final String EXPECTED_DRAW = "Expected Draw";
+
+    public static final String EXPECTED_OVER = "Expected Over";
+
+    public static final String EXPECTED_UNDER = "Expected Under";
+
+    public static final String EXPECTED_EXTRA = "Expected Extra";
+
+    public static final String NOTE = "Note";
+
+    public static final String HANDICAP = "Handicap";
+
+    public static final String EXPECTED_HANDICAP_AWAY = "Expected Handicap Away";
+
+    public static final String EXPECTED_HANDICAP_HOME = "Expected Handicap Home";
+
+    public static final String EXPECTED_HANDICAP_TOTAL = "Expected Handicap total";
+
+    private static final String NULL_PARAMETER = "Parameter %s has value null and is ignored.";
+
+    private static final String PARAMETER_READ = "[PARAMETER %s READ WITH VALUE %s]";
+
+    private static final Object REAL_EVENT = "REAL_EVENT";
+
+    private EventBuilder() {
+    }
+
+    /**
+     * Returns a singleton instance of {@link EventBuilder}.
+     *
+     * @return the singleton {@link EventBuilder}.
+     */
+    public static EventBuilder getInstance() {
+        return INSTANCE;
+    }
+
+    /**
+     * Builds a {@link Event} based on the <code>params</code> provided as parameter.
+     *
+     * @param params
+     *            a {@link Map<String, String>} that holds the column name and value.
+     * @return the built {@link Event}.
+     */
+    public static Event buildEvent(final Map<String, String> params) {
+        final String gameId = params.get(GAME_ID);
+        Assert.assertNotNull(gameId, String.format(GAME_ID_FOUND_MSG, gameId), GAME_ID_NULL_MSG);
+        Event event = null;
+
+        if (REAL_EVENT.equals(gameId)) {
+            // event = loadRealEventParameters(params.get(SPORT));
+        } else {
+            event = EventFactory.getEventInstance(params.get(SPORT), params.get(GAME_ID));
+        }
+
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (entry.getValue() != StringUtils.EMPTY) {
+                reporter.info(String.format(PARAMETER_READ, entry.getKey(), entry.getValue()));
+                switch (entry.getKey()) {
+                case HOME_TEAM:
+                    event.setHomeTeamName(entry.getValue());
+                    break;
+                case AWAY_TEAM:
+                    event.setAwayTeamName(entry.getValue());
+                    break;
+                case DESCRIPTION:
+                    event.setEventDescription(entry.getValue());
+                    break;
+                case LEAGUE_NAME:
+                    event.setLeagueName(entry.getValue());
+                    break;
+                case LEAGUE_ID:
+                    event.setLeagueId(entry.getValue());
+                    break;
+                case NOTE:
+                    event.setNote(entry.getValue());
+                    break;
+                case STATUS:
+                    event.setGameStatus(EventStatus.fromStatus(entry.getValue()).getPxpCode());
+                    break;
+                case PERIOD:
+                    event.getScoreboard().setPeriod(entry.getValue());
+                    break;
+                case GAMETIME:
+                    event.getScoreboard().setGametime(entry.getValue());
+                    break;
+                case DISPLAY_AWAY_TEAM_FIRST:
+                    event.setDisplayAwayTeamFirst(entry.getValue());
+                    break;
+                case MARKET_NAME_2:
+                    event.addLine(LineFactory.getLineInstance(entry.getValue(), event));
+                    break;
+                case RISK_HOME:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(AbstractLineOutcome.HOME_OUTCOME).setRisk(
+                                entry.getValue());
+                    }
+                    break;
+                case RISK_AWAY:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(AbstractLineOutcome.AWAY_OUTCOME).setRisk(
+                                entry.getValue());
+                    }
+                    break;
+                case RISK_DRAW:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(AbstractLineOutcome.DRAW_OUTCOME).setRisk(
+                                entry.getValue());
+                    }
+                    break;
+                case RISK_OVER:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(AbstractLineOutcome.OVER_OUTCOME).setRisk(
+                                entry.getValue());
+                    }
+                    break;
+                case RISK_UNDER:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(
+                                AbstractLineOutcome.UNDER_OUTCOME).setRisk(entry.getValue());
+                    }
+                    break;
+                case RISK_EXTRA:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        List<Outcome> listToRisk = event.getLineByMarketName(params.get(MARKET_NAME_2)).getOutcomesList();
+                        for (Outcome outcome : listToRisk) {
+                            outcome.setRisk(entry.getValue());
+                        }
+                    }
+                    break;
+                case WIN_HOME:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(AbstractLineOutcome.HOME_OUTCOME).setWin(
+                                entry.getValue());
+                    }
+                    break;
+                case WIN_AWAY:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(AbstractLineOutcome.AWAY_OUTCOME).setWin(
+                                entry.getValue());
+                    }
+                    break;
+                case WIN_DRAW:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(AbstractLineOutcome.DRAW_OUTCOME).setWin(
+                                entry.getValue());
+                    }
+                    break;
+                case WIN_OVER:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(AbstractLineOutcome.OVER_OUTCOME).setWin(
+                                entry.getValue());
+                    }
+                    break;
+                case WIN_UNDER:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        event.getLineByMarketName(params.get(MARKET_NAME_2)).getOtcomeByTypeId(
+                                AbstractLineOutcome.UNDER_OUTCOME).setWin(entry.getValue());
+                    }
+                    break;
+                case WIN_EXTRA:
+                    if (params.get(MARKET_NAME_2) != null) {
+                        List<Outcome> listToWin = event.getLineByMarketName(params.get(MARKET_NAME_2)).getOutcomesList();
+                        for (Outcome outcome : listToWin) {
+                            outcome.setWin(entry.getValue());
+                        }
+                    }
+                    break;
+                case HANDICAP:
+                    System.out.println(params.get(MARKET_NAME_2));
+                    if (params.get(MARKET_NAME_2) != null) {
+                        ((LineHandicap) event.getLineByMarketName(params.get(MARKET_NAME_2))).setHandicap(entry.getValue());
+                    }
+                    break;
+                case TEAM_WITH_POSSESION:
+                    ((PossessionSpecifiScoreboard) event.getScoreboard().getSpecificScoreboard()).setTeamWithPossession(entry.getValue());
+                    break;
+                default:
+                    reporter.info(String.format(UNKNOWN_PARAMETER, entry.getKey()));
+                    break;
+                }
+            } else {
+                reporter.info(String.format(NULL_PARAMETER, entry.getKey()));
+            }
+        }
+        return event;
+    }
+
+}
+

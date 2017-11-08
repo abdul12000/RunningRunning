@@ -1,0 +1,167 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.LeftNavEventStepsHelperMethods;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.inrunning.tom.coupons.LeftNavEventInterface;
+import internal.qaauto.inrunning.tom.leftnav.LeftNavEventsComponentInterface;
+import internal.qaauto.inrunning.tom.leftnav.LiveNowEventsComponentInterface;
+import internal.qaauto.inrunning.tom.leftnav.SportInterface;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import org.jbehave.core.annotations.Named;
+import org.jbehave.core.annotations.Then;
+import org.jbehave.core.annotations.When;
+import org.jbehave.core.model.ExamplesTable;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 28/10/2014.
+ */
+public class LeftNavCouponSteps extends InRunningBaseStep {
+
+    private static final String SPORT_GROUP_CORRECT_POSITION = "Sports Group %s seen and in correct position";
+
+    private static final String SPORT_GROUP_INCORRECT_POSITION = "%s not in correct position";
+
+    private static final String SPORT_GROUP_DISPLAYED = "Sport Group %s displayed";
+
+    private static final String SPORT_GROUP_NOT_DISPLAYED = "Sport Group %s not displayed";
+
+    private static final String SPORT_HEADER_LABEL = "Sport";
+
+    private static final String COUPON_FOUND = "Coupon(%s) found";
+
+    private static final String COUPON_NOT_FOUND = "Coupon(%s) not found";
+
+    private static final String COUPON_DISPLAYED_UNDER_HEADER = "Coupon(%s) displayed under sport %s";
+
+    private static final String COUPON_NOT_DISPLAYED_UNDER_HEADER = "Coupon(%s) not displayed under sport %s";
+
+    private static final String COLLAPSED_SPORT_GROUPS = "%s group(s) are collapsed";
+
+    private LeftNavEventStepsHelperMethods leftNavEventStepsHelper = HelperFactory.getCouponStepsHelper();
+
+    @Then("player should see groups in $leftNavComponent events component in below order:$sportsGroups")
+    public void verifySportsGroups(final String leftNavComponent, final ExamplesTable dataTableSportsGroups) {
+        final LeftNavEventsComponentInterface eventsComponent;
+        if (leftNavComponent.equals("Upcoming")) {
+            eventsComponent = getLiveBettingPage().getUpcomingEventsComponent();
+        } else {
+            eventsComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        }
+
+        final List<String> sportsContainersTitles = eventsComponent.getSportsTitles();
+        final Utils utils = new Utils();
+        final List<String> expectedSportsGroups =
+                utils.getColumnValuesFromExampleTable(dataTableSportsGroups, SPORT_HEADER_LABEL);
+        final List<String> toBeVerifiedSportsGroupsList = new LinkedList<String>();
+        for (String sportContainerTitle : sportsContainersTitles) {
+            if (expectedSportsGroups.contains(sportContainerTitle)) {
+                toBeVerifiedSportsGroupsList.add(sportContainerTitle);
+            }
+        }
+        for (int index = 0; index < expectedSportsGroups.size(); index++) {
+            Assert.assertEquals(expectedSportsGroups.get(index), toBeVerifiedSportsGroupsList.get(index),
+                    String.format(SPORT_GROUP_CORRECT_POSITION, toBeVerifiedSportsGroupsList.get(index)),
+                    String.format(SPORT_GROUP_INCORRECT_POSITION, toBeVerifiedSportsGroupsList.get(index)));
+        }
+    }
+
+    @Then("Upcoming Coupons component should display a sport group with header <<Sport>>")
+    public void verifySportGroupInUpcomingComponent(@Named("<Sport>") final String sport) {
+        verifySportGroup("Upcoming", sport);
+    }
+
+    @Then("Live Now component should display a sport group with header <<Sport>>")
+    public void verifySportGroupInLiveNowComponent(@Named("<Sport>") final String sport) {
+        verifySportGroup("Live Now", sport);
+    }
+
+    public void verifySportGroup(final String leftNavComponent, @Named("<Sport>") final String sport) {
+        final LeftNavEventsComponentInterface leftNavCouponsComponent;
+        if (leftNavComponent.equals("Upcoming")) {
+            leftNavCouponsComponent = getLiveBettingPage().getUpcomingEventsComponent();
+        } else {
+            leftNavCouponsComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        }
+        final SportInterface sportContainer = leftNavCouponsComponent.getSportByTitle(sport);
+        Assert.assertTrue(sportContainer.getWebElement().isDisplayed(), String.format(SPORT_GROUP_DISPLAYED, sport),
+                String.format(SPORT_GROUP_NOT_DISPLAYED, sport));
+    }
+
+    @Then("above created event should be displayed under sport <<Sport>> in Upcoming Coupons component")
+    public void verifyCouponsInUpcomingCouponsComponent(@Named("<Sport>") final String sport) {
+        verifyCouponInCouponsComponent("Upcoming", sport);
+    }
+
+    @Then("above created event should be displayed under sport <<Sport>> in Live Now component")
+    public void verifyCouponsInLiveNowComponent(@Named("<Sport>") final String sport) {
+        verifyCouponInCouponsComponent("Live Now", sport);
+    }
+
+    @Then("above created event should be displayed under sport <<Sport>>")
+    public void verifyCouponInCouponsComponent(final String componentName, @Named("<Sport>") final String sport) {
+        final LeftNavEventsComponentInterface leftNavCouponsComponent;
+        if (componentName.equals("Upcoming")) {
+            leftNavCouponsComponent = getLiveBettingPage().getUpcomingEventsComponent();
+        } else {
+            leftNavCouponsComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        }
+        final Utils utils = new Utils();
+        final Event event = getEvent();
+        final String eventName = utils.getEventName(event);
+        final LeftNavEventInterface coupon = leftNavCouponsComponent.getLeftNavEventByTitle(eventName);
+        Assert.assertNotNull(coupon, String.format(COUPON_FOUND, eventName), String.format(COUPON_NOT_FOUND, eventName));
+        Assert.assertTrue(coupon.getWebElement().isDisplayed(),
+                String.format(COUPON_DISPLAYED_UNDER_HEADER, eventName, sport),
+                String.format(COUPON_NOT_DISPLAYED_UNDER_HEADER, eventName, sport));
+
+    }
+
+    @Then("default for all sport groups in live now component will be expanded so all events will be visible")
+    public void verifyAllSportsAreExpandedByDefault() {
+        final LiveNowEventsComponentInterface liveNowCouponsComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        final List<SportInterface> sportGroups = liveNowCouponsComponent.getSportGroups();
+        final List<String> collapsedSportGroups = new ArrayList<String>();
+        for (SportInterface sportGroup : sportGroups) {
+            if (leftNavEventStepsHelper.isSportGroupCollapsed(sportGroup)) {
+                collapsedSportGroups.add(sportGroup.getTitle());
+            }
+        }
+
+        if (collapsedSportGroups.size() > 0) {
+            Assert.fail(String.format(COLLAPSED_SPORT_GROUPS, collapsedSportGroups.toString()));
+        }
+    }
+
+    @When("player collapses $Sport sport in live now component")
+    public void collapseSport(@Named("<Sport>") final String sport) {
+        LiveNowEventsComponentInterface liveNowCouponComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        SportInterface sportGroup = liveNowCouponComponent.getSportByTitle(sport);
+        verifySportGroupInLiveNowComponent(sport);
+        sportGroup.collapse();
+    }
+
+    @Then("sport $Sport group in live now component should be collapsed and all events under it should be hidden")
+    public void verifySportGroupIsCollapsed(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.verifySportGroupInLiveNowCollapsed(sport);
+    }
+
+    @When("player expands $Sport sport in live now component")
+    public void expandSport(@Named("<Sport>") final String sport) {
+        LiveNowEventsComponentInterface liveNowCouponComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        SportInterface sportContainer = liveNowCouponComponent.getSportByTitle(sport);
+        sportContainer.expand();
+    }
+
+    @Then("sport $Sport group in live now component should be expanded and events should be shown")
+    public void verifySportGroupIsExpanded(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.verifySportGroupInLiveNowExpanded(sport);
+    }
+
+}

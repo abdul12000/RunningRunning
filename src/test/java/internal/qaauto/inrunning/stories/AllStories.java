@@ -1,0 +1,102 @@
+package internal.qaauto.inrunning.stories;
+
+import de.codecentric.jbehave.junit.monitoring.JUnitReportingRunner;
+import internal.qaauto.inrunning.framework.InRunningTestCase;
+import internal.qaauto.inrunning.steps.*;
+import org.jbehave.core.Embeddable;
+import org.jbehave.core.configuration.Configuration;
+import org.jbehave.core.configuration.MostUsefulConfiguration;
+import org.jbehave.core.i18n.LocalizedKeywords;
+import org.jbehave.core.io.CodeLocations;
+import org.jbehave.core.io.LoadFromClasspath;
+import org.jbehave.core.io.StoryFinder;
+import org.jbehave.core.junit.JUnitStories;
+import org.jbehave.core.model.ExamplesTableFactory;
+import org.jbehave.core.parsers.RegexStoryParser;
+import org.jbehave.core.reporters.StoryReporterBuilder;
+import org.jbehave.core.steps.InjectableStepsFactory;
+import org.jbehave.core.steps.InstanceStepsFactory;
+import org.jbehave.core.steps.ParameterConverters;
+import org.junit.runner.RunWith;
+
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import static java.util.Arrays.asList;
+import static org.jbehave.core.io.CodeLocations.codeLocationFromClass;
+import static org.jbehave.core.reporters.Format.*;
+
+/**
+ * Created by Harish Renukunta and rkora
+ */
+@RunWith(JUnitReportingRunner.class)
+public class AllStories extends JUnitStories {
+
+    public AllStories() {
+        JUnitReportingRunner.recommendedControls(configuredEmbedder());
+        String functionality = System.getProperty("functionality");
+        final String testTypeProperty=System.getProperty("testType");
+        if (functionality == null&&testTypeProperty==null) {
+            configuredEmbedder().useMetaFilters(asList("+story BGSIR_74","-run false"));
+        } else if(functionality!=null){
+            configuredEmbedder().useMetaFilters(asList("+functionality " + functionality, "-run false"));
+        }
+        else if(testTypeProperty!=null){
+            configuredEmbedder().useMetaFilters(asList("+testType " + testTypeProperty, "-run false"));
+        }
+        configuredEmbedder().embedderControls().doGenerateViewAfterStories(true).doIgnoreFailureInStories(
+                false).doIgnoreFailureInView(false).useThreads(1).useStoryTimeoutInSecs(600);
+    }
+
+    @Override
+    public Configuration configuration() {
+        Class<? extends Embeddable> embeddableClass = this.getClass();
+        // Start from default ParameterConverters instance
+        ParameterConverters parameterConverters = new ParameterConverters();
+        // factory to allow parameter conversion and loading from external resources (used by StoryParser too)
+        ExamplesTableFactory
+                examplesTableFactory =
+                new ExamplesTableFactory(new LocalizedKeywords(), new LoadFromClasspath(embeddableClass), parameterConverters);
+        // add custom converters
+        parameterConverters.addConverters(new ParameterConverters.DateConverter(new SimpleDateFormat("yyyy-MM-dd")),
+                new ParameterConverters.ExamplesTableConverter(examplesTableFactory));
+        return new MostUsefulConfiguration()
+                .useStoryLoader(new LoadFromClasspath(embeddableClass))
+                .useKeywords(new LocalizedKeywords(Locale.ENGLISH))
+                .useStoryParser(new RegexStoryParser(examplesTableFactory))
+                .useStoryReporterBuilder(new StoryReporterBuilder()
+                        .withCodeLocation(CodeLocations.codeLocationFromClass(embeddableClass))
+                        .withDefaultFormats()
+                        .withFormats(CONSOLE, HTML, TXT, XML))
+                .useParameterConverters(parameterConverters);
+    }
+
+    @Override
+    public InjectableStepsFactory stepsFactory() {
+        return new InstanceStepsFactory(configuration(), new LiveBettingPageSteps(), new InRunningTestCase(), new EventSteps(),
+                new LeftNavEventSteps(), new LeftNavCouponSteps(), new BetSlipSteps(), new CouponAreaSteps(), new QBMSteps(),
+                new MyBetsSteps());
+    }
+
+    @Override
+    public List<String> storyPaths() {
+        final String storyProperty = System.getProperty("stories");
+        final List<String> listOfStories;
+        if (storyProperty == null || storyProperty.isEmpty()) {
+            listOfStories = new StoryFinder().findPaths(codeLocationFromClass(this.getClass()), "**/*.story",
+                    "**/GivenStories/*.story");
+        } else {
+            final String[] storyNames = storyProperty.split(",");
+            final StoryFinder storyFinder = new StoryFinder();
+            final URL baseUrl = CodeLocations.codeLocationFromClass(this.getClass());
+            listOfStories = new ArrayList<String>();
+            for (String storyName : storyNames) {
+                listOfStories.addAll(storyFinder.findPaths(baseUrl, "**/" + storyName, "**/GivenStories/*.story"));
+            }
+        }
+        return listOfStories;
+    }
+}

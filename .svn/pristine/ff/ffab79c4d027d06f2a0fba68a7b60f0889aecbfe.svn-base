@@ -1,0 +1,49 @@
+Meta:
+@story BGSIR_55
+@functionality leftnav
+
+Narrative:
+As a player
+I want event hyperlinks in the Live Now to be displayed grouped by Sport and under a specified Sport header
+so that I can identify easily to which Sport belongs every event
+
+Scenario:Live Now component displays sports groups in specified order
+Meta:
+@author Harish
+@scenarioName BGSIR55_DisplaySportHeadersInOrder
+@testType regression
+Given events are created using below data:
+|GameId |Sport   |Home Team    |Away Team              |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description|
+|1234   |Football  |Buffalo Bills|Arizona Cardinals      |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_Football_SortSportsGroup|
+|12546  |Soccer    |Algeria      |Anguilla               |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_SortSportsGroups|
+|4356   |Tennis    |Home_17301   |Away_17301             |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR54_Tennis|
+|3678   |Hockey    |Boston Bruins|Anaheim Ducks          |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR54_Hocker|
+|3677   |Basketball|Atlanta Hawks|Denver Nuggets         |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR54_Basketball|
+When player navigate to any In-Running page
+Then player should see groups in Live Now events component in below order:
+|Sport|
+|Football|
+|Basketball|
+|Hockey|
+|Tennis|
+|Soccer|
+
+Scenario: Live Now event will be displayed under a corresponding Sport name
+Meta:
+@author Harish
+@scenarioName BGSIR55_DisplayCouponUnderSport
+@testType smoke
+Given an event is created using below data:
+|GameId   |Sport   |Home Team    |Away Team              |League Id    |Status       |Period  |AwayTeam NickName    |HomeTeam NickName    |Description|
+|<GameId> |<Sport> |<Home Team>  |<Away Team>            |<League Id>  |<Status>     |<Period>|<AwayTeam NickName>  |<HomeTeam NickName>  |<Description>|
+When player navigate to any In-Running page
+Then Live Now component should display a sport group with header <<Sport>>
+And above created event should be displayed under sport <<Sport>> in Live Now component
+
+Examples:
+|<GameId> |<Sport>   |<Home Team>  |<Away Team>            |<League Id>  |<Status>     |<Period>|<AwayTeam NickName>  |<HomeTeam NickName>  |<Description>|
+|1234     |Football  |Buffalo Bills|Arizona Cardinals      |5            |In Progress  |2       |AT_Nick              |HT_Nick              |AUTOTEST_Football_Display|
+|12546    |Soccer    |Algeria      |Anguilla               |33           |In Progress  |1       |Anguilla_Nick        |Algeria_Nick         |AUTOTEST_SortSportsGroups|
+|4356     |Tennis    |Home_17301   |Away_17301             |325          |In Progress  |1       |HM_17301_Nick        |AW_17301_Nick        |AUTOTEST_BGSIR54_Tennis|
+|3678     |Hockey    |Boston Bruins|Anaheim Ducks          |50           |In Progress  |1       |BostonBruins_Nick    |Anaheim_Nick         |AUTOTEST_BGSIR54_Hocker|
+|3677     |Basketball|Atlanta Hawks|Denver Nuggets         |2            |In Progress  |2       |Atlanta_Nick         |Denver_Nick          |AUTOTEST_BGSIR54_Basketball|

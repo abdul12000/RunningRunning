@@ -1,0 +1,19 @@
+<wagerReferralFilter>
+    <playerGroupCodes>
+        <playerGroup>${playerGroup}</playerGroup>
+    </playerGroupCodes>
+    <wagerTypes>
+        <wagerType>${wagerType}</wagerType>
+    </wagerTypes>
+    <reviewer>${reviewer}</reviewer>
+    <host>${host}</host>
+    <active>${active}</active>
+    <lastLogin>${lastLogin}</lastLogin>
+    <lastLogout>${lastLogout}</lastLogout>
+    <eventTypeCodes>
+        <eventType>${eventType}</eventType>
+    </eventTypeCodes>
+    <tradingGroupCodes>
+        <tradingGroup>${tradingGroup}</tradingGroup>
+    </tradingGroupCodes>
+</wagerReferralFilter>

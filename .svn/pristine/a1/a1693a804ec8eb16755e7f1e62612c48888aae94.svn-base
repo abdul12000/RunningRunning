@@ -1,0 +1,54 @@
+Meta:
+@story BGSIR_122
+@functionality leftnav
+
+Narrative:
+As a player
+I want team names to be truncated in the left nav
+so that information displayed in the left nav components is clear
+
+
+Scenario:  Team names should be truncated in left nav Live Now events component
+Meta:
+@scenarioName BGSIR122_TruncatedNamesLiveNowComponent
+@testType regression
+@author Harish
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName           |HomeTeam NickName           |Description  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>_<GameId>|<HomeTeam NickName>_<GameId>|<Description>|
+When player navigate to any In-Running page
+Then team names should be truncated in left nav live now events component
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>   |<HomeTeam NickName>       |<Description>                   |
+|     |1221       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick_Buffalo Bills |HT_Nick_Arizona Cardinals |AUTOTEST_BGSIR122_TruncatedNames|
+|     |1222       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick_Nick    |Algeria_Nick_Nick         |AUTOTEST_BGSIR122_TruncatedNames|
+|     |1223       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick_HT_1739 |AW_17301_Nick_Nick        |AUTOTEST_BGSIR122_TruncatedNames|
+|     |1224       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick_Bos |Anaheim_Nick_Nick         |AUTOTEST_BGSIR122_TruncatedNames|
+|     |1225       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick_Atlanta  |Denver_Nick_Denver        |AUTOTEST_BGSIR122_TruncatedNames|
+
+
+
+
+Scenario:  Team names should be truncated in left nav Upcoming events component
+Meta:
+@scenarioName BGSIR122_TruncatedNamesUpcomingEvent
+@testType regression
+@author Harish
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName           |HomeTeam NickName           |Description  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>_<GameId>|<HomeTeam NickName>_<GameId>|<Description>|
+When player navigate to any In-Running page
+Then team names should be truncated in left nav Upcoming events component
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>   |<HomeTeam NickName>       |<Description>                   |
+|     |1221       |Football   |Buffalo Bills  |Arizona Cardinals |5          |Upcoming   |AT_Nick_Buffalo Bills |HT_Nick_Arizona Cardinals |AUTOTEST_BGSIR122_TruncatedNames|
+|     |1222       |Soccer     |Algeria        |Anguilla          |33         |Upcoming   |Anguilla_Nick_Nick    |Algeria_Nick_Nick         |AUTOTEST_BGSIR122_TruncatedNames|
+|     |1223       |Tennis     |Home_17301     |Away_17301        |325        |Upcoming   |HM_17301_Nick_HT_1739 |AW_17301_Nick_Nick        |AUTOTEST_BGSIR122_TruncatedNames|
+|     |1224       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |Upcoming   |BostonBruins_Nick_Bos |Anaheim_Nick_Nick         |AUTOTEST_BGSIR122_TruncatedNames|
+|     |1225       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |Upcoming   |Atlanta_Nick_Atlanta  |Denver_Nick_Denver        |AUTOTEST_BGSIR122_TruncatedNames|
+
+
+					 
+

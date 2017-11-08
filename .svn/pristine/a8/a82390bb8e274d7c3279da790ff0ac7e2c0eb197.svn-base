@@ -1,0 +1,265 @@
+package internal.qaauto.inrunning.tom;
+
+import com.google.common.base.Function;
+
+import internal.qaauto.deltawebsites.websites.bovadabodog.tom.sports.SportsPage;
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.tom.Utilties.Odds;
+import internal.qaauto.inrunning.tom.betslip.BetSlip;
+import internal.qaauto.inrunning.tom.betslip.BetSlipImpl;
+import internal.qaauto.inrunning.tom.betslip.QuickBetMode;
+import internal.qaauto.inrunning.tom.betslip.QuickBetModeImpl;
+import internal.qaauto.inrunning.tom.coupons.LeftNavEvent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowEvent;
+import internal.qaauto.inrunning.tom.leftnav.*;
+import internal.qaauto.inrunning.tom.markets.Market;
+import internal.qaauto.inrunning.tom.markets.MarketImpl;
+
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.By.ByCssSelector;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Select;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+/**
+ * Created by Harish Renukunta on 03/10/2014.
+ */
+public class LiveBettingPageImpl extends SportsPage implements LiveBettingPage {
+
+    private static final String MARKET_SELECTOR = "#coupon > ul > li";
+
+    private By marketLocator = new By.ByCssSelector(MARKET_SELECTOR);
+
+    private static final String LEFT_NAV_SELECTOR = "#leftCol";
+
+    private By leftNavLocator = new By.ByCssSelector(LEFT_NAV_SELECTOR);
+
+    private static final String QBM_SELECTOR = ".betting-mode";
+
+    private By quickBetModeLocator = new By.ByCssSelector(QBM_SELECTOR);
+
+    private static final String COUPON_COMPONENT_SELECTOR = "#coupon";
+
+    private static final String BETSLIP_COMPONENT_SELECTOR = "#live-betslip";
+
+    private By couponComponentLocator = new By.ByCssSelector(COUPON_COMPONENT_SELECTOR);
+
+    private By betSlipLocator = new By.ByCssSelector(BETSLIP_COMPONENT_SELECTOR);
+
+    private static final String ODDS_SELECTOR = "select.ng-valid";
+
+    private By oddsLocator = new By.ByCssSelector(ODDS_SELECTOR);
+
+    private static final String TIMEZONE_SELECTOR = "#timeZoneCodeHolder";
+
+    private By timeZoneLocator = new By.ByCssSelector(TIMEZONE_SELECTOR);
+    
+    private static final String USERNAME_LOCATOR = "#username";
+    
+    private By username_selector = new By.ByCssSelector(USERNAME_LOCATOR);
+    
+    private static final String PASSWORD_LOCATOR = "#password";
+    
+    private By password_selector = new By.ByCssSelector(PASSWORD_LOCATOR);
+    
+    private static final String SIGNIN_LOCATOR = "#submitSignIn";
+    
+    private By signIn_selector = new By.ByCssSelector(SIGNIN_LOCATOR);
+    
+    private static final String loginPage_Url = "https://www.ldev.bovada.lv"; 
+
+    @Override
+    public LeftNavMenu getLeftNav() {
+        return new LeftNavMenuImpl(webDriver.findElement(leftNavLocator));
+    }
+
+    @Override
+    public LiveNowEventsComponent getLiveNowCouponsComponent() {
+
+        return getLeftNav().getLiveNowCouponsComponent();
+    }
+
+    @Override
+    public LeftNavLiveNowEvent getLiveNowEventByName(final String sport, final String eventName) {
+        final LiveNowEventsComponent liveNowComponent = getLiveNowCouponsComponent();
+        FluentWait<LiveNowEventsComponent> fWait = new FluentWait<LiveNowEventsComponent>(liveNowComponent);
+        LeftNavLiveNowEvent leftNavEvent;
+        try {
+            leftNavEvent = fWait.until(new Function<LiveNowEventsComponent, LeftNavLiveNowEvent>() {
+                @Override
+                public LeftNavLiveNowEvent apply(LiveNowEventsComponent eventsComponent) {
+                    return liveNowComponent.getLiveNowEventByName(sport, eventName);
+                }
+            });
+        } catch (Exception ex) {
+            return null;
+        }
+        return leftNavEvent;
+
+    }
+
+    @Override
+    public LeftNavEvent getUpcomingEventByName(final String sport, final String eventName) {
+        final UpcomingEventsComponent upcomingEvent = getUpcomingEventsComponent();
+        FluentWait<UpcomingEventsComponent> fWait = new FluentWait<UpcomingEventsComponent>(upcomingEvent);
+        final LeftNavEvent leftNavEvent;
+        try {
+            leftNavEvent = fWait.until(new Function<UpcomingEventsComponent, LeftNavEvent>() {
+                @Override
+                public LeftNavEvent apply(final UpcomingEventsComponent eventsComponent) {
+                    return eventsComponent.getLeftNavEventByName(eventName, sport);
+                }
+            });
+        } catch (Exception ex) {
+            return null;
+        }
+
+        return leftNavEvent;
+    }
+
+    @Override
+    public UpcomingEventsComponent getUpcomingEventsComponent() {
+        return getLeftNav().getUpcomingCouponsComponent();
+    }
+
+    @Override
+    public EventComponentInterface getEventsComponent() {
+        WebElement couponArea = getChildWebElement(couponComponentLocator);
+        return new EventComponent(couponArea);
+    }
+
+    @Override
+    public List<Market> getMarkets() {
+        List<WebElement> marketWebElements = webDriver.findElements(marketLocator);
+        if (marketWebElements.size() == 0) {
+            return null;
+        }
+        List<Market> markets = new LinkedList<Market>();
+        for (WebElement marketWebElement : marketWebElements) {
+            markets.add(new MarketImpl(marketWebElement));
+        }
+        return markets;
+    }
+
+    @Override
+    public Market getMarketByTitle(final String title) {
+        List<Market> markets = getMarkets();
+        if (markets == null) {
+            return null;
+        }
+        boolean marketFound = false;
+        String marketTitle = StringUtils.EMPTY;
+        Market desiredMarket = null;
+        for (int i = 0; (i < markets.size() && marketFound == false); i++) {
+            marketTitle = markets.get(i).getMarketTitle();
+            if (title.equalsIgnoreCase(marketTitle)) {
+                marketFound = true;
+                desiredMarket = markets.get(i);
+            }
+        }
+        return desiredMarket;
+    }
+
+    @Override
+    @Deprecated
+    public BetSlipModeComponentInterface getBetSlipModeComponent() {
+        return null;
+    }
+
+    @Override
+    public BetSlip getBetSlip() {
+        List<WebElement> betSlipWebElements = webDriver.findElements(betSlipLocator);
+        if (betSlipWebElements == null) {
+            return null;
+        }
+        return new BetSlipImpl(betSlipWebElements.get(0));
+    }
+
+    @Override
+    public WebElement getChildWebElement(final By childElementLocator) {
+        List<WebElement> childWebElements = webDriver.findElements(childElementLocator);
+        if (childWebElements == null) {
+            return null;
+        }
+        return childWebElements.get(0);
+    }
+
+    @Override
+    public void setOddsFormat(final String oddsFormat) {
+        String formatToSelect = null;
+        if (oddsFormat.equals(Odds.AMERICAN.getOddsFormat())) {
+            formatToSelect = Odds.AMERICAN.getOddsFormatText();
+        } else if (oddsFormat.equals(Odds.DECIMAL.getOddsFormat())) {
+            formatToSelect = Odds.DECIMAL.getOddsFormatText();
+        } else if (oddsFormat.equals(Odds.FRACTIONAL.getOddsFormat())) {
+            formatToSelect = Odds.FRACTIONAL.getOddsFormatText();
+        }
+
+        if (StringUtils.isNotEmpty(formatToSelect)) {
+            Select oddSelectorWebElement = new Select(webDriver.findElement(oddsLocator));
+            oddSelectorWebElement.selectByVisibleText(formatToSelect);
+        }
+    }
+
+    @Override
+    public void go() {
+        webDriver.get("http://bgs-live.ldev.bovada.lv/event/");
+    }
+
+    @Override
+    public void refresh() {
+        webDriver.navigate().refresh();
+    }
+
+    @Override
+    public void goToEvent(final String gameId) {
+        webDriver.get("http://bgs-live.ldev.bovada.lv/event/" + gameId);
+    }
+
+    @Override
+    public QuickBetMode getQuickBetMode() {
+        List<WebElement> qbmWebElements = webDriver.findElements(quickBetModeLocator);
+        if (qbmWebElements == null) {
+            return null;
+        }
+        return new QuickBetModeImpl(qbmWebElements.get(0));
+    }
+
+    @Override
+    public String getTimeZone() {
+        final WebElement timeZoneWebElement;
+        try {
+            timeZoneWebElement = webDriver.findElement(timeZoneLocator);
+        } catch (NoSuchElementException ex) {
+            return StringUtils.EMPTY;
+        }
+        return timeZoneWebElement.getText();
+    }
+
+    @Override
+    public List<LeftNavLiveNowEvent> getLiveNowEventsBySport(String sport) {
+        final LiveNowEventsComponent liveNowEventsComponent = getLiveNowCouponsComponent();
+        final List<LeftNavEvent> leftNavEvents = liveNowEventsComponent.getLeftNavEventsBySport(sport);
+        return (List<LeftNavLiveNowEvent>) ((List<?>) leftNavEvents);
+    }
+
+	@Override
+	public void login(final String uname, final String pwd) {
+		this.webDriver.get(loginPage_Url);
+		final WebElement username = webDriver.findElement(username_selector);
+		final WebElement password = webDriver.findElement(password_selector);
+		final WebElement signIn = webDriver.findElement(signIn_selector);
+		username.sendKeys(uname);
+		username.sendKeys(Keys.TAB);
+		password.sendKeys(pwd);
+		signIn.click();
+	}
+
+}
+

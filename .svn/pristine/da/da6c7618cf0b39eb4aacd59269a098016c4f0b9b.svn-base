@@ -1,0 +1,98 @@
+package internal.qaauto.inrunning.StepCandidatesHelperMethods;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.tom.CouponComponentInterface;
+import internal.qaauto.inrunning.tom.LiveBettingPageInterface;
+import internal.qaauto.inrunning.tom.betslip.BetSlipInterface;
+import internal.qaauto.inrunning.tom.leftnav.BetSlipModeComponentInterface;
+import internal.qaauto.inrunning.tom.leftnav.LiveNowCouponsComponentInterface;
+import internal.qaauto.inrunning.tom.leftnav.UpcomingCouponsComponentInterface;
+import internal.qaauto.inrunning.tom.markets.MarketInterface;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.steps.ObjectFactory;
+import internal.qaauto.inrunning.utils.InRunningComponents;
+import internal.qaauto.inrunning.utils.LeftNavComponents;
+import org.openqa.selenium.WebElement;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 17/10/2014.
+ */
+public class LiveBettingStepMethods extends InRunningBaseStep{
+
+    private static final String COMPONENT_DISPLAYED = "%s displayed";
+
+    private static final String COMPONENT_NOT_DISPLAYED = "%s not displayed";
+
+    private EventStepsHelperMethods eventStepsHelperMethods = HelperFactory.getEventStepsHelper();
+
+    /*
+    private LiveBettingPageInterface getLiveBettingPage() {
+        return ObjectFactory.getLiveBettingPage();
+    }
+    */
+
+    private List<String> getMarketsList() {
+        List<MarketInterface> markets=getLiveBettingPage().getMarkets();
+        List<String> marketsTitles = new LinkedList<>();
+        for(MarketInterface market:markets){
+            marketsTitles.add(market.getMarketTitle());
+        }
+        return marketsTitles;
+    }
+
+    public void verifyBetSlipComponent() {
+        final String component = InRunningComponents.BETSLIP_COMPONENT.getLabel();
+        final BetSlipInterface betSlip = getLiveBettingPage().getBetSlip();
+        final WebElement betSlipWebElement = betSlip.getWebElement();
+        Assert.assertTrue(betSlipWebElement.isDisplayed(), String.format(COMPONENT_DISPLAYED, component),
+                String.format(COMPONENT_NOT_DISPLAYED, component));
+    }
+
+    public void verifyLiveNowComponent() {
+        final String component = LeftNavComponents.LIVE_NOW_COUPONS_COMPONENT.getLabel();
+        final LiveNowCouponsComponentInterface liveNowCouponsComponent = getLiveBettingPage().getLiveNowCouponsComponent();
+        final WebElement liveNowCouponsComponentWebElement = liveNowCouponsComponent.getWebElement();
+        Assert.assertTrue(liveNowCouponsComponentWebElement.isDisplayed(), String.format(COMPONENT_DISPLAYED, component),
+                String.format(COMPONENT_NOT_DISPLAYED, component));
+    }
+
+    public void verifyUpcomingCouponsComponent() {
+        final String component = LeftNavComponents.UPCOMING_COUPONS_COMPONENT.getLabel();
+        final UpcomingCouponsComponentInterface upcomingCouponsComponent = getLiveBettingPage().getUpcomingCouponsComponent();
+        final WebElement upcomingCouponsComponentWebElement = upcomingCouponsComponent.getWebElement();
+        Assert.assertTrue(upcomingCouponsComponentWebElement.isDisplayed(), String.format(COMPONENT_DISPLAYED, component),
+                String.format(COMPONENT_NOT_DISPLAYED, component));
+    }
+
+    public void verifyBetSlipModeComponent() {
+        final String component = LeftNavComponents.BETSLIP_MODE_COMPONENT.getLabel();
+        final BetSlipModeComponentInterface betSlipModeComponent = getLiveBettingPage().getBetSlipModeComponent();
+        final WebElement betSlipModeComponentWebElement = betSlipModeComponent.getWebElement();
+        Assert.assertTrue(betSlipModeComponentWebElement.isDisplayed(), String.format(COMPONENT_DISPLAYED, component),
+                String.format(COMPONENT_NOT_DISPLAYED, component));
+    }
+
+    public void verifyCouponComponent() {
+        final String component = InRunningComponents.COUPON_AREA_COMPONENT.getLabel();
+        final CouponComponentInterface couponsComponent = getLiveBettingPage().getCouponComponent();
+        Assert.assertNotNull(couponsComponent, String.format(COMPONENT_DISPLAYED, component),
+                String.format(COMPONENT_NOT_DISPLAYED, component));
+    }
+
+    public boolean verifyMarketTitles() {
+        final List<String> marketsTitles = eventStepsHelperMethods.getMarketsTitleFromEvent(getEvent());
+        final List<String> marketsTitlesText=getMarketsList();
+        boolean marketNotFound = Boolean.FALSE;
+        for(String marketTitle:marketsTitlesText){
+            if(!marketsTitles.contains(marketTitle)){
+                reporter.info(marketTitle+" :market is not displayed");
+                marketNotFound = Boolean.TRUE;
+                break;
+            }
+        }
+        return marketNotFound;
+    }
+}

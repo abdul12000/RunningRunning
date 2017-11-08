@@ -1,0 +1,44 @@
+package internal.qaauto.inline.tom.leftnav;
+
+import internal.qaauto.inline.tom.coupons.LeftNavCouponInterface;
+import internal.qaauto.inline.tom.coupons.LeftNavUpcomingCouponInterface;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public class LeftNavUpcomingMenu implements LeftNavUpcomingMenuInterface{
+
+    public static final String SPORTS_CONTAINER_SELECTOR = "";
+
+    private By sportsContainerLocator = new By.ByCssSelector(SPORTS_CONTAINER_SELECTOR);
+
+    private WebElement leftNavUpcomingMenu;
+
+    public LeftNavUpcomingMenu(final WebElement leftNavUpcomingMenu){
+        this.leftNavUpcomingMenu = leftNavUpcomingMenu;
+    }
+
+    @Override
+    public String getTitle() {
+        return null;
+    }
+
+    @Override
+    public List<LeftNavUpcomingCouponInterface> getUpcomingCoupons() {
+        return null;
+    }
+
+    @Override
+    public List<SportsContainerInterface> getSportsContainers() {
+        List<WebElement> sportsContainersWebElements = leftNavUpcomingMenu.findElements(sportsContainerLocator);
+        if(sportsContainersWebElements == null){
+            return null;
+        }
+        return null;
+    }
+}

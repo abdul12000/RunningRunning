@@ -1,0 +1,28 @@
+Narrative:
+As a player
+I want Live coupons to display in two columns markets with two betting selections
+
+Meta:
+@author rkora
+@Story BGSIR97
+
+Scenario: the number of betting selections offered for a market type is two, markets has to be displayed in two columns layout coupon.
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|
+And add the markets to the Event:
+|MarketName|
+|Extra Market 1|
+|Extra Market 2|
+When user navigate to a Single Game View page of a Live Event <<GameId>>
+Then the list of markets of the selected event are displayed in the coupon area
+And the markets should display two columns layout
+|MarketName|
+|Extra Market 1|
+|Extra Market 2|
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>   |<Description>  |
+|12345      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-103|
+

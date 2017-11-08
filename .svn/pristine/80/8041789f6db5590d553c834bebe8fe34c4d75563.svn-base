@@ -1,0 +1,14 @@
+package internal.qaauto.inline.tom.coupons;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 06/10/2014.
+ */
+public class LeftNavUpcomingCoupon extends LeftNavCoupon implements LeftNavUpcomingCouponInterface {
+
+    private WebElement upcomingCouponWebElement;
+
+
+}

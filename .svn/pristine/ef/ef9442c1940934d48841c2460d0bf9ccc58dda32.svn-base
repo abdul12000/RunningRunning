@@ -1,0 +1,337 @@
+package internal.qaauto.inrunning.StepCandidatesHelperMethods;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.Utilties.OutcomeStatus;
+import internal.qaauto.inrunning.tom.betslip.BetSlip;
+import internal.qaauto.inrunning.tom.betslip.BetSlipSelection;
+import internal.qaauto.inrunning.tom.betslip.BetSlipModeComponent;
+import internal.qaauto.inrunning.tom.markets.Market;
+import internal.qaauto.inrunning.tom.markets.MarketOutcome;
+import internal.qaauto.inrunning.utils.WaitUtils;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Line;
+import org.apache.commons.lang.StringUtils;
+import org.jbehave.core.annotations.Then;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by rkora on 01/12/2014.
+ */
+public class BetslipHelperMethods extends InRunningBaseStep {
+
+	private static final String LAST_SELECTION_RISK_FIELD_HAS_FOCUS = "Last selection '%s' risk field has focus";
+
+	private static final String LAST_SELECTION_RISK_FIELD_HAS_NO_FOCUS = "Last selection '%s' risk field doesn't have focus";
+
+	private static final String SELECTION_EXISTS = "Selection exists";
+
+	private static final String NO_SELECTION = "Selection not available";
+
+	private static final String BETSLIP_SELECTION_COUNT_MATCH = "Number of selections are displayed in the Betslip:%s";
+
+	private static final String BETSLIP_SELECTION_COUNT_MISMATCH = "Expected Number of selections:%s  \n Actual number of selections displayed in the Betslip :%s";
+
+	private static final String ERROR_MSG_DISPLAYED = "Error mesage '%s' displayed";
+
+	private static final String ERROR_MSG_NOT_DISPLAYED = "Error message '%s' not displayed";
+
+	private static final String MESSAGE_DISPLAYED = "Message '%s' displayed";
+
+	private static final String MESSAGE_NOT_DISPLAYED = "Message '%s' not displayed";
+	
+	private static final String BETSLIP_MODE_MESSAGE_NOT_DISPLAYED = "Exp:%s Act:%s. Message not displayed";
+
+	private static final int ERROR_MSG_WAIT_TIME = 2000;
+
+	public void verifySuccessfulBetPlacementMessage(String wagerPlaceMsg) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final WaitUtils waitUtils = new WaitUtils();
+		waitUtils.setTimeOut(20);
+		waitUtils.waitForBetToBePlaced();
+		final String actualMessage = betSlip.getMessage();
+		Assert.assertEquals(wagerPlaceMsg, actualMessage,
+				"Bet has been placed successfully",
+				"Bet has not placed successfully");
+	}
+
+	public void verifyAccountBalanceDisplayed() {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final boolean accountBalanceTextDisplayed = betSlip
+				.isAccountBalanceTextDisplayed();
+		final boolean accountBalanceDisplayed = betSlip.getAccountBalance()
+				.equals(getLiveBettingPage().getAccountBalance());
+		Assert.assertTrue(accountBalanceTextDisplayed
+				&& accountBalanceDisplayed, "Account Balance is displayed",
+				"Account balance is not displayed");
+	}
+
+	public void verifySelectionRiskFieldHasFocus(
+			final BetSlipSelection betSlipSelection) {
+		final WebElement currentActiveElement = webDriver.switchTo()
+				.activeElement();
+		final WebElement riskField = betSlipSelection.getChildWebElement(By
+				.cssSelector("input[id*='betIdStake']"));
+		final String selectionDescription = betSlipSelection.getDescription();
+		Assert.assertEquals(currentActiveElement, riskField, String.format(
+				LAST_SELECTION_RISK_FIELD_HAS_FOCUS, selectionDescription),
+				String.format(LAST_SELECTION_RISK_FIELD_HAS_NO_FOCUS,
+						selectionDescription));
+
+	}
+
+	public BetSlipSelection getLastSelection() {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final int selectionCount = betSlip.getSelectionCount();
+		final BetSlipSelection lastBetSlip;
+		lastBetSlip = (selectionCount == 0) ? null : betSlip
+				.getSelectionByPosition(selectionCount - 1);
+		return lastBetSlip;
+	}
+
+	public void verifyBetSlipSelection(final BetSlipSelection betSlipSelection) {
+		Assert.assertNotNull(betSlipSelection, SELECTION_EXISTS, NO_SELECTION);
+	}
+
+	public void verifyNumberOfSelection(final int selectionCount) {
+		final BetSlipModeComponent betSlipModeComponent = getLiveBettingPage()
+				.getBetSlipModeComponent();
+		final int actualBetslipCount = betSlipModeComponent
+				.getBetslipCountFromHeader();
+		Assert.assertEquals(selectionCount, actualBetslipCount, String.format(
+				BETSLIP_SELECTION_COUNT_MATCH, selectionCount), String.format(
+				BETSLIP_SELECTION_COUNT_MISMATCH, selectionCount,
+				actualBetslipCount));
+	}
+
+	public void verifyErrorMessage(final String expectedErrorMsg) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final String actualErrorMsg = betSlip.getErrorMessage();
+		Assert.assertEquals(expectedErrorMsg, actualErrorMsg,
+				String.format(ERROR_MSG_DISPLAYED, expectedErrorMsg),
+				String.format(ERROR_MSG_NOT_DISPLAYED, expectedErrorMsg));
+	}
+
+	public void verifyBetSlipModeErrorMessage(final String expectedErrorMsg) {
+		final BetSlipModeComponent betSlipMode = getLiveBettingPage()
+				.getBetSlipModeComponent();
+		final String actualErrorMsg = betSlipMode.getErrorMessage();
+		Assert.assertTrue(actualErrorMsg.endsWith(expectedErrorMsg),
+				String.format(ERROR_MSG_DISPLAYED, expectedErrorMsg),
+				String.format(ERROR_MSG_NOT_DISPLAYED, expectedErrorMsg));
+	}
+	
+	public void verifyBetSlipModeMessage(final String message) {
+		BetSlipModeComponent betslipMode = getLiveBettingPage()
+				.getBetSlipModeComponent();
+		Assert.assertEquals(betslipMode.getMessage(), message,
+				String.format(MESSAGE_DISPLAYED, message),
+				String.format(BETSLIP_MODE_MESSAGE_NOT_DISPLAYED, message, betslipMode.getMessage()));
+	}
+
+	public void verifyBetSlipGeneralErrorMessage(final String expectedErrorMsg)
+			throws InterruptedException {
+		final BetSlipModeComponent betSlipMode = getLiveBettingPage()
+				.getBetSlipModeComponent();
+		Thread.sleep(ERROR_MSG_WAIT_TIME);
+		final String actualErrorMsg = betSlipMode.getGeneralErrorMessage();
+		Assert.assertTrue(actualErrorMsg.endsWith(expectedErrorMsg),
+				String.format(ERROR_MSG_DISPLAYED, expectedErrorMsg),
+				String.format(ERROR_MSG_NOT_DISPLAYED, expectedErrorMsg));
+	}
+
+	public void verifyBetSlipModeErrorMessageNotDisplayed(
+			final String expectedErrorMessage) {
+		final BetSlipModeComponent betSlipMode = getLiveBettingPage()
+				.getBetSlipModeComponent();
+		final String actualErrorMsg = betSlipMode.getErrorMessage();
+		if (actualErrorMsg == null) {
+			reporter.pass(String.format(ERROR_MSG_NOT_DISPLAYED,
+					expectedErrorMessage));
+		} else {
+			Assert.assertTrue(
+					!actualErrorMsg.contains(expectedErrorMessage),
+					String.format(ERROR_MSG_NOT_DISPLAYED, expectedErrorMessage),
+					String.format(ERROR_MSG_DISPLAYED, expectedErrorMessage));
+		}
+
+	}
+
+	public void verifyMessage(final String expectedMsg) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final String actualMsg = betSlip.getMessage();
+		Assert.assertEquals(expectedMsg, actualMsg,
+				String.format(MESSAGE_DISPLAYED, expectedMsg),
+				String.format(MESSAGE_NOT_DISPLAYED, expectedMsg));
+	}
+
+	public void verifyMessageNotDisplayed(final String expectedMsg) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final String actualMsg = betSlip.getMessage();
+		Assert.assertTrue(!expectedMsg.equals(actualMsg),
+				String.format(MESSAGE_NOT_DISPLAYED, expectedMsg),
+				String.format(MESSAGE_DISPLAYED, expectedMsg));
+	}
+
+	public OutcomeStatus getSelectionStatus(String selection, String marketTitle) {
+		final Market market = getLiveBettingPage()
+				.getMarketByTitle(marketTitle);
+		final MarketOutcome marketOutcome = market
+				.getOutcomeByDescription(selection);
+		final WaitUtils waitUtils = new WaitUtils();
+		waitUtils.waitForQBMBetToPlaced(marketTitle, selection);
+		return marketOutcome.getStatus();
+	}
+
+	public String getSelectionMessage(final String selection) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final BetSlipSelection betSlipSelection = betSlip
+				.getSelectionByDescription(selection);
+		final WaitUtils waitUtils = new WaitUtils();
+		if (!waitUtils.waitForSelectionMessage(selection)) {
+			return StringUtils.EMPTY;
+		}
+		return betSlipSelection.getMessage();
+	}
+
+	public boolean verifyAllSelectionsMsg(final String suspendedSelectionMsg) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final List<BetSlipSelection> betSlipSelections = betSlip
+				.getBetslipSelections();
+		int suspendedMsgCount = 0;
+		for (BetSlipSelection betSlipSelection : betSlipSelections) {
+			if (!betSlipSelection.getMessage().equals(suspendedSelectionMsg)) {
+				reporter.info(String.format(
+						"suspended message is not displayed for selection :%s",
+						betSlipSelection.getDescription()));
+			}
+			suspendedMsgCount++;
+		}
+		if (suspendedMsgCount == betSlipSelections.size()) {
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
+	public String getUpdatedPrice(final String price, final String selection) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final BetSlipSelection betSlipSelection = betSlip
+				.getSelectionByDescription(selection);
+		final WaitUtils waitUtils = new WaitUtils();
+		waitUtils.waitForPriceUpdateInBetslip(selection, price);
+		final String updatedPrice = betSlipSelection.getPrice();
+		return updatedPrice;
+	}
+
+	public String getPriceChangeArrow(final String selection, final String arrow) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final BetSlipSelection betSlipSelection = betSlip
+				.getSelectionByDescription(selection);
+		final WaitUtils waitUtils = new WaitUtils();
+		waitUtils.waitForPriceChangeArrowToDisplayInBetslip(selection);
+		final String priceChangeArrow = betSlipSelection.getDisplayedArrow();
+		return priceChangeArrow;
+	}
+
+	public String getDisplayedPriceChangeMsg(
+			final Map<String, String> messageData) {
+		final BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		final String selection = messageData.get("Selection");
+		final BetSlipSelection betSlipSelection = betSlip
+				.getSelectionByDescription(selection);
+		final String priceChangeMsg = betSlipSelection.getMessage();
+		return priceChangeMsg;
+	}
+
+	public boolean isBetDisplayedInBetslip(final String selection,
+			final String marketTitle) {
+		(new WaitUtils()).waitForBetToRender(selection);
+		BetSlip betSlip = getLiveBettingPage().getBetSlip();
+		BetSlipSelection betSlipSelection = betSlip
+				.getSelectionByDescription(selection);
+		final Market market = getLiveBettingPage()
+				.getMarketByTitle(marketTitle);
+		final MarketOutcome marketOutcome = market
+				.getOutcomeByDescription(selection);
+		boolean isBetDisplayed = Boolean.TRUE;
+		String outcomeDescription = StringUtils.EMPTY;
+		final String marketName = getEvent().getLines().get(0).getMarketName();
+		if (marketName.equals("Total") || marketName.equals("Point Spread")) {
+			outcomeDescription = marketOutcome.getOutcomeDescription() + " "
+					+ marketOutcome.getHandicapValue();
+		} else {
+			outcomeDescription = marketOutcome.getOutcomeDescription();
+		}
+		if (!outcomeDescription.startsWith(betSlipSelection.getDescription())) {
+			isBetDisplayed = Boolean.FALSE;
+			reporter.info("Expected Bet description is not Displayed");
+		}
+		if (!marketOutcome.getPrice().equals(betSlipSelection.getPrice())) {
+			isBetDisplayed = Boolean.FALSE;
+			reporter.info("Expected Bet price is not Displayed");
+		}
+		return isBetDisplayed;
+	}
+
+	public String getExpectedMessage(final int rowNo,
+			final Map<String, String> messageData) {
+		final Line line = getEvent().getLines().get(rowNo);
+		final String marketName = line.getMarketName();
+		final Market market = getLiveBettingPage().getMarketByTitle(
+				line.getDisplayText());
+		final String selection = messageData.get("Selection");
+		String expectedMsg = StringUtils.EMPTY;
+		if (marketName.equals("Total") || marketName.equals("Point Spread")) {
+			final MarketOutcome marketOutcome = market
+					.getOutcomeByDescription(selection);
+			final String handicapValue = marketOutcome.getHandicapValue();
+			if (marketName.equals("Point Spread")) {
+				expectedMsg = "Odds have " + messageData.get("Change")
+						+ " from " + handicapValue + " ("
+						+ messageData.get("BeforePrice") + ") to "
+						+ handicapValue + " (" + messageData.get("Price") + ")";
+			} else if (marketName.equals("Total")) {
+				final String totalMarketSuffix = getTotalMarketSuffix(selection);
+				expectedMsg = "Odds have " + messageData.get("Change")
+						+ " from " + handicapValue + " ("
+						+ messageData.get("BeforePrice") + ")"
+						+ totalMarketSuffix + " to " + handicapValue + " ("
+						+ messageData.get("Price") + ")" + totalMarketSuffix;
+			}
+
+		} else {
+			expectedMsg = "Odds have " + messageData.get("Change") + " from "
+					+ messageData.get("BeforePrice") + " to "
+					+ messageData.get("Price");
+		}
+		return expectedMsg;
+	}
+
+	public String getTotalMarketSuffix(final String selection) {
+		String totalMarketSuffix = StringUtils.EMPTY;
+		if (selection.equals("Over")) {
+			totalMarketSuffix = "o";
+		} else if (selection.equals("Under")) {
+			totalMarketSuffix = "u";
+		}
+		return totalMarketSuffix;
+	}
+
+	public void setAmountInSelection(String inputField,
+			BetSlipSelection betSlipSelection, String amount) {
+		if (inputField.equals("Risk")) {
+			betSlipSelection.setRiskAmount(amount);
+		} else if (inputField.equals("To Win")) {
+			betSlipSelection.setToWinAmount(amount);
+		}
+	}
+	public String getMsgBorderColor(final String selection) {
+		final BetSlip betSlip=getLiveBettingPage().getBetSlip();
+		final BetSlipSelection betSlipSelection=betSlip.getSelectionByDescription(selection);
+		final String borderColor=betSlipSelection.getMessageBorderColor();
+		return borderColor;
+	}
+}

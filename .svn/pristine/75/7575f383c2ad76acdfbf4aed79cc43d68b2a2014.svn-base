@@ -1,0 +1,202 @@
+package internal.qaauto.inrunning.tom;
+
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import org.apache.commons.lang.StringUtils;
+import org.jbehave.core.model.ExamplesTable;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Minutes;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * @author rkora on 16/10/2014.
+ */
+public class Utils {
+
+    private static final String DATETIME_PATTERN = "(.*)T(.*)Z";
+
+    private static final String TIME_FORMAT = "HH:mm:ss";
+
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+
+    private static final String GAME_TIME_FORMAT = "%sT%sZ";
+
+    private final static String UPCOMING_EVENT_START_TIME_PATTERN = "hh:mma";
+
+    private final static String TIMESTAMP_PM_LABEL = "PM";
+
+    private final static String TIMESTAMP_AM_LABEL = "AM";
+
+    private final static int MINS_IN_HR = 60;
+
+    private static final int DEDUCT_MINUTES = 0;
+
+    private final static int DEDUCT_DAY = -1;
+
+    private static int DEDUCT_HOURS = -15;
+
+    public Map<String, String> getParamsFromScenarioTable(final ExamplesTable eventDataTable) {
+        Map<String, String> params = new HashMap<String, String>();
+        int rowCount = eventDataTable.getRowCount();
+        for (int row = 0; row < rowCount; row++) {
+            for (String header : eventDataTable.getHeaders()) {
+                String headerValue = eventDataTable.getRowAsParameters(row, true).valueAs(header, String.class);
+                params.put(header, headerValue);
+                if (row > rowCount) {
+                    break;
+                }
+            }
+        }
+        return params;
+    }
+
+    public Map<String, String> getParamsFromExampleTableRow(final ExamplesTable eventDataTable, final int rowNo) {
+        Map<String, String> params = new LinkedHashMap<>();
+        for (String header : eventDataTable.getHeaders()) {
+            String headerValue = eventDataTable.getRowAsParameters(rowNo, true).valueAs(header, String.class);
+            params.put(header, headerValue);
+        }
+        return params;
+    }
+
+    public List<String> getColumnValuesFromExampleTable(final ExamplesTable exampleTable, final String columnName) {
+        List<String> columnValues = new LinkedList<String>();
+        String columnValue = null;
+        for (int rowNo = 0; rowNo < exampleTable.getRowCount(); rowNo++) {
+            columnValue = exampleTable.getRowAsParameters(rowNo, true).valueAs(columnName, String.class);
+            columnValues.add(columnValue);
+        }
+        return columnValues;
+    }
+
+    public Map<String, String> getParamsFromExamplesTable(final ExamplesTable examplesTable, final int rowNo) {
+        if (rowNo > examplesTable.getRowCount()) {
+            return null;
+        }
+        final Map<String, String> params = new LinkedHashMap<String, String>();
+        for (String header : examplesTable.getHeaders()) {
+            String headerValue = examplesTable.getRowAsParameters(rowNo, true).valueAs(header, String.class);
+            params.put(header, headerValue);
+        }
+        return params;
+    }
+
+    public List<String> ChangeMapToList(ExamplesTable examplesTable) {
+        List<String> marketList = new ArrayList<String>();
+        for (Map<String, String> row : examplesTable.getRows()) {
+            String market = row.get("MarketName");
+            marketList.add(market);
+        }
+        return marketList;
+
+    }
+
+    public String changeEventTime(final Event event, final int changeParameter, final int changeValue) throws ParseException {
+
+        final Pattern pattern = Pattern.compile(DATETIME_PATTERN);
+        final String gameTime = event.getGameDateUTC();
+        final Matcher matches = pattern.matcher(gameTime);
+
+        final String dateInGameTime;
+        final String timeInGameTime;
+        if (matches.find()) {
+            dateInGameTime = matches.group(1);
+            timeInGameTime = matches.group(2);
+        } else {
+            return StringUtils.EMPTY;
+        }
+
+        String newDate = dateInGameTime;
+        String newTime = timeInGameTime;
+
+        if ((changeParameter == Calendar.DATE) || (changeParameter == Calendar.MONTH) || (changeParameter == Calendar.YEAR)) {
+            newDate = calculateNewDate(dateInGameTime, changeParameter, changeValue);
+        }
+        if ((changeParameter == Calendar.HOUR) || (changeParameter == Calendar.MINUTE) || (changeParameter
+                == Calendar.SECOND)) {
+            newTime = calculateNewTime(timeInGameTime, changeParameter, changeValue);
+        }
+        return (String.format(GAME_TIME_FORMAT, newDate, newTime));
+    }
+
+    private String calculateNewDate(final String dateToChange, final int changeParameter, final int changeValue)
+            throws ParseException {
+        final Calendar cal = Calendar.getInstance();
+        final SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
+        cal.setTime(dateFormatter.parse(dateToChange));
+        cal.add(changeParameter, changeValue);
+        return (dateFormatter.format(cal.getTime()));
+    }
+
+    public String calculateNewTime(final String timeToChange, final int changeParameter, final int changeValue)
+            throws ParseException {
+        final SimpleDateFormat timeFormatter = new SimpleDateFormat(TIME_FORMAT);
+        final Calendar cal = Calendar.getInstance();
+        cal.setTime(timeFormatter.parse(timeToChange));
+        cal.add(changeParameter, changeValue);
+        return (timeFormatter.format(cal.getTime()));
+    }
+
+    public String getEventName(final Event event) {
+        final String eventName;
+        if (Boolean.parseBoolean(event.getDisplayAwayTeamFirst())) {
+            eventName = event.getAwayTeamNickname() + " @ " + event.getHomeTeamNickname();
+        } else {
+            eventName = event.getHomeTeamNickname() + " vs " + event.getAwayTeamNickname();
+        }
+        return eventName;
+    }
+
+    public String getStartTimeFromEvent(final Event event, final String timeZone) {
+        final String eventTime = event.getGameDateUTC();
+        final DateTimeZone dtz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZone));
+        final DateTime dt = new DateTime(eventTime, dtz);
+
+        final String upcomingEventStartTime = dt.toString(UPCOMING_EVENT_START_TIME_PATTERN);
+        final String modifiedEventTime =
+                upcomingEventStartTime.indexOf(TIMESTAMP_PM_LABEL) > 0 ? upcomingEventStartTime.replace(
+                        TIMESTAMP_PM_LABEL, "p") : upcomingEventStartTime.replace(TIMESTAMP_AM_LABEL, "a");
+        return modifiedEventTime;
+    }
+
+    public String getTimeToStartFromEvent(final Event event, final String timeZone) {
+        final String eventTime = event.getGameDateUTC();
+        final DateTimeZone dtz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZone));
+        final DateTime dt = new DateTime(eventTime, dtz);
+        final DateTime currentDateTime = new DateTime(DateTime.now(), dtz);
+        final Minutes minutes = Minutes.minutesBetween(currentDateTime, dt);
+        final int hrs = minutes.getMinutes() / MINS_IN_HR;
+        final int min = minutes.getMinutes() - (hrs * MINS_IN_HR);
+        return (String.format("%sh %sm", hrs, min));
+    }
+
+    public String getEventTimeLessThan10Hr(final Event event, final String timeZone) {
+        final String eventTime = event.getGameDateUTC();
+        final DateTimeZone dtz = DateTimeZone.forTimeZone(TimeZone.getTimeZone(timeZone));
+        final DateTime dt = new DateTime(eventTime, dtz);
+        final int hourInEventTime = dt.getHourOfDay() - 10;
+        if (hourInEventTime >= 0) {
+            dt.minusHours(hourInEventTime - 1);
+        }
+        final DateTime utcTime = new DateTime(dt, DateTimeZone.UTC);
+        final String utcTimeString = utcTime.toString("yyyy-MM-dd") + "T" + utcTime.toString("hh:mm:ss") + "Z";
+        return utcTimeString;
+    }
+
+    public void setPastTimeToEvent(final Event event, final int minutes) throws ParseException {
+        final String todayEventTimeInHours = changeEventTime(event, Calendar.HOUR, 10);
+        event.setGameDateUTC(todayEventTimeInHours);
+        final String todayEventTime = changeEventTime(event, Calendar.DATE, DEDUCT_DAY);
+        event.setGameDateUTC(todayEventTime);
+        if (!(minutes == 0)) {
+            final String currentEventTime = changeEventTime(event, Calendar.MINUTE, minutes);
+            event.setGameDateUTC(currentEventTime);
+        }
+    }
+
+}

@@ -1,0 +1,8 @@
+<tradingGroupMessage>
+   <tradingGroups>
+      <tradingGroupDTO>
+         <description>${description}</description>
+	 <id>${id}</id>
+      </tradingGroupDTO>
+   </tradingGroups>
+</tradingGroupMessage>

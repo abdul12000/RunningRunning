@@ -1,0 +1,47 @@
+Narrative:
+As a player
+I want to be able to set a default stake selector
+so that the stake field will be populated with the selected value in Quick Bet Mode
+
+Meta:
+@author rkora
+@story BGSIR74
+
+Scenario: default stake button in default stake selector component
+Meta:
+@testType smoke
+
+Given player is at live betting page
+And Quick Bet Mode is activated
+Then the amount selected by default as stake amount is 2
+
+Scenario: Default Stake button Amount selected is displayed in stake field
+Meta:
+@testtype regression
+
+Given player is at live betting page
+When player clicks on <Amount>
+Then the <Amount> selected will be displayed in the default stake field
+
+Examples:
+|Amount|
+|2|
+|5|
+|10|
+|25|
+|50|
+|100|
+
+Scenario:  Input field in default stake selector component only accepts numbers
+Meta:
+@testtype smoke
+
+Given player is at live betting page
+When player introduced <inputValue> in the input field
+Then <inputValue> should be <Behavior>
+
+Examples:
+|inputValue  |Behavior|
+|11          |Accepted|
+|BGSIR       |Not Accepted|
+|1.5         |Not Accepted|

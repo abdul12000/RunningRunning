@@ -1,0 +1,14 @@
+Meta:
+@author rkora
+@sample Event Creation
+
+Scenario: Create Live Event with main and Extra markets
+
+
+Given create a upcoming event
+When player navigates to Live event page
+Then player should see the upcoming NFL event
+When update the status of the event from upcoming to live
+Then player should see the live now event
+When add the main markets to the live now event
+Then player should see the main markets in the live now event

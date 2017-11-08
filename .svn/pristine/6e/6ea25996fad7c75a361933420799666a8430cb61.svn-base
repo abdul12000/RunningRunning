@@ -1,0 +1,556 @@
+package internal.qaauto.inrunning.steps;
+
+import eventpublishing.core.domain.EventStatus;
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.EventStepsHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.EventBuilder;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.inrunning.tom.Utilties.LeftNavComponents;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.UtilsPXP;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Line;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.LineHandicap;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Outcome;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.LineFactory;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.NewPlayOutcomeLine;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.outcomes.LineOutcome;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.tom.EventPubPXPManager;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringUtils;
+import org.jbehave.core.annotations.*;
+import org.jbehave.core.model.ExamplesTable;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author rkora on 14/10/2014.
+ */
+public class EventSteps extends InRunningBaseStep {
+
+    private static final String HANDICAP = "Handicap";
+
+    private final String MARKET_CLOSE_FAIL = "Market %s couldn't be closed";
+
+    private EventStepsHelperMethods eventStepsHelperMethods = HelperFactory.getEventStepsHelper();
+
+    @Given("create a upcoming event")
+    public void givenCreateAUpcomingEvent() throws IOException, ConfigurationException {
+        final Map<String, String> params = new HashMap<>();
+        params.put(EventBuilder.GAME_ID, "45446");
+        params.put(EventBuilder.SPORT, "Football");
+        params.put(EventBuilder.HOME_TEAM, "Jbehave1");
+        params.put(EventBuilder.AWAY_TEAM, "Jbehave2");
+        params.put(EventBuilder.LEAGUE_ID, "5");
+        params.put(EventBuilder.LEAGUE_NAME, "NFL");
+        params.put(EventBuilder.DESCRIPTION, "Jbehave sample Test");
+        final Event event = EventBuilder.buildEvent(params);
+        getScenarioContext().setEvent(event);
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        reporter.info("Upcoming Event has created");
+    }
+
+    @Given("user created the event with the  below data $eventTable")
+    @When("player create the event with the  below data $eventTable")
+    @Aliases(values = { "user created an event with below data:$eventTable", "events are created using below data:$eventTable",
+            "an event is created using below data:$eventTable", "an upcoming event created using below data:$eventTable",
+            "player create another event with below data $eventTable" })
+    public void createEvent(ExamplesTable eventTable) throws IOException, ConfigurationException, ParseException {
+        closeObsoleteEvents();
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < eventTable.getRowCount(); rowNo++) {
+            final Event event = eventStepsHelperMethods.createEvent(utils.getParamsFromExampleTableRow(eventTable, rowNo));
+            getScenarioContext().setEvent(event);
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        }
+    }
+
+    @When("an another event is created using below data:$eventTable")
+    public void createAnotherEvent(ExamplesTable eventTable) throws IOException, ConfigurationException, ParseException {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < eventTable.getRowCount(); rowNo++) {
+            final Event event = eventStepsHelperMethods.createEvent(utils.getParamsFromExampleTableRow(eventTable, rowNo));
+            getScenarioContext().setEvent(event);
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        }
+    }
+
+    @Given("an upcoming event created using below details with current time as start time$eventTable")
+    public void createEventWithCurrentTime(final ExamplesTable eventTable)
+            throws ParseException, ConfigurationException, IOException {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < eventTable.getRowCount(); rowNo++) {
+            final Event event = eventStepsHelperMethods.createEvent(utils.getParamsFromExampleTableRow(eventTable, rowNo));
+            eventStepsHelperMethods.setEventTimeToCurrent(event);
+            getScenarioContext().setEvent(event);
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        }
+    }
+
+    @Given("add an extra market with win and risk same for all outcomes:$marketDataTable")
+    public void addExtraLineWithSameRiskAndWinForAllOutcomes(final ExamplesTable marketDataTable)
+            throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        Line line = null;
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < marketDataTable.getRowCount(); rowNo++) {
+            final Map<String, String> marketData = utils.getParamsFromExamplesTable(marketDataTable, rowNo);
+            line = eventStepsHelperMethods.createLine(marketData, event);
+            setWinAndRiskForAllOutcomes(line, marketData.get("Win"), marketData.get("Risk"));
+            event.addLine(line);
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Given("add an extra market using below details:$marketDataTable")
+    @When("other market added:$marketDataTable")
+    @Aliases(values = { "add extra markets using below details:$marketDataTable",
+            "add extra below market with flag displayInSportsLiveCoupons set to {true|false} $marketDataTable",
+            "add markets with below details:$marketDataTable", "add extra markets using below details:marketDataTable" })
+    public void addLine(final ExamplesTable marketDataTable) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        Line line = null;
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < marketDataTable.getRowCount(); rowNo++) {
+            final Map<String, String> marketData = utils.getParamsFromExamplesTable(marketDataTable, rowNo);
+            line = eventStepsHelperMethods.createLine(marketData, event);
+            event.addLine(line);
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("the below markets are suspended:$marketDataTable")
+    public void suspendMarkets(final ExamplesTable marketDataTable) throws IOException, ConfigurationException {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < marketDataTable.getRowCount(); rowNo++) {
+            final Map<String, String> marketData = utils.getParamsFromExamplesTable(marketDataTable, rowNo);
+            suspendMarket(marketData.get("MarketName"));
+        }
+    }
+
+    public void setWinAndRiskForAllOutcomes(final Line line, final String win, final String risk) {
+        for (Outcome outcome : line.getOutcomesList()) {
+            outcome.setWin(win);
+            outcome.setRisk(risk);
+        }
+    }
+    
+    public void createEvent1(ExamplesTable eventTable) throws IOException, ConfigurationException, ParseException {
+        closeObsoleteEvents();
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < eventTable.getRowCount(); rowNo++) {
+            final Event event = eventStepsHelperMethods.createEvent(utils.getParamsFromExampleTableRow(eventTable, rowNo));
+            getScenarioContext().setEvent(event);
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        }
+    }
+    
+    private static final String MARKET_NAME = "MarketName";
+
+    @Given("add the markets to the Event: $marketTable")
+    public void addTheMarkets(ExamplesTable marketTable) throws ConfigurationException, IOException {
+        Event event = null;
+        final Utils utils = new Utils();
+        String marketName = StringUtils.EMPTY;
+        for(int rowNo = 0; rowNo < marketTable.getRowCount(); rowNo++){
+            Map<String, String> marketData = utils.getParamsFromExampleTableRow(marketTable, rowNo);
+            if((marketData.get("GameId") != null) && (event == null)){
+                event = getEventByGameId(marketData.get("GameId"));
+           }else if((marketData.get("GameId") == null) && (event == null)){
+                event = getEvent();
+           }
+            if(marketData.get(MARKET_NAME) != null)
+            {
+                marketName = marketData.get(MARKET_NAME);
+            }else{
+                marketName = NewPlayOutcomeLine.MARKET_NAME;
+            }
+            for (Map.Entry<String, String> marketNameColumn : marketData.entrySet()) {
+                final Line line = LineFactory.getLineInstance(marketName, event);
+                line.setDisplayText(marketNameColumn.getValue());
+                if(marketName.equals(NewPlayOutcomeLine.MARKET_NAME)){
+                    line.getOutcomesList().remove(0);
+                    line.getOutcomesList().remove(1);
+                }
+                event.addLine(line);
+            }
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+    
+    
+    
+    @Given("Add 3 column layout market which has $MarketTitle")
+    public void create3ColumnLayoutMarkets(@Named("MarketTitle")
+    final String marketTitle) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        event.addLine(eventStepsHelperMethods.createLineWith3ColumnLayout(marketTitle));
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+
+    }
+
+    @When("player navigates to Live event page")
+    public void whenPlayerNavigatesToNFLPage() {
+        webDriver.get("http://bgs-live.ldev.bovada.lv/event/45446");
+
+    }
+
+    @Then("player should see the upcoming NFL event")
+    public void thenPlayerShouldSeeTheUpcomingNFLEvent() {
+        reporter.info("Event is Displayed");
+    }
+
+    @When("update the status of the event from upcoming to live")
+    public void thenUpdateTheStatusOfTheEventFromUpcomingToLive() throws IOException, ConfigurationException {
+        final Event event = getEvent();
+        event.setGameStatusToOpen();
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+
+    }
+
+    @When("change event with id <<GameId>> to Upcoming")
+    public void changeEventWithIDToUpcoming(@Named("<GameId>")
+    final String gameId) throws ConfigurationException, IOException {
+        final Event event = getEventByGameId(gameId);
+        event.setGameStatusToUpcoming();
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Then("player should see the live now event")
+    public void thenPlayerShouldSeeTheLiveNowEvent() throws InterruptedException {
+        Thread.sleep(5000);
+        reporter.info("Live Event is displayed");
+    }
+
+    @When("add the main markets to the live now event")
+    public void thenAddTheMainMarketsToTheLiveNowEvent() throws ConfigurationException, IOException {
+        Event event = getEvent();
+        event.addLine(LineFactory.getLineInstance("Total", event));
+        event.addLine(LineFactory.getLineInstance("Moneyline", event));
+        event.addLine(LineFactory.getLineInstance("Point Spread", event));
+        event.addLine(LineFactory.getLineInstance("Outcome next play", event));
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("add a new market '<<MarketTitle1>>'")
+    public void addMarketWithTitle(@Named("<MarketTitle1>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line extraMarket = LineFactory.getLineInstance("Outcome next play", event);
+        extraMarket.setDisplayText(marketTitle);
+        event.addLine(extraMarket);
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Then("player should see the main markets in the live now event")
+    public void thenPlayerShouldSeeTheMainMarketsInTheLiveNowEvent() {
+        reporter.info("Main and Extra markets are displayed in the Live now Event");
+    }
+
+    @Given("an event is created in american format using following data:$eventTable")
+    public void createEventInAmericanFormat(final ExamplesTable eventTable) throws ConfigurationException, IOException,
+            ParseException {
+        final Utils utils = new Utils();
+        EventPubPXPManager manager = getManager();
+        final Map<String, String> params = utils.getParamsFromScenarioTable(eventTable);
+        final Event event = eventStepsHelperMethods.createEventInAmericanFormat(params);
+        getScenarioContext().setEvent(event);
+        manager.update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Given("an event is created in european format using following data:$eventTable")
+    public void createEventInEuropeanForamt(final ExamplesTable eventTable) throws ConfigurationException, IOException,
+            ParseException {
+        final Utils utils = new Utils();
+        EventPubPXPManager manager = getManager();
+        final Map<String, String> params = utils.getParamsFromScenarioTable(eventTable);
+        final Event event = eventStepsHelperMethods.createEventInEuropeanFormat(params);
+        getScenarioContext().setEvent(event);
+        manager.update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("above market is closed")
+    public void associatedMarketClosed() throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = event.getLines().get(0);
+        if (eventStepsHelperMethods.removeLine(event, line)) {
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        }
+    }
+
+    @When("market <<MarketTitle1>> is closed")
+    public void closeMarketByTitleFromEvent(@Named("<MarketTitle1>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = getLineByDescription(marketTitle);
+        if ((line != null) && eventStepsHelperMethods.removeLine(event, line)) {
+            getManager().update(UtilsPXP.marshallEventToUpdate(event));
+        } else {
+            Assert.fail(String.format(MARKET_CLOSE_FAIL, marketTitle));
+        }
+    }
+
+    @When("market '<<MarketTitle>>' is closed")
+    public void closeMarketByTitle(@Named("<MarketTitle>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        closeMarketByTitleFromEvent(marketTitle);
+    }
+
+    @When("price is updated for one of the  outcome <OutcomeDesc> with Win <WinValue> and risk <RiskValue>")
+    public void updatePriceForOutcome(@Named("OutcomeDesc")
+    final String outcomeDesc, @Named("WinValue")
+    final String winValue, @Named("RiskValue")
+    final String riskValue) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final List<Outcome> outcomes = event.getLines().get(0).getOutcomesList();
+        for (Outcome outcome : outcomes) {
+            String outcomeDescriptionText = eventStepsHelperMethods.getEventOutcomeDescription(outcome);
+            if (outcomeDescriptionText.equalsIgnoreCase(outcomeDesc)) {
+                outcome.setWin(winValue);
+                outcome.setRisk(riskValue);
+                break;
+            }
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+    }
+
+    @When("price is updated for one of the selection <<Selection>> with Win <WinValue> and risk <RiskValue>")
+    public void updatePriceForSelection(@Named("<Selection>")
+    final String selection, @Named("WinValue")
+    final String winValue, @Named("RiskValue")
+    final String riskValue) throws IOException, ConfigurationException {
+        updatePriceForOutcome(selection, winValue, riskValue);
+    }
+
+    @Given("price is set for the below selections $selectionsTable")
+    @When("price is updated for the below selections in the betslip $selectionsTable")
+    public void updatePriceForSelection(final ExamplesTable selectionsTable) throws ConfigurationException, IOException {
+        final Utils utils = new Utils();
+        final Event event = getEvent();
+        for (int rowNo = 0; rowNo < selectionsTable.getRowCount(); rowNo++) {
+            final Map<String, String> selectionData = utils.getParamsFromExamplesTable(selectionsTable, rowNo);
+            eventStepsHelperMethods.setPriceForOutcome(selectionData);
+            final String handicapValue = selectionData.get(HANDICAP);
+            if ((handicapValue != null) && !(handicapValue.isEmpty())) {
+                eventStepsHelperMethods.setHandicap(selectionData);
+            }
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("update the handicap <Handicap> value for market <<MarketNameToCreate>> which has marketTitle <<MarketTitle>>")
+    public void updateHandicapValue(@Named("Handicap")
+    final String handicapValue, @Named("<MarketNameToCreate>")
+    final String marketName, @Named("<MarketTitle>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = event.getLineByMarketName(marketName);
+        ((LineHandicap) line).setHandicap(handicapValue);
+        line.setDisplayText(marketTitle);
+        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+    }
+
+    @Given("suspend the market $MarketNameToCreate")
+    public void suspendMarket(@Named("<MarketNameToCreate>")
+    final String marketName) throws ConfigurationException, IOException {
+        final Line line = getEvent().getLineByMarketName(marketName);
+        line.setIsSuspended("true");
+        getManager().update(UtilsPXP.marshallEventToUpdate(getEvent()));
+    }
+
+    @When("one of the market <MarketName2> is suspended")
+    public void suspendSelectedMarket(@Named("<MarketName2>")
+    final String marketName) throws IOException, ConfigurationException {
+        suspendMarket(marketName);
+    }
+
+    @When("market '<<MarketTitle>>' is suspended")
+    public void suspendMarketWithTitle(@Named("<MarketTitle>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = event.getLineByDisplayName(marketTitle);
+        line.setIsSuspended(Boolean.TRUE.toString());
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("market '<<MarketTitle>>' is un suspended")
+    public void unSuspendMarketWithTitle(@Named("<MarketTitle>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = event.getLineByDisplayName(marketTitle);
+        line.setIsSuspended(Boolean.FALSE.toString());
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' is closed in backend")
+    public void removeSelectionWithTitleFromMarket(@Named("<OutcomeDescriptionToClose>")
+    final String outcomeDesc, @Named("<MarketTitle>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        eventStepsHelperMethods.removeSelectionWithTitleFromMarket(event, marketTitle, outcomeDesc);
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("selection '$selection' of market '$marketTitle' is made invisible")
+    public void makeSelectionInvisible(@Named("<Selection>")
+    final String selection, @Named("<MarketTitle>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        removeSelectionWithTitleFromMarket(selection, marketTitle);
+    }
+
+    @When("selection '<<Selection>>' of market with title '<<MarketTitle>>' is closed in backend")
+    public void removeSelectionWithTitle(@Named("<Selection>")
+    final String outcomeDesc, @Named("<MarketTitle>")
+    final String marketTitle) {
+        final Event event = getEvent();
+        eventStepsHelperMethods.removeSelectionWithTitleFromMarket(event, marketTitle, outcomeDesc);
+    }
+
+    @When("selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' is opened back in backend")
+    public void addOutcomeWithTitleToMarket(@Named("<MarketTitle>")
+    final String marketTitle, @Named("<OutcomeDescriptionToClose>")
+    final String outcomeDescToAdd) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = event.getLineByDisplayName(marketTitle);
+        line.addOutcomeLine(new LineOutcome(line.getLineId(), "34", outcomeDescToAdd));
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("game status is changed to closed")
+    public void changeGameStatusToClose() throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        event.setGameStatusToClose();
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("close upcoming event <<GameId>>")
+    @Aliases(values = { "event of <<GameId>> is finished" })
+    public void closeEventByGameId(@Named("<GameId>")
+    final String gameId) throws ConfigurationException, IOException {
+        eventStepsHelperMethods.closeEventByGameId(gameId);
+    }
+
+    @When("suspend upcoming event <<GameId>>")
+    public void suspendEventByGameId(@Named("<GameId>")
+    final String gameId) throws ConfigurationException, IOException {
+        eventStepsHelperMethods.suspendEventByGameId(gameId);
+    }
+
+    @Given("ensure market <<MarketTitle>> has 11 outcomes")
+    public void ensure11Selections(@Named("<MarketTitle>")
+    final String marketTitle) throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final Line line = event.getLineByDisplayName(marketTitle);
+        final List<Outcome> outcomes = line.getOutcomesList();
+        final String lineID = line.getLineId();
+        final String outcomeDesc = "Outcome ";
+        for (int index = outcomes.size(); index <= 11; index++) {
+            line.addOutcomeLine(new LineOutcome(lineID, String.valueOf(index), outcomeDesc + " " + index));
+        }
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+
+    }
+
+    @When("suspend outcome <Outcome Description> in backend")
+    public void suspendOutcome(@Named("Outcome Description")
+    final String outcomeDescription) throws ConfigurationException, IOException {
+        eventStepsHelperMethods.suspendOutcome(outcomeDescription);
+    }
+
+    @When("suspend selection <Selection2> in backend")
+    public void suspendSelection2(@Named("Selection2")
+    final String selection) throws IOException, ConfigurationException {
+        eventStepsHelperMethods.suspendOutcome(selection);
+    }
+    
+    @When("suspend outcome <<Selection>> in backend")
+    public void suspendSelection(@Named("<Selection>")
+    final String selection) throws IOException, ConfigurationException {
+        eventStepsHelperMethods.suspendOutcome(selection);
+    }
+    @When("make the selection <Selection2> invisible in backend")
+    public void setVisibilityOfSelection(@Named("Selection2") final String selection)
+            throws IOException, ConfigurationException {
+        eventStepsHelperMethods.setSelectionInvisible(selection);
+    }
+
+    @When("suspended outcome <Outcome Description> is unsuspended in backend")
+    public void UnSuspendOutcome(@Named("Outcome Description")
+    final String outcomeDescription) throws ConfigurationException, IOException {
+        eventStepsHelperMethods.unSuspendOutcome(outcomeDescription);
+    }
+
+    @When("an event start time is set in the past")
+    public void changeEventTime(@Named("Minutes")
+    final int minutes) throws ParseException, ConfigurationException, IOException {
+        eventStepsHelperMethods.setPastTimeToEvent(minutes);
+    }
+
+    @When("change above events start time hour less than 10")
+    public void changeEventStartTimeLessThan10() throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final String appTimeZone = getLiveBettingPage().getTimeZone();
+        final Utils utils = new Utils();
+        final String eventStartTime = utils.getEventTimeLessThan10Hr(event, appTimeZone);
+        event.setGameDateUTC(eventStartTime);
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @Given("set above event start time to current time")
+    public void changeEventTimeToCurrent() throws ConfigurationException, ParseException, IOException {
+        eventStepsHelperMethods.setPastTimeToEvent(0);
+    }
+
+    @When("above event status is changed from upcoming to In Progress")
+    public void changeEventStatus() throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final String currentEventStatus = event.getGameStatus();
+        if (!currentEventStatus.equals(EventStatus.UPCOMING.code())) {
+            Assert.fail("Game Status is not upcoming");
+        }
+        event.setGameStatusToOpen();
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+    }
+
+    @When("above event status is changed to Pregame")
+    public void changeEventStatusToUpcoming() throws ConfigurationException, IOException {
+        eventStepsHelperMethods.changeEventStatusTo(getEvent(), EventStatus.UPCOMING);
+    }
+
+    @When("above event status is changed to In Progress")
+    public void changeEventStatusToInProgress() throws ConfigurationException, IOException {
+        eventStepsHelperMethods.changeEventStatusTo(getEvent(), EventStatus.OPEN);
+    }
+
+    @When("above event is suspended")
+    @Alias(value="above event is closed")
+    public void suspendEvent() throws ConfigurationException, IOException {
+        eventStepsHelperMethods.changeEventStatusTo(getEvent(), EventStatus.CLOSED);
+    }
+
+    @When("all markets are removed in backend")
+    public void removeAllMarkets() throws ConfigurationException, IOException {
+        eventStepsHelperMethods.removeAllMarkets(getEvent());
+    }
+
+    @When("selection '<<Selection>>' of market '<<MarketTitle>>' is added back in backend")
+    public void addSelection(@Named("<Selection>") final String selection, @Named("<MarketTitle>") final String marketTitle)
+            throws ConfigurationException, IOException {
+        final Event event = getEvent();
+        final String lineID = getScenarioContext().getTempStorage().get("LineID");
+        final String outcomeID = getScenarioContext().getTempStorage().get("OutcomeID");
+        final Outcome outcome = new LineOutcome(lineID, outcomeID, selection);
+        getEvent().getLineByDisplayName(marketTitle).getOutcomesList().add(outcome);
+        getManager().update(UtilsPXP.marshallEventToUpdate(event));
+
+    }
+    
+    
+
+}

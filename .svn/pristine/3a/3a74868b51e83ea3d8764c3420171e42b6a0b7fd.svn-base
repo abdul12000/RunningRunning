@@ -1,0 +1,38 @@
+package internal.qaauto.inrunning.StepCandidatesHelperMethods;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.markets.MarketInterface;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 03/11/2014.
+ */
+public class CouponAreaStepsHelperMethods extends InRunningBaseStep {
+
+    private static final String MARKET_NOT_DISPLAYED = "Market %s not displayed";
+
+    private static final String MARKET_DISPLAYED = "Market %s displayed";
+
+    private static final String MARKET_NOT_FOUND = "Market %s not found";
+
+    private static final String MARKET_FOUND = "Market %s found";
+
+    public void verifyMarketsExistInCouponArea(final List<String> marketsTitle){
+        for(final String marketTitle : marketsTitle) {
+            verifyMarketExistInCouponArea(marketTitle);
+        }
+    }
+
+    public void verifyMarketExistInCouponArea(final String marketTitle){
+        final MarketInterface market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        Assert.assertNotNull(market, String.format(MARKET_FOUND, marketTitle), String.format(MARKET_NOT_FOUND, marketTitle));
+        Assert.assertTrue(market.getWebElement().isDisplayed(), String.format(MARKET_DISPLAYED, market), String.format(MARKET_NOT_DISPLAYED,marketTitle));
+    }
+
+    public void verifyMarketNotVisibleInCouponArea(final String marketTitle){
+        Assert.assertTrue(getLiveBettingPage().getMarketByTitle(marketTitle) == null,
+                String.format(MARKET_NOT_DISPLAYED, marketTitle), String.format(MARKET_DISPLAYED, marketTitle));
+    }
+}

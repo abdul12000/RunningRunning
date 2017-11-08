@@ -1,0 +1,37 @@
+package internal.qaauto.inrunning.tom.coupons;
+
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 06/10/2014.
+ */
+public class LeftNavUpcomingEvent extends LeftNavEvent implements LeftNavUpcomingEventInterface {
+
+    private final static String TIME_SELECTOR = ".scheduled-time";
+
+    private By timeLocator = new By.ByCssSelector(TIME_SELECTOR);
+
+    public LeftNavUpcomingEvent(final WebElement couponWebElement){
+        setComponent(couponWebElement);
+    }
+
+    @Override
+    public String getTitle() {
+        return getWebElement().getText();
+    }
+
+    @Override
+    public String getTime() {
+        final List<WebElement> timeWebElements = getWebElement().findElements(timeLocator);
+        if(timeWebElements == null){
+            return StringUtils.EMPTY;
+        }
+        return timeWebElements.get(0).getText();
+    }
+
+
+}

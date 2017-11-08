@@ -1,0 +1,249 @@
+package internal.qaauto.inrunning.StepCandidatesHelperMethods;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.EventBuilder;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Line;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.LineHandicap;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Outcome;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.LineFactory;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.lines.NewPlayOutcomeLine;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.outcomes.LineOutcome;
+import org.apache.commons.lang.StringUtils;
+
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Harish Renukunta on 17/10/2014.
+ */
+public class EventStepsHelperMethods extends InRunningBaseStep {
+
+    private static final int HOURS = -10;
+
+    private static final String WIN = "Win";
+
+    private static final String RISK = "Risk";
+
+    private static final String WIN1 = "Win1";
+
+    private static final String RISK1 = "Risk1";
+
+    private static final String MARKET_NAME = "MarketName";
+
+    private static final String DISPLAY_IN_SPORTS_LIVE_COUPON = "displayInSportsLiveCoupon";
+
+    private static final String AWAYTEAM_NICKNAME_HEADER = "AwayTeam NickName";
+
+    private static final String HOMETEAM_NICKNAME_HEADER = "HomeTeam NickName";
+
+    private static final String MARKET_TITLE = "MarketTitle";
+
+    private static final String MARKET_NAME_TO_CREATE = "MarketNameToCreate";
+
+    private static final String TOTAL = "Total";
+
+    private static final String POINT_SPREAD = "Point Spread";
+
+    private static final String CHANGE_MARKET_TYPE = "0";
+
+    private static final String HANDICAP_VALUE = "HandicapValue";
+
+    private static final String PROP_TYPE_ID = "proptypeid";
+
+    private static final String OUTCOME_FOUND = "Outcome '%s' found";
+
+    private static final String OUTCOME_NOT_FOUND = "Outcome '%s' not found";
+
+    private static final String SELECTION = "Selection";
+
+    private static final String OUTCOME_NEXT_PLAY = "Outcome next play";
+
+    private static final String PICK = "Pick";
+
+    private static final String EVEN = "EVEN";
+
+    public List<String> getMarketsTitleFromEvent(final Event event) {
+        List<Line> lines = event.getLines();
+        if (lines == null || lines.size() == 0) {
+            reporter.info("Markets are not displayed");
+            return null;
+        }
+        List<String> marketsList = new LinkedList<String>();
+        for (Line line : lines) {
+            marketsList.add(line.getDisplayText());
+        }
+        return marketsList;
+    }
+
+    public Event createEvent(final Map<String, String> params) throws ParseException {
+        final Event event = EventBuilder.buildEvent(params);
+        final String newEventTime = new Utils().changeEventTime(event, Calendar.HOUR, HOURS);
+        event.setGameDateUTC(newEventTime);
+        final String marketName = params.get(MARKET_NAME_TO_CREATE);
+        final Line line = event.getLineByMarketName(marketName);
+        final List<Outcome> outcomes = line.getOutcomesList();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (entry.getValue() != StringUtils.EMPTY) {
+                switch (entry.getKey()) {
+                case AWAYTEAM_NICKNAME_HEADER:
+                    event.setAwayTeamNickname(entry.getValue());
+                    break;
+                case HOMETEAM_NICKNAME_HEADER:
+                    event.setHomeTeamNickname(entry.getValue());
+                    break;
+                case MARKET_TITLE:
+                    if (!marketName.equals(OUTCOME_NEXT_PLAY)) {
+                        //if (marketName.equals(TOTAL) || marketName.equals(POINT_SPREAD)) {
+                        line.setMainMarketType(CHANGE_MARKET_TYPE);
+                    }
+                    line.setDisplayText(entry.getValue());
+                    break;
+                case HANDICAP_VALUE:
+                    if (marketName != null) {
+                        ((LineHandicap) line).setHandicap(entry.getValue());
+                    }
+                    break;
+                case PROP_TYPE_ID:
+                    if (entry.getValue() != null) {
+                        if (outcomes.size() > 3) {
+                            outcomes.get(0).setDisplayText("TestOutcomeA");
+                            outcomes.get(1).setDisplayText("TestOutcomeB");
+                            outcomes.get(2).setDisplayText("TestOutcomeC");
+                            outcomes.get(3).setDisplayText("TestOutcomeD");
+                            line.addOutcomeLine(new LineOutcome(line.getLineId(), "5", "TestOutcomeE"));
+                            line.addOutcomeLine(new LineOutcome(line.getLineId(), "6", "TestOutcomeF"));
+                            line.addOutcomeLine(new LineOutcome(line.getLineId(), "7", "TestOutcomeG"));
+                        }
+
+                    }
+                    line.setProptypeId(entry.getValue());
+                    break;
+                case WIN:
+                    for (Outcome outcome : outcomes) {
+                        if (outcome.getDisplayText().contains(params.get(SELECTION))) {
+                            outcome.setWin(entry.getValue());
+                            break;
+                        }
+                    }
+                    break;
+                case RISK:
+                    for (Outcome outcome : outcomes) {
+                        if (outcome.getDisplayText().contains(params.get(SELECTION))) {
+                            outcome.setRisk(entry.getValue());
+                            break;
+                        }
+                    }
+                    break;
+                }
+
+            }
+        }
+
+        return event;
+    }
+
+    public Event createEventInAmericanFormat(final Map<String, String> params) throws ParseException {
+        final Event event = createEvent(params);
+        event.setDisplayAwayTeamFirst(Boolean.TRUE.toString());
+        return event;
+    }
+
+    public Event createEventInEuropeanFormat(final Map<String, String> params) throws ParseException {
+        final Event event = createEvent(params);
+        event.setDisplayAwayTeamFirst(Boolean.FALSE.toString());
+        return event;
+    }
+
+    public Line createLineWith3ColumnLayout(final String marketTitle) {
+        final Line line = LineFactory.getLineInstance(NewPlayOutcomeLine.MARKET_NAME, getEvent());
+        line.setPropId("3");
+        line.setProptypeId("9");
+        line.setDisplayText(marketTitle);
+        line.getOutcomesList().remove(3);
+        return line;
+    }
+
+    public Line createExtraLine(final Map<String, String> params, final Event event) {
+        final Line line = LineFactory.createNewPlayOutcomeLine(event);
+        for (Map.Entry<String, String> dataColumn : params.entrySet()) {
+            switch (dataColumn.getKey()) {
+            case MARKET_NAME:
+                line.setDisplayText(dataColumn.getValue());
+                break;
+            case DISPLAY_IN_SPORTS_LIVE_COUPON:
+                line.setDisplayInSportsLiveCoupons(dataColumn.getValue());
+                break;
+            case WIN:
+                line.getOutcomesList().get(0).setWin(dataColumn.getValue());
+                break;
+            case RISK:
+                line.getOutcomesList().get(0).setRisk(dataColumn.getValue());
+                break;
+            case WIN1:
+                line.getOutcomesList().get(0).setWin(dataColumn.getValue());
+                break;
+            case RISK1:
+                line.getOutcomesList().get(0).setRisk(dataColumn.getValue());
+                break;
+            }
+        }
+        return line;
+    }
+
+    public boolean removeLine(final Event event, final Line line) {
+        final List<Line> lines = event.getLines();
+        Line marketToRemove = null;
+        for (Line marketLine : lines) {
+            if (marketLine == line) {
+                marketToRemove = line;
+                break;
+            }
+        }
+        if (marketToRemove != null) {
+            lines.remove(line);
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public String getEventOutcomeDescription(Outcome outcome) {
+        String outcomeDescriptionText = outcome.getDisplayText();
+        outcomeDescriptionText = outcomeDescriptionText.replaceAll("\\d+", "").trim();
+        if (outcomeDescriptionText.contains(PICK)) {
+            outcomeDescriptionText = outcomeDescriptionText.replace(PICK, "").trim();
+        }
+        if (outcomeDescriptionText.contains(EVEN)) {
+            outcomeDescriptionText = outcomeDescriptionText.replace(EVEN, "").trim();
+        }
+        return outcomeDescriptionText;
+    }
+
+    public void removeSelectionWithTitleFromMarket(final Event event, final String marketTitle, final String outcomeDesc) {
+        final Line line = event.getLineByDisplayName(marketTitle);
+        final Outcome outcomeToBeRemoved = getOutcomeByDescription(line,
+                outcomeDesc);
+        Assert.assertNotNull(outcomeToBeRemoved, String.format(OUTCOME_FOUND, outcomeDesc),
+                String.format(OUTCOME_NOT_FOUND, outcomeDesc));
+        line.getOutcomesList().remove(outcomeToBeRemoved);
+    }
+
+    private Outcome getOutcomeByDescription(final Line line,
+            final String outcomeDesc) {
+        final List<Outcome> marketOutcomes = line.getOutcomesList();
+        Outcome desiredOutcome = null;
+        for (final Outcome marketOutcome : marketOutcomes) {
+            if (outcomeDesc.equals(marketOutcome.getDisplayText())) {
+                desiredOutcome = marketOutcome;
+                break;
+            }
+        }
+        return desiredOutcome;
+    }
+
+}

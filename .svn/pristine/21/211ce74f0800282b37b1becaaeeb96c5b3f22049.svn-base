@@ -1,0 +1,327 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.LeftNavEventStepsHelperMethods;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.LiveBettingPage;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.inrunning.tom.coupons.LeftNavEvent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowEvent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingEvent;
+import internal.qaauto.inrunning.tom.leftnav.LeftNavEventsComponent;
+import internal.qaauto.inrunning.tom.leftnav.Sport;
+import internal.qaauto.inrunning.tom.leftnav.UpcomingEventsComponent;
+import internal.qaauto.inrunning.tom.markets.Market;
+import internal.qaauto.inrunning.tom.markets.MarketOutcome;
+import internal.qaauto.inrunning.utils.LeftNavComponents;
+import internal.qaauto.inrunning.utils.WaitUtils;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import org.apache.commons.lang.StringUtils;
+import org.jbehave.core.annotations.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 21/10/2014.
+ */
+public class LeftNavEventSteps extends InRunningBaseStep {
+
+    private static final String UPCOMING_COUPON_WITH_TITLE_DISPLAYED = "Upcoming coupon displayed with title.Coupon name %s";
+
+    private static final String UPCOMING_COUPON_WITH_TITLE_NOT_DISPLAYED = "Upcoming coupon not found with title %s";
+
+    private final static String UPCOMING_EVENT_TIME_MATCH = "Upcoming event time match. Event time:%s";
+
+    private final static String UPCOMING_EVENT_TIME_MISMATCH = "Upcoming event time mismatch. Expected:%s Actual:%s";
+
+    private static final String SPORT_GROUPS_FOUND = "Sports group found in %s";
+
+    private static final String NO_SPORT_GROUPS = "There are no sport groups in %s";
+
+    private static final String SPORT_GROUPS_COLLAPSED = "All sport groups are collapsed";
+
+    private static final String SPORT_GROUPS_EXPANDED = "Sport Groups:%s are in expand mode";
+
+    private static final String SELECTED_EVENT_CLASS = "selected";
+
+    private static final String LIVENOW_EVENT_HIGHLIGHTED = "Live Now Event highlighted";
+
+    private static final String LIVENOW_EVENT_NOT_HIGHLIGHTED = "Live Now Event not highlighted";
+
+    private static final String NO_EVENTS_HIGHLIGHTED = "No Events highlighted";
+
+    private static final String EVENTS_HIGHLIGHTED = "There are highlighted events : %s";
+
+    private static final String ELLIPSIS_CSS_PROPERTY = "text-overflow";
+
+    private static final String ELLIPSIS_PROPERTY_VALUE = "ellipsis";
+
+    private static final String ELLIPSIS_DISPLAYED = "CSS will render ellipsis when text overflows for team %s";
+
+    private static final String ELLIPSIS_NOT_DISPLAYED = "Ellipsis will not be rendered when text overflows for team %s";
+
+    private static final String TEAM_SELECTOR = "span";
+
+    private static final String EVENT_FOUND = "Event %s found";
+
+    private static final String EVENT_NOT_FOUND = "Event %s not found";
+
+    private static final String TOOLTIP_DISPLAYED = "Tool tip displayed for team %s";
+
+    private static final String TOOLTIP_NOT_DISPLAYED = "Tool tip not displayed for team %s";
+
+    private static final String TITLE_ATTRIBUTE = "title";
+
+    private LeftNavEventStepsHelperMethods leftNavEventStepsHelper = HelperFactory
+            .getCouponStepsHelper();
+
+    @Then("Event name in Live Now link will be displayed in the top row of the link as '<<AwayTeam NickName>>@<<HomeTeam NickName>>'")
+    @Aliases(values = {
+            "Event name in Live Now link will be displayed in the top row of the link as '<<HomeTeam NickName>>vs<<AwayTeam NickName>>'" })
+    public void verifyLiveNowCouponByTitle() {
+        final Event event = getEvent();
+        final Utils utils = new Utils();
+        final String eventTitle = utils.getEventName(event);
+        leftNavEventStepsHelper.verifyLiveNowEventExist(event.getSport(),
+                eventTitle);
+    }
+
+    @Then("Event Name in Upcoming events will be displayed in the top row as '<<AwayTeam NickName>> <Team Separator> <<HomeTeam NickName>>'")
+    public void verifyUpcomingEventNameUSFormat(
+            @Named("<AwayTeam NickName>") final String awayTeamShortName,
+            @Named("Team Separator") final String teamSeparator,
+            @Named("<HomeTeam NickName>") final String homeTeamShortName) {
+        final String couponName = String.format("%s %s %s", awayTeamShortName,
+                teamSeparator, homeTeamShortName);
+        LeftNavUpcomingEvent upcomingCoupon = leftNavEventStepsHelper
+                .getLeftNavUpcomingEventByTitle(couponName);
+        Assert.assertNotNull(upcomingCoupon, String.format(
+                UPCOMING_COUPON_WITH_TITLE_DISPLAYED, couponName), String
+                .format(UPCOMING_COUPON_WITH_TITLE_NOT_DISPLAYED, couponName));
+    }
+
+    @Then("Event Name in Upcoming events will be displayed in the top row as '<<HomeTeam NickName>><Team Separator><<AwayTeam NickName>>'")
+    public void verifyUpcomingCouponTitleInEuropeanFormatEvent(
+            @Named("<AwayTeam NickName>") final String awayTeamShortName,
+            @Named("Team Separator") final String teamSeparator,
+            @Named("<HomeTeam NickName>") final String homeTeamShortName) {
+        final String couponName = String.format("%s %s %s", homeTeamShortName,
+                teamSeparator, awayTeamShortName);
+        LeftNavUpcomingEvent upcomingCoupon = leftNavEventStepsHelper
+                .getLeftNavUpcomingEventByTitle(couponName);
+        Assert.assertNotNull(upcomingCoupon, String.format(
+                UPCOMING_COUPON_WITH_TITLE_DISPLAYED, couponName), String
+                .format(UPCOMING_COUPON_WITH_TITLE_NOT_DISPLAYED, couponName));
+    }
+
+    @Then("price displayed for all outcomes of market <<MarketName>> in coupon area should be <OddsDisplayed>")
+    public void verifyOddsOfAllOutcomes(
+            @Named("<MarketName>") final String marketName,
+            @Named("OddsDisplayed") final String expectedOdd) {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForMarketToDisplayInCoupon(getLiveBettingPage(),
+                marketName);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketName);
+        final List<MarketOutcome> marketOutcomes = market.getOutcomes();
+        for (final MarketOutcome marketOutcome : marketOutcomes) {
+            leftNavEventStepsHelper.verifyOddsOfOutcome(marketOutcome,
+                    expectedOdd);
+        }
+    }
+
+    @Then("above created upcoming event displays time in 12h clock and time to start in hours and minutes(Starts in HHh MMm)")
+    public void verifyUpcomingEventDisplays12hClock() {
+        final Utils utils = new Utils();
+        final Event event = getEvent();
+        final String eventName = utils.getEventName(event);
+        final UpcomingEventsComponent leftNavEventComponent = getLiveBettingPage()
+                .getUpcomingEventsComponent();
+        final LeftNavEvent leftNavEvent = leftNavEventComponent
+                .getLeftNavEventByName(eventName, event.getSport());
+        final String leftNavEventTime = leftNavEvent.getTime();
+        final String appTimeZone = getLiveBettingPage().getTimeZone();
+        final String startTimeFromEvent = utils.getStartTimeFromEvent(event,
+                appTimeZone);
+        final String eventTimeToStartFromEvent = utils.getTimeToStartFromEvent(
+                event, appTimeZone);
+        final String expectedUpcomingEventTimeLabel = startTimeFromEvent
+                + " Starts in " + eventTimeToStartFromEvent;
+        Assert.assertEquals(expectedUpcomingEventTimeLabel, leftNavEventTime,
+                String.format(UPCOMING_EVENT_TIME_MATCH, leftNavEventTime),
+                String.format(UPCOMING_EVENT_TIME_MISMATCH,
+                        expectedUpcomingEventTimeLabel, leftNavEventTime));
+    }
+
+    @When("you collapse sport <Sport> in Upcoming events component by clicking on it")
+    public void collapseSportGroupInUpcomingEventsComponent(
+            @Named("Sport") final String sport) {
+        leftNavEventStepsHelper
+                .collapseSportGroupInUpcomingEventsComponent(sport);
+    }
+
+    @When("expand sport <Sport1> in Upcoming events component by clicking on it")
+    public void expandSportGroup1InUpcomingEventsComponent(
+            @Named("Sport1") final String sport) {
+        leftNavEventStepsHelper
+                .expandSportGroupInUpcomingEventsComponent(sport);
+    }
+
+    @When("expands sport <Sport> in Upcoming events component by clicking on it")
+    public void expandSportGroupInUpcomingEventsComponent(
+            @Named("Sport") final String sport) {
+        leftNavEventStepsHelper
+                .expandSportGroupInUpcomingEventsComponent(sport);
+    }
+
+    @Then("sport group <Sport> in Upcoming events component should be collapsed")
+    public void verifySportGroupInUpcomingEventsComponentIsCollapsed(
+            @Named("Sport") final String sport) {
+        leftNavEventStepsHelper
+                .verifySportGroupInUpcomingEventsComponentIsCollapsed(sport);
+    }
+
+    @Then("sport group <Sport1> in Upcoming events component should be expanded")
+    public void verifySportGroup1InUpcomingEventsComponentIsExpanded(
+            @Named("Sport1") final String sport) {
+        leftNavEventStepsHelper
+                .verifySportGroupInUpcomingEventsComponentIsExpanded(sport);
+    }
+
+    @Then("sport group <Sport> in Upcoming events component should be expanded")
+    public void verifySportGroupInUpcomingEventsComponentIsExpanded(
+            @Named("Sport") final String sport) {
+        leftNavEventStepsHelper
+                .verifySportGroupInUpcomingEventsComponentIsExpanded(sport);
+    }
+
+    @Then("all sport groups other than <Sport1> in Upcoming events component should be collapsed")
+    public void verifySportGroupsInUpcomingEventsComponentOtherThanSpecifiedAreCollapsed(
+            @Named("Sport1") final String sport) {
+        leftNavEventStepsHelper
+                .verifySportGroupsInUpcomingEventsComponentOtherThanSpecifiedAreCollapsed(sport);
+
+    }
+
+    @Then("by default all sport groups in Upcoming events component will be collapsed")
+    public void verifyUpcomingEventSportGroupsDefaultBehaviour() {
+        final LeftNavEventsComponent upcomingEventsComponent = getLiveBettingPage()
+                .getUpcomingEventsComponent();
+        final List<Sport> sportGroups = upcomingEventsComponent
+                .getSportGroups();
+        final String menuComponent = LeftNavComponents.UPCOMING_EVENTS_COMPONENT
+                .getLabel();
+        Assert.assertNotNull(sportGroups,
+                String.format(SPORT_GROUPS_FOUND, menuComponent),
+                String.format(NO_SPORT_GROUPS, menuComponent));
+        final List<String> sportGroupsNotCollapsed = new ArrayList<String>();
+        for (Sport sportGroup : sportGroups) {
+            if (!sportGroup.isCollapsed()) {
+                sportGroupsNotCollapsed.add(sportGroup.getTitle());
+            }
+        }
+        Assert.assertTrue((sportGroupsNotCollapsed.size() == 0),
+                SPORT_GROUPS_COLLAPSED, String.format(SPORT_GROUPS_EXPANDED,
+                        sportGroupsNotCollapsed.toArray().toString()));
+    }
+
+    @Then("event link in left nav live now events component is highlighted")
+    public void verifyLiveNowEventHighlighted() {
+        final LeftNavLiveNowEvent liveNowEvent = getLatestLiveNowEvent();
+        Assert.assertTrue(liveNowEvent.getWebElement().getAttribute("class")
+                        .contains(SELECTED_EVENT_CLASS), LIVENOW_EVENT_HIGHLIGHTED,
+                LIVENOW_EVENT_NOT_HIGHLIGHTED);
+    }
+
+    @When("I select above Live Now event")
+    public void selectLiveNowEvent() throws InterruptedException {
+        final LeftNavLiveNowEvent liveNowEvent = getLatestLiveNowEvent();
+        liveNowEvent.select();
+    }
+
+    @Given("no events in live now component are highlighted")
+    public void verifyNoEventsInLiveNowComponentNotHighlighted() {
+        final LeftNavEventsComponent leftNavEventsComponent = this
+                .getLiveBettingPage().getLiveNowCouponsComponent();
+        final List<LeftNavEvent> leftNavEvents = leftNavEventsComponent
+                .getLeftNavEvents();
+        String highlightedEvents = StringUtils.EMPTY;
+        for (LeftNavEvent leftNavEvent : leftNavEvents) {
+            if (leftNavEvent.getWebElement().getAttribute("class")
+                    .contains("selected")) {
+                highlightedEvents = highlightedEvents + ","
+                        + leftNavEvent.getLeftNavEventDescription();
+            }
+        }
+
+        Assert.assertTrue(StringUtils.isEmpty(highlightedEvents),
+                NO_EVENTS_HIGHLIGHTED,
+                String.format(EVENTS_HIGHLIGHTED, highlightedEvents));
+
+    }
+
+    @Then("team names should be truncated in left nav $menu events component")
+    public void verifyTeamNamesAreTruncatedInLeftNav(final String menuComponent) {
+        final Event event = getEvent();
+        final String sport = event.getSport();
+        final Utils utils = new Utils();
+        final String eventName = utils.getEventName(event);
+        final LiveBettingPage page = getLiveBettingPage();
+        final LeftNavEvent leftNavEvent;
+        if (menuComponent.equalsIgnoreCase("Live Now")) {
+            leftNavEvent = page.getLiveNowEventByName(sport, eventName);
+        } else {
+            leftNavEvent = page.getUpcomingEventByName(sport, eventName);
+        }
+
+        Assert.assertNotNull(leftNavEvent,
+                String.format(EVENT_FOUND, eventName),
+                String.format(EVENT_NOT_FOUND, eventName));
+        final By teamSelector = new By.ByCssSelector(TEAM_SELECTOR);
+        final List<WebElement> teams = leftNavEvent.getWebElement()
+                .findElements(teamSelector);
+        for (final WebElement team : teams) {
+            Assert.assertTrue(
+                    team.getCssValue(ELLIPSIS_CSS_PROPERTY).equals(
+                            ELLIPSIS_PROPERTY_VALUE),
+                    String.format(ELLIPSIS_DISPLAYED, team.getText()),
+                    String.format(ELLIPSIS_NOT_DISPLAYED, team.getText()));
+        }
+
+    }
+
+    @Then("Tooltip is displayed when hovering over the left nav with team names in $menuComponent events component")
+    public void verifyToolTipDisplayedForTeams(final String menuComponent) {
+        final Event event = getEvent();
+        final String sport = event.getSport();
+        final Utils utils = new Utils();
+        final String eventName = utils.getEventName(event);
+        final LiveBettingPage page = getLiveBettingPage();
+        final LeftNavEvent leftNavEvent;
+        if (menuComponent.equalsIgnoreCase("Live Now")) {
+            leftNavEvent = page.getLiveNowEventByName(sport, eventName);
+        } else {
+            leftNavEvent = page.getUpcomingEventByName(sport, eventName);
+        }
+
+        Assert.assertNotNull(leftNavEvent,
+                String.format(EVENT_FOUND, eventName),
+                String.format(EVENT_NOT_FOUND, eventName));
+
+        final By teamSelector = new By.ByCssSelector("h5>span");
+        final List<WebElement> teams1 = leftNavEvent.getWebElement()
+                .findElements(teamSelector);
+        for (final WebElement team : teams1) {
+            Assert.assertTrue(
+                    StringUtils.isNotEmpty(team.getText()), String
+                            .format(TOOLTIP_DISPLAYED,
+                                    team.getAttribute("title")), String.format(
+                            TOOLTIP_NOT_DISPLAYED, team.getAttribute("title")));
+        }
+
+    }
+
+}

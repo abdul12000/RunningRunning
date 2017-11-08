@@ -1,0 +1,23 @@
+Narrative:
+
+As a player
+I want markets to be displayed with their corresponding layouts in the Live coupon
+so that I can easily identify the selections to place wagers
+
+Meta:
+@author rkora
+@Story BGSIR401
+Scenario: verify V2Columns layout should be applied to the marketType 19
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|proptypeid|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|<proptypeid>|
+When user navigate to a Single Game View page of a Live Event <<GameId>>
+Then the market which has <<MarketTitle>> should display <ColumnLayout>
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |ColumnLayout|<proptypeid>|
+|12345      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |H2          |1           |
+|12346      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 2    |V2          |19          |
+|12347      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 3    |H3          |4           |
+|12348      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 4    |V3          |20          |

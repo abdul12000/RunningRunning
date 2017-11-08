@@ -1,0 +1,74 @@
+Meta:
+@story BGSIR_628
+@functionality betslip
+
+Narrative:
+As a player 
+I want to be notified when QBM cannot be enabled as a results of existing selections in the Bet Slip
+so that I know why the betting mode was not changed
+					 
+Scenario: Message is displayed in the Bet slip when user tries to change to QBM with selections in the BS
+Meta:
+@scenarioName BGSIR_628_DisplayError_EnableQBM
+@author Harish
+@testType regression
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |AwaTeam NickName    |HomeTeam NickName   |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<Home Team>_<GameId>|<Away Team>_<GameId>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+When player tries to change mode to QBM
+Then an error message 'Please place or remove your bets to switch to quick bet mode.' is displayed in betslip
+And QBM should still be in disabled state
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |
+|62801      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |Pass Completion|
+
+
+Scenario: Message is displayed in the Bet slip when user tries to change to QBM with selections in the BS
+Meta:
+@scenarioName BGSIR_628_DisplayError_AtleastOneBetSelection_EnableQBM
+@author Harish
+@testType regression
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |HomeTeam NickName    |Away NickName   |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<Home Team>_<GameId> |<Away Team>_<GameId>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+And player add one more selection <<Selection2>> from <<MarketTitle>> to the betslip
+When player tries to change mode to QBM
+Then an error message 'Please place or remove your bets to switch to quick bet mode.' is displayed in betslip
+And QBM should still be in disabled state
+When player remove selection <<Selection2>> from betslip
+Then error message 'Please place or remove your bets to switch to quick bet mode.' should still be displayed in betslip
+And QBM should still be in disabled state
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |<Selection2>|
+|62801      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |Pass Completion|Turnover    |
+
+Scenario: Message disappears when after removing bets from betslip
+Meta:
+@scenarioName BGSIR_628_NoError_RemoveBets_EnableQBM
+@author Harish
+@testType regression
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |AwaTeam NickName    |HomeTeam NickName   |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<Home Team>_<GameId>|<Away Team>_<GameId>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+When player tries to change mode to QBM
+Then an error message 'Please place or remove your bets to switch to quick bet mode.' is displayed in betslip
+And QBM should still be in disabled state
+When player removes all bet selections
+Then error message 'Please place or remove your bets to switch to quick bet mode.' is not displayed in betslip
+And QBM should get enabled
+
+
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |
+|62801      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |Pass Completion|

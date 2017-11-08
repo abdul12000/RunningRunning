@@ -1,0 +1,9 @@
+package internal.qaauto.inline.tom.coupons;
+
+/**
+ * Created by Harish Renukunta on 03/10/2014.
+ */
+public interface LeftNavUpcomingCouponInterface extends LeftNavCouponInterface {
+
+
+}

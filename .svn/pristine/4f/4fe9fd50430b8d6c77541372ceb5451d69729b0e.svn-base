@@ -1,0 +1,62 @@
+package internal.qaauto.inrunning.framework;
+
+import internal.qaauto.framework.testCase.webTestsCase.BaseTestCase;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.UtilsPXP;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import org.apache.commons.configuration.ConfigurationException;
+import org.hibernate.criterion.Example;
+import org.jbehave.core.annotations.*;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+
+/**
+ * Created by Harish Renukunta on 09/10/2014.
+ */
+public class InRunningTestCase extends BaseTestCase {
+
+    protected static ScenarioContext scenarioContext;
+    protected static ExecutionContext executionContext;
+
+    @BeforeStory
+    public void beforeStory() throws MalformedURLException, ConfigurationException {
+        startBrowser();
+        if(executionContext == null) {
+            executionContext=new ExecutionContext();
+        }
+    }
+
+    @BeforeScenario(uponType = ScenarioType.ANY)
+    public void beforeScenario() throws Exception {
+        cleanCookies();
+        if(scenarioContext == null){
+            scenarioContext = new ScenarioContext();
+        }
+        System.out.println("***********************************Before scenario******************************************");
+    }
+
+    public static ScenarioContext getScenarioContext(){
+        return scenarioContext;
+    }
+    public static ExecutionContext getExecutionContext(){
+        return executionContext;
+    }
+
+    @AfterScenario(uponType = ScenarioType.ANY)
+    public void afterScenario() throws IOException, ConfigurationException {
+        System.out.println("***********************************After scenario******************************************");
+        if(scenarioContext != null){
+            scenarioContext.cleanUpEvents();
+         }
+         scenarioContext = null;
+    }
+
+
+    @AfterStory
+    public void afterStory() throws ConfigurationException {
+        stopBrowser();
+        if(executionContext!=null){
+            executionContext=null;
+        }
+    }
+}

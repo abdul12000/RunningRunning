@@ -1,0 +1,95 @@
+package internal.qaauto.inline.tom;
+
+import java.util.LinkedList;
+import java.util.List;
+import internal.qaauto.deltawebsites.websites.bovadabodog.tom.sports.SportsPage;
+import internal.qaauto.inline.tom.betslip.BetSlipInterface;
+import internal.qaauto.inline.tom.leftnav.*;
+import internal.qaauto.inline.tom.markets.Market;
+import internal.qaauto.inline.tom.markets.MarketInterface;
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 03/10/2014.
+ */
+public class LiveBettingPage extends SportsPage implements LiveBettingPageInterface {
+
+    private static final String MARKET_SELECTOR = "";
+
+    private static final String LIVE_NOW_MENU_SELECTOR = "";
+
+    private static final String UPCOMING_MENU_SELECTOR = "";
+
+    private By marketLocator = new By.ByCssSelector(MARKET_SELECTOR);
+
+    private By liveNowMenuLocator = new By.ByCssSelector(LIVE_NOW_MENU_SELECTOR);
+
+    private By upcomingMenuLocator = new By.ByCssSelector(UPCOMING_MENU_SELECTOR);
+
+    @Override
+    public LeftNavLiveNowMenuInterface getLeftNavLiveNowMenu() {
+        WebElement liveNowMenuWebElement = webDriver.findElement(liveNowMenuLocator);
+        return new LeftNavLiveNowMenu(liveNowMenuWebElement);
+    }
+
+    @Override
+    public LeftNavUpcomingMenuInterface getLeftNavUpcomingCouponsMenu() {
+        WebElement upcomingMenuWebElement = webDriver.findElement(upcomingMenuLocator);
+        return new LeftNavUpcomingMenu(upcomingMenuWebElement);
+    }
+
+    @Override
+    public List<MarketInterface> getMarkets() {
+        List<WebElement> marketWebElements = webDriver.findElements(marketLocator);
+        if(marketWebElements.size() == 0){
+            return null;
+        }
+        List<MarketInterface> markets = new LinkedList<MarketInterface>();
+        for(WebElement marketWebElement : marketWebElements){
+            markets.add(new Market(marketWebElement));
+        }
+        return markets;
+    }
+
+    @Override
+    public MarketInterface getMarketByTitle(final String title) {
+        List<MarketInterface> markets = getMarkets();
+        final MarketInterface market;
+        if(markets.size() == 0){
+            return null;
+        }
+        boolean marketFound = false;
+        String marketTitle = StringUtils.EMPTY;
+        MarketInterface desiredMarket = null;
+
+        for(int i = 0; (i < markets.size() && marketFound == false);i++){
+            marketTitle = markets.get(i).getMarketTitle();
+            if(title.equals(marketTitle)){
+                marketFound = true;
+                desiredMarket = markets.get(i);
+            }
+        }
+        return desiredMarket;
+    }
+
+    @Override
+    public BetSlipInterface getBetSlip() {
+        return null;
+    }
+
+    @Override
+    public WebElement getChildWebElement(final By childElementLocator) {
+        List<WebElement> childWebElements = webDriver.findElements(childElementLocator);
+        if(childWebElements == null){
+               return null;
+        }
+        return childWebElements.get(0);
+    }
+
+    @Override
+    public void setOddSelector(String odds) {
+
+    }
+}

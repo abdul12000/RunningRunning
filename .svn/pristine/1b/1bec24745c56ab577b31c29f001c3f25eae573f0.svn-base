@@ -1,0 +1,641 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.LeftNavEventStepsHelperMethods;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.EventStatus;
+import internal.qaauto.inrunning.tom.LiveBettingPage;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.inrunning.tom.Utilties.LeftNavComponents;
+import internal.qaauto.inrunning.tom.coupons.LeftNavEvent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingEvent;
+import internal.qaauto.inrunning.tom.leftnav.LeftNavEventsComponent;
+import internal.qaauto.inrunning.tom.leftnav.Sport;
+import internal.qaauto.inrunning.utils.WaitUtils;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringUtils;
+import org.jbehave.core.annotations.*;
+import org.jbehave.core.model.ExamplesTable;
+import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 21/10/2014.
+ */
+public class LeftNavEventSteps extends InRunningBaseStep {
+
+    public static final String BET_NOW = "BET NOW";
+
+    private final static String UPCOMING_EVENT_TIME_MATCH = "Upcoming event time match. Event time:%s";
+
+    private final static String UPCOMING_EVENT_TIME_MISMATCH = "Upcoming event time mismatch. Expected:%s Actual:%s";
+
+    private static final String SPORT_GROUPS_FOUND = "Sports group found in %s";
+
+    private static final String NO_SPORT_GROUPS = "There are no sport groups in %s";
+
+    private static final String SPORT_GROUPS_COLLAPSED = "All sport groups are collapsed";
+
+    private static final String SPORT_GROUPS_EXPANDED = "Sport Groups:%s are in expand mode";
+
+    private static final String SELECTED_EVENT_CLASS = "selected";
+
+    private static final String LIVENOW_EVENT_HIGHLIGHTED = "Live Now Event highlighted";
+
+    private static final String LIVENOW_EVENT_NOT_HIGHLIGHTED = "Live Now Event not highlighted";
+
+    private static final String NO_EVENTS_HIGHLIGHTED = "No Events highlighted";
+
+    private static final String EVENTS_HIGHLIGHTED = "There are highlighted events : %s";
+
+    private static final String EVENT_FOUND = "Event %s found";
+
+    private static final String EVENT_NOT_FOUND = "Event %s not found";
+
+    private static final String EVENT_WITH_GAMEID_FOUND = "Event with %s found";
+
+    private static final String EVENT_WITH_GAMEID_NOT_FOUND = "Event with %s not found";
+
+    private static final String TOOLTIP_DISPLAYED = "Tool tip displayed for team %s";
+
+    private static final String TOOLTIP_NOT_DISPLAYED = "Tool tip not displayed for team %s";
+
+    private static final String MESSAGE_DISPLAYED_IN_EVENT_LINK = "'%s' text is displayed in the Event Link(%s) bottom row";
+
+    private static final String MESSAGE_NOT_DISPLAYED_IN_EVENT_LINK =
+            "'%s' text is not displayed in the Event Link(%s) bottom row";
+
+    private LeftNavEventStepsHelperMethods leftNavEventStepsHelper = HelperFactory.getCouponStepsHelper();
+
+    @Then("Event name in Live Now link will be displayed in the top row of the link as '<<AwayTeam NickName>>@<<HomeTeam NickName>>'")
+    @Aliases(values = {
+            "Event name in Live Now link will be displayed in the top row of the link as '<<HomeTeam NickName>>vs<<AwayTeam NickName>>'" })
+    public void verifyLiveNowEventByName() {
+        final Event event = getEvent();
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, event);
+    }
+
+    @Then("Event Name in Upcoming events will be displayed in the top row as '<<AwayTeam NickName>> <Team Separator> <<HomeTeam NickName>>'")
+    public void verifyUpcomingEventNameUSFormat(@Named("<AwayTeam NickName>") final String awayTeamShortName,
+            @Named("Team Separator") final String teamSeparator, @Named("<HomeTeam NickName>") final String homeTeamShortName) {
+        final String expectedEventName = String.format("%s %s %s", awayTeamShortName, teamSeparator, homeTeamShortName);
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent().getSport(),
+                expectedEventName);
+    }
+
+    @Then("Event Name in Upcoming events will be displayed in the top row as '<<HomeTeam NickName>> <Team Separator> <<AwayTeam NickName>>'")
+    public void verifyUpcomingEventNameEuropeanFormat(@Named("<AwayTeam NickName>") final String awayTeamShortName,
+            @Named("Team Separator") final String teamSeparator, @Named("<HomeTeam NickName>") final String homeTeamShortName) {
+        final String expectedEventName = String.format("%s %s %s", homeTeamShortName, teamSeparator, awayTeamShortName);
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent().getSport(),
+                expectedEventName);
+    }
+
+    @Then("above created upcoming event displays time in 12h clock and time to start in hours and minutes(Starts in HHh MMm)")
+    public void verifyUpcomingEventDisplays12hClock() {
+        final Utils utils = new Utils();
+        final Event event = getEvent();
+        final LeftNavEvent leftNavEvent = leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, event);
+        final String leftNavEventTime = leftNavEvent.getTime();
+        final String appTimeZone = getLiveBettingPage().getTimeZone();
+        final String startTimeFromEvent = utils.getStartTimeFromEvent(event, appTimeZone);
+        final String eventTimeToStartFromEvent = utils.getTimeToStartFromEvent(event, appTimeZone);
+        final String expectedUpcomingEventTimeLabel = startTimeFromEvent + " Starts in " + eventTimeToStartFromEvent;
+        Assert.assertEquals(expectedUpcomingEventTimeLabel, leftNavEventTime,
+                String.format(UPCOMING_EVENT_TIME_MATCH, leftNavEventTime),
+                String.format(UPCOMING_EVENT_TIME_MISMATCH, expectedUpcomingEventTimeLabel, leftNavEventTime));
+    }
+
+    @Then("text '$message' should be displayed in the event link bottom row replacing Starts in information")
+    public void verifyTextInUpcomingEventLink(final String message) {
+        leftNavEventStepsHelper.verifyTextDisplayed(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent(), message);
+    }
+
+    @Then("text '$message' should be displayed in the event link bottom row replacing Starts in information within 1 minute")
+    public void verifyTextDisplayedInUpcomingEventLinkBottomRow(final String message) {
+        final LeftNavEvent leftNavEvent =
+                leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent());
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.setTimeOut(60);
+        waitUtils.waitForTextToDisplayInUpcomingEventBottomRow((LeftNavUpcomingEvent) leftNavEvent, message);
+        Assert.assertTrue(((LeftNavUpcomingEvent) leftNavEvent).isTextDisplayedInBottomRow(message),
+                String.format(MESSAGE_DISPLAYED_IN_EVENT_LINK, message, leftNavEvent.getName()),
+                String.format(MESSAGE_NOT_DISPLAYED_IN_EVENT_LINK, message, leftNavEvent.getName()));
+
+    }
+
+    @When("you collapse sport <Sport> in Upcoming events component by clicking on it")
+    public void collapseSportGroupInUpcomingEventsComponent(@Named("Sport") final String sport) {
+        leftNavEventStepsHelper.collapseSportGroupInUpcomingEventsComponent(sport);
+    }
+
+    @When("sport <<Sport>> is collapsed in upcoming events component")
+    public void collapseSportInUpcomingEventsComponent(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.collapseSportGroupInUpcomingEventsComponent(sport);
+    }
+
+    @When("expand sport <Sport1> in Upcoming events component by clicking on it")
+    public void expandSportGroup1InUpcomingEventsComponent(@Named("Sport1") final String sport) {
+        leftNavEventStepsHelper.expandSport(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport);
+    }
+
+    @When("expand sport <Sport2> in Upcoming events component by clicking on it")
+    public void expandSportGroup2InUpcomingEventsComponent(@Named("Sport2") final String sport) {
+        leftNavEventStepsHelper.expandSport(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport);
+    }
+
+    @When("sport <<Sport>> is expanded in live now events component")
+    public void expandLiveNowSport(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.expandSport(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, sport);
+    }
+
+    @When("expands sport <Sport> in Upcoming events component by clicking on it")
+    public void expandSportGroupInUpcomingEventsComponent(@Named("Sport") final String sport) {
+        leftNavEventStepsHelper.expandSport(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("sport <<Sport>> header in live now should not display event count")
+    public void verifyEventCountNotDisplayedForSportInLiveNow(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.verifyEventsCountNotDisplayed(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("sport group <Sport> in Upcoming events component should be collapsed")
+    public void verifySportGroupInUpcomingEventsComponentIsCollapsed(@Named("Sport") final String sport) {
+        leftNavEventStepsHelper.verifySportIsCollapsed(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("sport group <Sport1> in Upcoming events component should be collapsed")
+    public void verifySportIsCollapsed(@Named("Sport1") final String sport) {
+        leftNavEventStepsHelper.verifySportIsCollapsed(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("sport group <Sport1> in Upcoming events component should be expanded")
+    public void verifySportGroup1InUpcomingEventsComponentIsExpanded(@Named("Sport1") final String sport) {
+        leftNavEventStepsHelper.verifySportIsExpanded(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("sport group <Sport2> in Upcoming events component should be expanded")
+    public void verifySportGroup2InUpcomingEventsComponentIsExpanded(@Named("Sport2") final String sport) {
+        leftNavEventStepsHelper.verifySportIsExpanded(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("sport group <Sport> in Upcoming events component should be expanded")
+    public void verifySportGroupInUpcomingEventsComponentIsExpanded(@Named("Sport") final String sport) {
+        leftNavEventStepsHelper.verifySportIsExpanded(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("all sport groups other than <Sport1> in Upcoming events component should be collapsed")
+    public void verifySportGroupsInUpcomingEventsComponentOtherThanSpecifiedAreCollapsed(@Named("Sport1") final String sport) {
+        leftNavEventStepsHelper.verifySportGroupsInUpcomingEventsComponentOtherThanSpecifiedAreCollapsed(sport);
+    }
+
+    @Then("all sports in Live Now are expanded by default")
+    public void verifySportsInEventsComponentAreExpanded() {
+        leftNavEventStepsHelper.verifyAllSportsAreExpanded(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+    }
+
+    @Then("event count not displayed in sports headers of Live Now events component")
+    public void verifyEventCountNotDisplayedForAllSportsInLiveNow() {
+        leftNavEventStepsHelper.verifyEventCountNotDisplayedForAllSports(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+    }
+
+    @Given("by default all sports in upcoming events component are collapsed")
+    @Then("by default all sport groups in Upcoming events component will be collapsed")
+    public void verifyUpcomingEventSportGroupsDefaultBehaviour() {
+        final LeftNavEventsComponent eventsComponent =
+                getLiveBettingPage().getLeftNavEventsComponent(LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+        final List<Sport> sportGroups = eventsComponent.getSportGroups();
+        final String menuComponent = LeftNavComponents.UPCOMING_EVENTS_COMPONENT.getLabel();
+        Assert.assertNotNull(sportGroups, String.format(SPORT_GROUPS_FOUND, menuComponent),
+                String.format(NO_SPORT_GROUPS, menuComponent));
+        final List<String> sportGroupsNotCollapsed = new ArrayList<String>();
+        for (Sport sportGroup : sportGroups) {
+            if (!sportGroup.isCollapsed()) {
+                sportGroupsNotCollapsed.add(sportGroup.getTitle());
+            }
+        }
+        Assert.assertTrue((sportGroupsNotCollapsed.size() == 0), SPORT_GROUPS_COLLAPSED,
+                String.format(SPORT_GROUPS_EXPANDED, sportGroupsNotCollapsed.toArray().toString()));
+    }
+
+    @Then("event link in left nav live now events component is highlighted")
+    public void verifyLiveNowEventHighlighted() {
+        final LeftNavEvent liveNowEvent = getLatestLiveNowEvent();
+        Assert.assertTrue(liveNowEvent.getWebElement().getAttribute("class").contains(SELECTED_EVENT_CLASS),
+                LIVENOW_EVENT_HIGHLIGHTED, LIVENOW_EVENT_NOT_HIGHLIGHTED);
+    }
+
+    @When("I select above Live Now event")
+    @Aliases(values = { "select above live now event", "player click on the highlighted live now event" })
+    public void selectLiveNowEvent() throws InterruptedException {
+        selectEvent(getEvent());
+    }
+    
+    @When("select the event <<GameId1>>")
+    public void selectEventByGameId1(@Named("<GameId1>")final String gameId){
+        final Event event = getEventByGameId(gameId);
+        selectEvent(event);
+    }
+    
+    @When("select the event <<GameId>>")
+    public void selectEventByGameId(@Named("<GameId>")final String gameId){
+        selectEventByGameId1(gameId);
+    }
+    
+    public void selectEvent(final Event event){
+        final LeftNavEvent liveNowEvent = leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, event);
+        liveNowEvent.select();
+    }
+
+    @Given("no events in live now component are highlighted")
+    public void verifyNoEventsInLiveNowComponentNotHighlighted() {
+        final LeftNavEventsComponent leftNavEventsComponent = this.getLiveBettingPage().getLiveNowCouponsComponent();
+        final List<LeftNavEvent> leftNavEvents = leftNavEventsComponent.getLeftNavEvents();
+        String highlightedEvents = StringUtils.EMPTY;
+        for (LeftNavEvent leftNavEvent : leftNavEvents) {
+            if (leftNavEvent.getWebElement().getAttribute("class").contains("selected")) {
+                highlightedEvents = highlightedEvents + "," + leftNavEvent.getLeftNavEventDescription();
+            }
+        }
+
+        Assert.assertTrue(StringUtils.isEmpty(highlightedEvents), NO_EVENTS_HIGHLIGHTED,
+                String.format(EVENTS_HIGHLIGHTED, highlightedEvents));
+
+    }
+
+    @Then("team names should be truncated in left nav live now events component")
+    public void verifyTeamNamesAreTruncatedInLiveNow() {
+        leftNavEventStepsHelper.verifyTeamNamesTruncated(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+    }
+
+    @Then("team names should be truncated in left nav Upcoming events component")
+    public void verifyTeamNamesAreTruncatedInUpcomingEventsComponent() {
+        leftNavEventStepsHelper.verifyTeamNamesTruncated(LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+    }
+
+    @Then("Tooltip is displayed when hovering over the left nav with team names in $menuComponent events component")
+    public void verifyToolTipDisplayedForTeams(final String menuComponent) {
+        final Event event = getEvent();
+        final String sport = event.getSport();
+        final Utils utils = new Utils();
+        final String eventName = utils.getEventName(event);
+        final LiveBettingPage page = getLiveBettingPage();
+        final LeftNavEvent leftNavEvent;
+        if (menuComponent.equalsIgnoreCase("Live Now")) {
+            leftNavEvent = page.getLiveNowEventByName(sport, eventName);
+        } else {
+            leftNavEvent = page.getUpcomingEventByName(sport, eventName);
+        }
+
+        Assert.assertNotNull(leftNavEvent, String.format(EVENT_FOUND, eventName), String.format(EVENT_NOT_FOUND, eventName));
+
+        final By teamSelector = new By.ByCssSelector("h5>span");
+        final List<WebElement> teams1 = leftNavEvent.getWebElement().findElements(teamSelector);
+        for (final WebElement team : teams1) {
+            Assert.assertTrue(StringUtils.isNotEmpty(team.getText()),
+                    String.format(TOOLTIP_DISPLAYED, team.getAttribute("title")),
+                    String.format(TOOLTIP_NOT_DISPLAYED, team.getAttribute("title")));
+        }
+
+    }
+
+    @Given("close events in upcoming events component if there are any")
+    public void closeEventsInUpcomingEventsComponent() throws JSONException, ConfigurationException, IOException {
+        leftNavEventStepsHelper.closeEventsInEventsComponent(LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+    }
+
+    @Given("close events in Live Now events component if there are any")
+    public void closeEventsInLiveNowEventsComponent() throws ConfigurationException, JSONException, IOException {
+        leftNavEventStepsHelper.closeEventsInEventsComponent(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+    }
+
+    @Given("there are no live now and upcoming events")
+    public void closeAllLeftNavEvents() throws ConfigurationException, JSONException, IOException {
+        boolean eventsExist = false;
+        final List<LeftNavEvent> upcomingEvents = getLeftNavEvents(LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+        if ((upcomingEvents != null) && (upcomingEvents.size() > 0)) {
+            eventsExist = true;
+            closeEventsInUpcomingEventsComponent();
+        }
+        final List<LeftNavEvent> liveNowEvents = getLeftNavEvents(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+        if ((liveNowEvents != null) && (liveNowEvents.size() > 0)) {
+            eventsExist = true;
+            leftNavEventStepsHelper.updateAPIEventsStatus(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, EventStatus.CLOSED);
+        }
+
+        if (eventsExist) {
+            getScenarioContext().getTempStorage().put("EventsRemoved", Boolean.TRUE.toString());
+        }
+
+    }
+
+    @Given("wait for 15 minutes for closed events in live now events component to disappear")
+    public void waitForClosedEventsToDisappear() throws InterruptedException {
+        final String eventsClosed = getScenarioContext().getTempStorage().get("EventsRemoved");
+        if (eventsClosed != null && eventsClosed.equals(Boolean.TRUE.toString())) {
+            Thread.sleep(15 * 60 * 1000);
+        }
+    }
+
+    @Given("change all the Live now events to upcoming if there are any")
+    public void changeLiveNowEventsToUpcoming() throws JSONException, ConfigurationException, IOException {
+        leftNavEventStepsHelper.updateAPIEventsStatus(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, EventStatus.UPCOMING);
+    }
+
+    @Then("events with status 'U' found in response of backend call should be displayed in Upcoming Events Component")
+    public void verifyUpcomingEventsWithEventsInAPIResponse() throws JSONException, ParseException {
+        leftNavEventStepsHelper.verifyLeftNavEventsWithEventsInAPIResponse(LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+
+    }
+
+    @Then("events with status 'O', 'H' and 'C' found in response of backend call should be displayed in Live Now Events")
+    public void verifyLiveNowEventsWithEventsInAPIResponse() throws JSONException, ParseException {
+        leftNavEventStepsHelper.verifyLeftNavEventsWithEventsInAPIResponse(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+
+    }
+
+    @Then("message should be displayed informing that there are no upcoming events available")
+    public void verifyNoUpcomingEventsAvailableMessage() {
+        leftNavEventStepsHelper.verifyNoEventsMessageInEventsComponent(LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+    }
+
+    @Then("message should be displayed informing that there are no live events available")
+    public void verifyNoLiveNowEventsAvailableMessage() {
+        leftNavEventStepsHelper.verifyNoEventsMessageInEventsComponent(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+    }
+
+    @When("sport $Sport is collapsed in live now events component")
+    public void collapseSport(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.collapseSport(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("sport <<Sport>> header should display number of events in Live Now")
+    public void verifyEventsCountInLiveNowSportHeader(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.verifyEventsCountInSportHeader(sport, LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+    }
+
+    @Then("sport <<Sport>> header should display number of events in Upcoming")
+    public void verifyEventsCountInUpcomingSportHeader(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.verifyEventsCountInSportHeader(sport, LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+    }
+
+    @Then("event count for sport <Sport1> displayed in Upcoming events component")
+    public void verifyEventCountInSport1Upcoming(@Named("Sport1") final String sport) {
+        leftNavEventStepsHelper.verifyEventsCountInSportHeader(sport, LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+    }
+
+    @Then("event count for sport <Sport1> not displayed in Upcoming events component")
+    public void verifyEventsCountNotDisplayedForSport1InUpcoming(@Named("Sport1") final String sportTitle) {
+        leftNavEventStepsHelper.verifyEventsCountNotDisplayed(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sportTitle);
+    }
+
+    @Then("event count for sport <Sport2> not displayed in Upcoming events component")
+    public void verifyEventsCountNotDisplayedForSport2InUpcoming(@Named("Sport2") final String sportTitle) {
+        leftNavEventStepsHelper.verifyEventsCountNotDisplayed(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sportTitle);
+    }
+
+    @Then("player should see groups in Upcoming events component in below order:$sportsGroups")
+    public void verifySportsSortOrderInUpcoming(final ExamplesTable dataTableSportsGroups) {
+        leftNavEventStepsHelper.verifySportsSortOrder(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, dataTableSportsGroups);
+    }
+
+    @Then("player should see groups in Live Now events component in below order:$sportsGroups")
+    public void verifySportsSortOrderInLiveNow(final ExamplesTable dataTableSportsGroups) {
+        leftNavEventStepsHelper.verifySportsSortOrder(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, dataTableSportsGroups);
+    }
+
+    @Given("all sports in upcoming events component display event count in its header")
+    public void verifyAllSportsInUpcomingHaveEventCount() {
+        leftNavEventStepsHelper.verifyAllSportsInEventsComponentHaveEventCount(LeftNavComponents.UPCOMING_EVENTS_COMPONENT);
+    }
+
+    @Then("page refresh should update event count of sport <<Sport>> in Upcoming events component and increase it by 1")
+    public void verifyEventCountIncreasedAfterPageRefresh(@Named("<Sport>") final String sport) {
+        getLiveBettingPage().refresh();
+        leftNavEventStepsHelper.verifyUpdatedEventCount(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport, 1);
+    }
+
+    @Then("page refresh should update event count of sport <Sport> in Upcoming events component and decrease it by 1")
+    public void verifyEventCountDecreasedAfterPageRefresh(@Named("<Sport>") final String sport) {
+        leftNavEventStepsHelper.verifyUpdatedEventCount(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport, -1);
+    }
+
+    @When("refresh the page and collapse sport <<Sport>> in live now events component")
+    public void refreshPageAndCollapseSportInLiveNow(@Named("<Sport>") final String sport) {
+        getLiveBettingPage().go();
+        leftNavEventStepsHelper.collapseSport(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, sport);
+    }
+
+    @Then("event count of sport <<Sport>> in Live now events component should increase")
+    public void verifyIncreasedEventCountInLiveNow(@Named("<Sport>") final String sportTitle) {
+        leftNavEventStepsHelper.verifyUpdatedEventCount(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, sportTitle, 1);
+    }
+
+    @Then("event count of sport <<Sport>> in Live now events component should decrease")
+    public void verifyDecreasedEventCountInLiveNow(@Named("<Sport>") final String sportTitle) {
+        leftNavEventStepsHelper.verifyUpdatedEventCount(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, sportTitle, -1);
+    }
+
+    @When("click on above upcoming event")
+    public void goToUpcomingEvent() {
+        getScenarioContext().getTempStorage().put("previousUrl", getLiveBettingPage().getCurrentURL());
+        leftNavEventStepsHelper.selectLeftNavEvent(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent());
+    }
+
+    @Then("I am redirected to the single game page view of the event that is at the first of the Upcoming events component that has markets")
+    @Aliases(values = { "player redirected to first upcoming event in api response" })
+    public void verifyRedirectionOfUpcomingEventWhichHasMarkets() throws JSONException {
+        final String gameId = leftNavEventStepsHelper.getFirstUpcomingEventGameIdWhichHasMarkets();
+        final boolean isGameIdDisplayed = getLiveBettingPage().getCurrentURL().contains(gameId);
+        Assert.assertTrue(
+                isGameIdDisplayed,
+                String.format(
+                        "Page is redirected to the single game page view of the event which has GameId:%s that is at the first of the Upcoming events component and that has open markets",
+                        gameId),
+                String.format(
+                        "Page is not redirected to the single game page view of the event which has GameId:%s that is at the first of the Upcoming events component and that has open markets",
+                        gameId));
+    }
+
+    @Then("above event should be displayed in Upcoming events component")
+    public void verifyLeftNavEventExistInUpcoming() {
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent());
+    }
+
+    @Then("event <<GameId>> should appear in Live Now Events component within 1 minute")
+    public void verifyEventExist(@Named("<GameId>") final String gameId) {
+        final Event event = getEventByGameId(gameId);
+        Assert.assertNotNull(event, String.format(EVENT_WITH_GAMEID_FOUND, gameId),
+                String.format(EVENT_WITH_GAMEID_NOT_FOUND, gameId));
+        final String sport = event.getSport();
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, sport,
+                new Utils().getEventName(event));
+    }
+    
+    @Then("event <<GameId>> should disappear in Live Now Events component within 1 minute")
+    public void verifyEventNotExist(@Named("<GameId>") final String gameId) {
+        final Event event = getEventByGameId(gameId);
+        Assert.assertNotNull(event, String.format(EVENT_WITH_GAMEID_FOUND, gameId),
+                String.format(EVENT_WITH_GAMEID_NOT_FOUND, gameId));
+        final String sport = event.getSport();
+        leftNavEventStepsHelper.verifyLeftNavEventNotExist(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, event);
+    }
+
+    @Then("should display in Upcoming Events Component")
+    public void verifyEventExistInUpcoming() {
+        final Event event = getEvent();
+        final String sport = event.getSport();
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, sport,
+                new Utils().getEventName(event));
+    }
+
+    @Then("event <<GameId1>> should appear in Live Now Events component within 1 minute")
+    public void verifyEventExist1(@Named("<GameId1>") final String gameId) {
+        verifyEventExist(gameId);
+    }
+
+    @Then("above event should disappear from Live Now Events Component")
+    public void verifyLeftNavEventNotExist() {
+        leftNavEventStepsHelper.verifyLeftNavEventNotExist(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, getEvent());
+    }
+
+    @Then("above event should disappear from Upcoming Events Component")
+    @Aliases(values = { "it should not be displayed in Upcoming Events Component" })
+    public void verifyLeftNavEventDisappearFromUpcoming() {
+        leftNavEventStepsHelper.verifyLeftNavEventNotExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent());
+    }
+    
+    @Then("event <<GameId>> should disappear from Upcoming events component")
+    public void verifyEventDisappearFromUpcoming(@Named("<GameId>")final 
+            String gameId){
+        final Event event = getEventByGameId(gameId);
+        final int initialEventCount =
+                leftNavEventStepsHelper.getEventCountFromSport(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, event.getSport());
+        getScenarioContext().getTempStorage().put("initialEventCount", String.valueOf(initialEventCount));
+        leftNavEventStepsHelper.verifyLeftNavEventNotExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, event);
+    }
+
+    @Then("above event should appear in Upcoming events component within 1 minute")
+    public void verifyUpcomingEventExist() {
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent());
+    }
+
+    @Then("should display in Live Now Events Component")
+    @Aliases(values = { "within a minute the event should display in Live now Events component" })
+    public void verifyLiveNowEventExist() {
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, getEvent());
+    }
+
+    @Then("player should be redirected to the first live event in api response")
+    @Aliases(values = {
+            "player should redirected to the single game page view of the event that is at the top of the Live Now events component" })
+    public void verifyHomePageRedirectedTopLiveEvent() throws JSONException, ParseException {
+        leftNavEventStepsHelper.verifyHomePageRedirectedTopLiveEvent();
+    }
+    
+    @Then("maximum events to be displayed in the live now component should be more than or equal to $count")
+    public void verifyMaxEventsInLeftNav(final int count) {
+        final List<LeftNavEvent> leftNavEvents = getLeftNavEvents(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+        final int liveNowEventsCount = leftNavEvents.size();
+        final int liveEventsCountBefore = Integer.parseInt(getScenarioContext().getTempStorage().get("count"));
+        final int expectedCount = liveEventsCountBefore + count;
+        Assert.assertEquals(expectedCount, liveNowEventsCount,
+                String.format("Number of Live now events displayed in the Left nav are %s", liveNowEventsCount),
+                String.format("Number of Live now events displayed in the left nav are %s", liveNowEventsCount));
+    }
+
+    @Given("get the count of Live events currently displayed")
+    public void getCountOfLiveEvents() {
+        final List<LeftNavEvent> leftNavEvents = getLeftNavEvents(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT);
+        final String liveEventsCount = String.valueOf(leftNavEvents.size());
+        getScenarioContext().getTempStorage().put("count", liveEventsCount);
+    }
+
+    @Then("upcoming event start time should not display 0")
+    public void verifyUpcomingEventTimeShouldNotHaveZero() {
+        final Event event = getEvent();
+        leftNavEventStepsHelper.verifyUpcomingEventTimeShouldNotHaveZero(event);
+    }
+
+    @Then("above events in Live Now events component should be displayed in descending order of its start time")
+    public void verifyEventsInLiveNowInRightOrder() {
+        List<String> expectedEventsOrder = sortEvents(getScenarioContext().getEvents());
+        verifyEventsOrder(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, getEvent().getSport(), expectedEventsOrder);
+
+    }
+    
+    @Then("above created event should be displayed under sport <<Sport>> in Live Now component")
+    @Aliases(values = { "above created event should still be displayed under sport <<Sport>> in Left Nav Live Now component" })
+    public void verifyEventsInLiveNowComponent(@Named("<Sport>")
+    final String sport) {
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.LIVE_NOW_EVENTS_COMPONENT, getEvent());
+    }
+    
+    @Then("above created event should be displayed under sport <<Sport>> in Upcoming Coupons component")
+    public void verifyEventsInUpcomingEventsComponent(@Named("<Sport>")
+    final String sport) {
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, getEvent());
+    }
+    
+    @Then("event <<GameId>> should be displayed in Upcoming events component")
+    public void verifyEventInUpcomingEventsComponent(@Named("<GameId>")final String gameId){
+        final Event event = getEventByGameId(gameId);
+        final int initialEventCount =
+                leftNavEventStepsHelper.getEventCountFromSport(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, event.getSport());
+        getScenarioContext().getTempStorage().put("initialEventCount", String.valueOf(initialEventCount));
+        leftNavEventStepsHelper.verifyLeftNavEventExist(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, event);
+        
+    }
+    
+    @Then("all above events should be displayed in Upcoming events component")
+    public void verifyAllEventsInUpcoming(){
+        List<Event> events = getScenarioContext().getEvents();
+        for(Event event : events){
+            leftNavEventStepsHelper.verifyLeftNavEventExistUsingPageRefresh(LeftNavComponents.UPCOMING_EVENTS_COMPONENT, event);
+        }
+        
+    }
+    
+    
+    private void verifyEventsOrder(final LeftNavComponents navEventsComponent, final String sport,
+            final List<String> expectedEventsOrder) {
+
+    }
+
+    private List<String> sortEvents(List<Event> eventsToCompare) {
+        List<String> eventsInDesiredOrder = new LinkedList();
+        final Utils utils = new Utils();
+        Event event1, event2;
+        DateTime dt1, dt2;
+        for (int index1 = 0; (index1 - 1) < eventsToCompare.size(); index1++) {
+            event1 = eventsToCompare.get(index1);
+            dt1 = constructDateFromEventDate(event1.getGameDateUTC());
+            for (int index2 = index1 + 1; index2 < eventsToCompare.size(); index2++) {
+                event2 = eventsToCompare.get(index1 + 1);
+                dt2 = constructDateFromEventDate(event2.getGameDateUTC());
+                if (dt1.compareTo(dt2) == 0 && utils.getEventName(event1).compareTo(utils.getEventName(event2)) > 0) {
+                    eventsInDesiredOrder.add(index1, utils.getEventName(event1));
+                }
+                if (dt1.compareTo(dt2) > 0) {
+                    eventsInDesiredOrder.add(index1, utils.getEventName(event1));
+                }
+            }
+        }
+        return eventsInDesiredOrder;
+    }
+
+    private DateTime constructDateFromEventDate(final String eventTime) {
+        return new DateTime(eventTime);
+    }
+}

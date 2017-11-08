@@ -1,0 +1,80 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 15/10/2014.
+ */
+public class BetSlip extends InRunningComponent implements BetSlipInterface {
+
+    private static final String BET_SELECTOR = ".bets>li";
+
+    private static final String BET_CONTAINER_SELECTOR = "form[name=''liveBetSlip] .bets";
+
+    private final By betLocator = new By.ByCssSelector(BET_SELECTOR);
+
+    private static final String ELEMENT_NOT_FOUND_IN_BETSLIP = "The %s element has not been found in the betslip.";
+
+    private static final String SELECTIONS = "bets container";
+
+    public BetSlip(final WebElement betSlip) {
+        setComponent(betSlip);
+    }
+
+    @Override
+    public int getSelectionCount() {
+        List<WebElement> bets = getWebElement().findElements(betLocator);
+        if (bets == null) {
+            return 0;
+        }
+        return bets.size();
+
+    }
+
+    public List<BetSlipSelectionInterface> getBetslipSelections() {
+        final List<BetSlipSelectionInterface> currentSelections = new LinkedList<>();
+        final List<WebElement> betsContainer = getWebElement().findElements(betLocator);
+        for (final WebElement selection : betsContainer) {
+            currentSelections.add(new BetSlipSelection(selection));
+        }
+        return currentSelections;
+    }
+
+    public BetSlipSelectionInterface getSelectionByPosition(int selectionPosition) {
+        final List<BetSlipSelectionInterface> betSlipSelections = getBetslipSelections();
+        if (betSlipSelections.size() == 0) {
+            return null;
+        }
+        return betSlipSelections.get(selectionPosition);
+    }
+
+    @Override
+    public BetSlipSelectionInterface getSelectionByDescription(final String desc) {
+        final List<BetSlipSelectionInterface> betSlipSelections = getBetslipSelections();
+        for (final BetSlipSelectionInterface selection : betSlipSelections) {
+            final String selectionDesc = selection.getDescription();
+            if (selectionDesc.equals(desc)) {
+                return selection;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String getTotalStake() {
+        List<WebElement> stakeWebElement=getWebElement().findElements(By.tagName("dd"));
+        final String stake=stakeWebElement.get(0).getText();
+        final String totalStakeRegex="[US$]";
+        final String totalStake=stake.replaceAll(totalStakeRegex,"").trim();
+        return totalStake;
+
+
+
+    }
+
+}

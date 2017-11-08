@@ -1,0 +1,11 @@
+{
+  "tradingGroupCodes" : [ ${tradingGroup}, ${tradingGroup2}, ${tradingGroup3}, ${tradingGroup4} ],
+  "wagerTypes" : [ "${wagerType}", "${wagerType2}", "${wagerType3}", "${wagerType4}" ],
+  "eventTypeCodes" : [ "${eventType}", "${eventType2}", "${eventType3}", "${eventType4}"],
+  "playerGroupCodes" : [ "${playerGroup}", "${playerGroup2}", "${playerGroup3}", "${playerGroup4}" ],
+  "reviewer" : "${reviewer}",
+  "host" : "${host}",
+  "active" : "${active}",
+  "lastLogin" : "${lastLogin}",
+  "lastLogout" : "${lastLogout}"
+}

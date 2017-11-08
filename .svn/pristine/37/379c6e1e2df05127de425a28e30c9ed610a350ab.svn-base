@@ -1,0 +1,27 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.inrunning.tom.LiveBettingPage;
+import internal.qaauto.inrunning.tom.LiveBettingPageInterface;
+import internal.qaauto.inrunning.tom.leftnav.LeftNavMenuInterface;
+
+/**
+ * Created by Harish Renukunta on 10/10/2014.
+ */
+public class ObjectFactory {
+
+    private static LiveBettingPage liveBettingPage;
+
+    public static LiveBettingPageInterface getLiveBettingPage(){
+        try{
+                if(liveBettingPage == null){
+                    liveBettingPage = new LiveBettingPage();
+                }else {
+                    final LeftNavMenuInterface leftNavMenu = liveBettingPage.getLeftNav();
+                }
+            } catch (Exception ex){
+                liveBettingPage = new LiveBettingPage();
+            }
+         return liveBettingPage;
+    }
+}
+

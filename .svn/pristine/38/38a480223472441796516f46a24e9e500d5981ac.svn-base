@@ -1,0 +1,39 @@
+package internal.qaauto.inrunning.tom.markets;
+
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta and rkora
+ */
+public class Outcome extends InRunningComponent implements OutcomeInterface {
+
+    private static final String OUTCOME_DESCRIPTION = "";
+
+    private static final String PRICE_SELECTOR = "span";
+
+    private By outcomeDescriptionLocator = new By.ByCssSelector(OUTCOME_DESCRIPTION);
+
+    private By priceLocator = new By.ByCssSelector(PRICE_SELECTOR);
+
+    public Outcome(final WebElement marketOutcome) {
+        setComponent(marketOutcome);
+    }
+
+    @Override
+    public String getDescription() {
+        return getWebElement().getText();
+    }
+
+    @Override
+    public String getPrice() {
+        return getWebElement().findElement(priceLocator).getText();
+    }
+
+    @Override
+    public String getArrowDetail() {
+        return null;
+    }
+
+}

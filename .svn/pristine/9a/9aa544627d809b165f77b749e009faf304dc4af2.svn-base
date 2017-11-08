@@ -1,0 +1,28 @@
+Meta:
+@author rkora
+@story BGSIR_678
+@functionality qbm
+@testType regression
+
+Narrative:
+As a player
+I want QBM toggle to be disabled when the wager are placed
+so that I am aware that the betting mode cannot be changed while the wagers are placed
+
+
+Scenario: Quick bet mode switch to be disabled when bet placement is being processed
+Given user created the event with the  below data
+|GameId     |Sport  |League Id  |Status     |MarketTitle|MarketNameToCreate      |
+|<GameId>   |<Sport>|<League Id>|<Status>   |<MarketTitle>|<MarketNameToCreate>|
+When a player loggedIn and navigate to above event
+And Bet slip mode is activated
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+When player introduce the <risk> amount to the <<Selection>>
+And clicks on place bet
+Then betslip should display wager place message <Wager Placed msg>
+And QBM should be in disabled state
+
+Examples:
+| <GameId> | <Sport>  | <Selection>     | risk | Username | Password | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    | Placing Message |
+| 67801    | Football | Pass Completion | 2    | 2393086  | testing  | Outcome next play    | Extra Market 1 | 5           | In Progress | Placing bets... |
+

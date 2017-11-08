@@ -1,0 +1,126 @@
+package internal.qaauto.inrunning.tom.markets;
+
+import internal.qaauto.framework.testCase.webTestsCase.BaseTestCase;
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import internal.qaauto.inrunning.tom.Utilties.OutcomeStatus;
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Created by Harish Renukunta and rkora
+ */
+public class MarketOutcomeImpl extends InRunningComponent implements MarketOutcome {
+
+    private static final String SPAN_TAG = "span";
+
+    public static final String DISABLED_ATTRIBUTE = "disabled";
+
+    public static final String CLASS_ATTRIBUTE = "class";
+
+    private By priceLocator = new By.ByTagName(SPAN_TAG);
+
+    private static final String PRICE_SELECTOR = "span";
+
+    public MarketOutcomeImpl(final WebElement marketOutcome) {
+        setComponent(marketOutcome);
+    }
+
+    @Override
+    public String getDescription() {
+        return getWebElement().getText();
+    }
+
+    @Override
+    public String getPrice() {
+        return getWebElement().findElement(priceLocator).getText();
+    }
+
+    @Override
+    public String getArrowDetail() {
+        return null;
+    }
+
+    @Override
+    public String getOutcomeDescription() {
+        final String description = getDescription();
+        String outcomeDescription = StringUtils.EMPTY;
+        final String outcomeDescriptionRegex = "([+-]?\\d+[\\u00BD\\u00BC\\u00BE]?)";//"([a-zA-Z]+)";
+        outcomeDescription = description.replaceAll(outcomeDescriptionRegex, "").trim();
+        if (outcomeDescription.contains("Pick")) {
+            outcomeDescription = outcomeDescription.replace("Pick", "").trim();
+        }
+        if (outcomeDescription.contains("EVEN")) {
+            outcomeDescription = outcomeDescription.replace("EVEN", "").trim();
+        }
+        return outcomeDescription;
+    }
+
+    @Override
+    public String getHandicapValue() {
+        final String description = getDescription();
+        if (description.contains("Pick")) {
+            return "Pick";
+        }
+        final String handicapRegex = "([a-zA-Z]*)[\\+\\-]?[0-9\\./]+";
+        final String handicapFractionRegex = "[\\u00BD\\u00BC\\u00BE]";
+        final Pattern handicapPattern = Pattern.compile(handicapRegex);
+        final Pattern handicapFractionPattern = Pattern.compile(handicapFractionRegex);
+        final Matcher handicapMatches = handicapPattern.matcher(description);
+        final Matcher handicapFractionMatches = handicapFractionPattern.matcher(description);
+        String handicapValue = StringUtils.EMPTY;
+        String handicapFraction = StringUtils.EMPTY;
+        if (handicapMatches.find()) {
+            handicapValue = handicapMatches.group(0);
+            handicapValue = handicapValue.replaceAll("[+-]", "");
+            if ((handicapValue.isEmpty())) {
+                BaseTestCase.reporter.info("Handicap is not displayed");
+            }
+        }
+        if (handicapFractionMatches.find()) {
+            handicapFraction = handicapFractionMatches.group(0);
+        }
+
+        return handicapValue + handicapFraction;
+    }
+
+    @Override
+    public boolean isGreyedOut() {
+        final String isDisabledValue = getWebElement().getAttribute(DISABLED_ATTRIBUTE);
+        if (!Boolean.parseBoolean(isDisabledValue)) {
+            return false;
+        }
+        return true;
+
+    }
+
+    @Override
+    public boolean isQBMBetPlaced() {
+        boolean isBetPlaced = Boolean.FALSE;
+        final OutcomeStatus selectionStatus = getStatus();
+        if (OutcomeStatus.ACCEPTED.equals(selectionStatus) || OutcomeStatus.REJECTED.equals(selectionStatus)) {
+            isBetPlaced = Boolean.TRUE;
+        }
+        return isBetPlaced;
+    }
+
+    @Override
+    public OutcomeStatus getStatus() {
+        final String selectionStatus = getWebElement().getAttribute(CLASS_ATTRIBUTE);
+        final OutcomeStatus status;
+        if (selectionStatus.contains(OutcomeStatus.ACCEPTED.getStatusLabel())) {
+            status = OutcomeStatus.ACCEPTED;
+        } else if (selectionStatus.contains(OutcomeStatus.REJECTED.getStatusLabel())) {
+            status = OutcomeStatus.REJECTED;
+        } else if (selectionStatus.contains(OutcomeStatus.PENDING.getStatusLabel())) {
+            status = OutcomeStatus.PENDING;
+        } else {
+            status = OutcomeStatus.IDLE;
+        }
+        return status;
+    }
+
+}

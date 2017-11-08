@@ -1,0 +1,40 @@
+Narrative:
+As a player
+I want event link in the upcoming event component will include information
+so that I have the required information about upcoming events
+
+Meta:
+@story BGSIR277
+
+Scenario: US Format Event Name to be displayed in the top row of links in Upcoming events
+Meta:
+@author Harish
+@testtype regression
+@scenarioName UpcomingCouponName_USFormat
+
+Given an event is created in american format using following data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName|Description|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>
+When I navigate to In-Running page
+Then Event Name in Upcoming events will be displayed in the top row as '<<AwayTeam NickName>> <Team Separator> <<HomeTeam NickName>>'
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<AwayTeam NickName>|<HomeTeam NickName>|Team Separator|<Description>                          |
+|QA1234     |Football   |Home_Story     |Away_Story     |5              |Upcoming    |AWAmUp            |HTAmUp             |@             |AUTOTEST-BGSIR-277-Display event name |
+
+
+Scenario: European Format Event Name to be displayed in the top row of links in Upcoming events
+Meta:
+@author Harish
+@testtype regression
+@scenarioName UpcomingCoupon_EuropeanFormat
+
+Given an event is created in european format using following data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName|Description|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>
+When I navigate to any In-Running page
+Then Event Name in Upcoming events will be displayed in the top row as '<<HomeTeam NickName>><Team Separator><<AwayTeam NickName>>'
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<AwayTeam NickName>|<HomeTeam NickName>|Team Separator|<Description>                         |
+|QA3456     |Football   |Home_Story     |Away_Story     |5              |Upcoming    |AWEuroUp             |HTEuroUp         |vs            |AUTOTEST-BGSIR-277-Display event name |

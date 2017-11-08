@@ -1,0 +1,1 @@
+Events-host=http://event-services.${env}.esportz.com

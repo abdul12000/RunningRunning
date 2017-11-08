@@ -1,0 +1,52 @@
+Meta:
+@story BGSIR_828
+@functionality betslip
+
+Narrative:
+As a user I want to restrict adding an outcome to betslip twice so that
+there are no duplicates in betslip
+					 
+Scenario:  Not allow player to add same selection twice to betslip
+Meta:
+@scenarioName BGSIR_828_AvoidDuplicateSelections
+@testType regression
+@author Harish
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |AwayTeam NickName   |HomeTeam NickName   |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<Away Team>_<GameId>|<Home Team>_<GameId>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When a player loggedIn and navigate to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+When player add the same outcome <<Selection>> from <<MarketTitle>> to betslip
+Then <<Selection>> of <<MarketTitle>> should be added only once
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |
+|82801      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-BGSIR-828|Outcome next play   |Extra Market 1    |Pass Completion|
+|82802      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-BGSIR-828|Point Spread        |Extra Market 1    |HOME           |
+|82803      |Soccer     |Home_story     |Away_story     |33             |In Progress |AUTOTEST-BGSIR-828 |Moneyline          |Extra Market 1    |Draw           |
+
+
+Scenario: Able to add an outcome after the one that has been added is removed from betslip
+Meta:
+@scenarioName BGSIR_828_AbleToAddSelectionAfterRemoval
+@testType regression
+@author Harish
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |AwayTeam NickName   |HomeTeam NickName   |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<Away Team>_<GameId>|<Home Team>_<GameId>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When a player loggedIn and navigate to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+When player add the same outcome <<Selection>> from <<MarketTitle>> to betslip
+Then <<Selection>> of <<MarketTitle>> should be added only once
+When player delete the <<Selection>> in the betslip
+Then selection <<Selection>> is removed from betslip
+When player add the same outcome <<Selection>> from <<MarketTitle>> to betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |
+|82801      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-BGSIR-828|Outcome next play   |Extra Market 1    |Pass Completion|
+|82802      |Football   |Home_story     |Away_story     |5              |In Progress |AUTOTEST-BGSIR-104|Point Spread        |Extra Market 1    |HOME           |
+|82803      |Soccer     |Home_story     |Away_story     |33             |In Progress |AUTOTEST-BGSIR-104 |Moneyline          |Extra Market 1    |Draw           |

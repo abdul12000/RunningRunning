@@ -1,0 +1,53 @@
+package internal.qaauto.inrunning.tom.leftnav;
+
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import internal.qaauto.inrunning.tom.coupons.LeftNavCouponInterface;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+
+public abstract class SportContainer extends InRunningComponent implements SportContainerInterface {
+
+    private static final String COUPON_SELECTOR = "";
+
+    private By couponLocator = new By.ByCssSelector(COUPON_SELECTOR);
+
+    @Override
+    public String getTitle() {
+        return null;
+    }
+
+    @Override
+    public List<LeftNavCouponInterface> getCoupons(){
+        final WebElement sportContainerWebElement = getWebElement();
+        final List<WebElement> couponWebElements = sportContainerWebElement.findElements(couponLocator);
+        final List<LeftNavCouponInterface> sportContainerCoupons = new LinkedList<LeftNavCouponInterface>();
+        for(WebElement couponWebElement : couponWebElements){
+            sportContainerCoupons.add(newCoupon(couponWebElement));
+        }
+        return sportContainerCoupons;
+    }
+
+    public abstract LeftNavCouponInterface newCoupon(WebElement couponWebElement);
+
+    @Override
+    public void collapse() {
+
+    }
+
+    @Override
+    public void expand() {
+
+    }
+
+    @Override
+    public boolean isCollapsed() {
+        return false;
+    }
+}

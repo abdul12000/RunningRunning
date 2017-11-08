@@ -1,0 +1,45 @@
+package internal.qaauto.inrunning.tom.leftnav;
+
+import internal.qaauto.inrunning.tom.coupons.LeftNavCouponInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingCoupon;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingCouponInterface;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public class UpcomingCouponsComponent extends LeftNavCouponsComponent implements UpcomingCouponsComponentInterface {
+
+    public UpcomingCouponsComponent(final WebElement leftNavUpcomingMenu){
+        setComponent(leftNavUpcomingMenu);
+    }
+
+    @Override
+    protected SportContainerInterface newSportContainer(WebElement sportContainerWE) {
+        return new UpcomingCouponsSportContainer(sportContainerWE);
+    }
+
+    @Override
+    public LeftNavCouponInterface newCoupon(WebElement couponWebElement) {
+        return new LeftNavUpcomingCoupon(couponWebElement);
+    }
+
+    @Override
+    public boolean isCollapsed() {
+        return false;
+    }
+
+    @Override
+    public LeftNavUpcomingCouponInterface getUpcomingCouponByTitle(String title) {
+        final LeftNavCouponInterface coupon = getCouponByTitle(title);
+        if(coupon == null){
+            return null;
+        }
+        return getUpcomingCoupon(getCouponByTitle(title));
+
+    }
+
+    private LeftNavUpcomingCouponInterface getUpcomingCoupon(final LeftNavCouponInterface coupon){
+        return ((LeftNavUpcomingCouponInterface)coupon);
+    }
+}

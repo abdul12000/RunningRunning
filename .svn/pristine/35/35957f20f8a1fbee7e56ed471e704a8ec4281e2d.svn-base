@@ -1,0 +1,20 @@
+<eventCompetitorMessage>
+   <eventCompetitors>
+      <eventCompetitorDto>
+         <competitorCode>${competitorCode1}</competitorCode>
+         <competitorNum>${competitorNum1}</competitorNum>
+         <eventId>${eventId}</eventId>
+         <name>${name1}</name>
+         <rotationNumber>${rotationNumber1}</rotationNumber>
+		 <score>${score}</score>
+      </eventCompetitorDto>
+      <eventCompetitorDto>
+         <competitorCode>${competitorCode2}</competitorCode>
+         <competitorNum>${competitorNum2}</competitorNum>
+         <eventId>${eventId}</eventId>
+         <name>${name2}</name>
+         <rotationNumber>${rotationNumber2}</rotationNumber>
+		 <score>${score2}</score>
+      </eventCompetitorDto>
+   </eventCompetitors>
+</eventCompetitorMessage>

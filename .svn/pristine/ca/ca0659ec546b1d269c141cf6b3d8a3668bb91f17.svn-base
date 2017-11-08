@@ -1,0 +1,76 @@
+package internal.qaauto.inrunning.tom.leftnav;
+
+import internal.qaauto.inrunning.tom.coupons.LeftNavCouponInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowCoupon;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowCouponInterface;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public class LiveNowCouponsComponent extends LeftNavCouponsComponent implements LiveNowCouponsComponentInterface {
+
+    public LiveNowCouponsComponent(final WebElement liveNowMenu) {
+        setComponent(liveNowMenu);
+    }
+
+    @Override
+    protected SportContainerInterface newSportContainer(WebElement sportContainerWE) {
+        return new LiveNowCouponsSportContainer(sportContainerWE);
+    }
+
+    @Override
+    public LeftNavCouponInterface newCoupon(WebElement couponWebElement) {
+        return new LeftNavLiveNowCoupon(couponWebElement);
+    }
+
+    @Override
+    public boolean isCollapsed() {
+
+        return false;
+    }
+
+    @Override
+    public LeftNavLiveNowCouponInterface getCouponByGameID(final String gameID) {
+        final List<LeftNavCouponInterface> coupons = getCoupons();
+        LeftNavLiveNowCouponInterface liveNowCoupon;
+        for (LeftNavCouponInterface coupon : coupons) {
+            liveNowCoupon = (LeftNavLiveNowCoupon) coupon;
+            if (gameID.equals(liveNowCoupon.getGameID())) {
+                return liveNowCoupon;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<LeftNavLiveNowCouponInterface> getLiveNowCoupons() {
+        List<LeftNavCouponInterface> coupons = getCoupons();
+        if(coupons == null){
+            return null;
+        }
+        List<LeftNavLiveNowCouponInterface> liveNowCoupons = (List<LeftNavLiveNowCouponInterface>)(List<?>)coupons;
+        return liveNowCoupons;
+    }
+
+    @Override
+    public LeftNavLiveNowCouponInterface getLiveNowCouponByName(final String sport, final String name) {
+        final SportContainerInterface sportContainer = getSportContainerByTitle(sport);
+        if(sportContainer ==  null){
+            return null;
+        }
+        return(sportContainer.getLiveNowCouponByName(name));
+    }
+
+    @Override
+    public void expand() {
+
+    }
+
+    @Override
+    public void collapse() {
+
+    }
+}

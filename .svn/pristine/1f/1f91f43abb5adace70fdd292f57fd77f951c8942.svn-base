@@ -1,0 +1,25 @@
+Meta:
+@story BGSIR_778
+
+Narrative:
+As a user I want to see the message no markets available when navigating to an event with no markets
+so that the user is clearly aware that event has no markets
+					 
+Scenario:  A scenario is a collection of executable steps of different type
+Meta:
+@scenarioName BGSIR_778_NoMarketsAvailableMessage_RefreshPage
+@author Harish
+@testType regression
+Given an event is created using below data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName   |HomeTeam NickName  |Description|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Away Team>_<GameId>|<Home Team>_<GameId>|<Description>|
+When player navigates to above event
+Then an Informative message '<Message>' is displayed saying markets are not available in coupon area
+When refresh the page being at coupon area of above event
+Then an Informative message '<Message>' is displayed saying markets are not available in coupon area
+
+
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>      |Message|
+|     |77801      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-778 |This live event has no lines currently available|

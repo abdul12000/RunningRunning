@@ -1,0 +1,32 @@
+Meta:
+@author rkora
+@story BGSIR_569
+@functionality leftnav
+
+Narrative:
+As a player
+I want the left nav to display live now,closed and upcoming events
+so that I am aware of the events where I can place wagers
+
+Scenario: Closed events are displayed in Live Now
+
+Meta:
+@scenarioName BGSIR_569_VerifyClosedEventsDisplayedInLiveNow
+
+Given user created the event with the  below data
+|GameId     |Sport      |League Id  |Status      | AwayTeam NickName | HomeTeam NickName |
+|<GameId>   |<Sport>    |<League Id>|<Status>    |<AwayTeam NickName>|<HomeTeam NickName>|
+When player navigate to any In-Running page
+Then above created event should be displayed under sport <<Sport>> in Live Now component
+When game status is changed to closed
+And player refreshes page
+Then above created event should still be displayed under sport <<Sport>> in Left Nav Live Now component
+
+
+Examples:
+|<GameId>   |<Sport>    |<League Id> |<Status>    |<AwayTeam NickName>|<HomeTeam NickName>|
+|56950      |Football   |5           |In Progress |HOME_FOOTBALL       |AWAY_FOOTBALL   |
+|56951      |Tennis     |325         |In Progress |HOME_TENNIS         |AWAY_TENNIS     |
+|56952      |Hockey     |50          |In Progress |HOME_HOCKEY         |AWAY_HOCKEY     |
+|56953      |Basketball |2           |In Progress |HOME_BASKETBALL     |AWAY_BASKETBALL |
+|56954      |Soccer     |33          |In Progress |HOME_SOCCER         |AWAY_SOCCER     |

@@ -1,0 +1,28 @@
+Narrative:
+As a player
+I want event link in the upcoming event component will include information
+so that I have the required information about upcoming events
+Meta:
+@story BGSIR347
+@functionality leftnav
+
+Scenario: Event start time to be displayed in 12h clock and time until event starts in hours and minutes(Starts in HHh:MMm)
+Meta:
+@scenarioName BGSIR347_UpcomingEvent_12hClock
+@author Harish
+@testType regression
+
+Given an upcoming event created using below data:
+|GameId   |Sport   |Home Team    |Away Team              |League Id    |Status       |AwayTeam NickName    |HomeTeam NickName    |Description|
+|<GameId> |<Sport> |<Home Team>  |<Away Team>            |<League Id>  |<Status>     |<AwayTeam NickName>  |<HomeTeam NickName>  |<Description>|
+When player navigate to any In-Running page
+Then above created upcoming event displays time in 12h clock and time to start in hours and minutes(Starts in HHh MMm)
+
+
+Examples:
+|<GameId> |<Sport>   |<Home Team>  |<Away Team>            |<League Id>  |<Status>  |<AwayTeam NickName>  |<HomeTeam NickName>  |<Description>            |
+|1234     |Football  |Buffalo Bills|Arizona Cardinals      |5            |Upcoming  |AT_Nick              |HT_Nick              |AUTOTEST_Football_Display|
+|12546    |Soccer    |Algeria      |Anguilla               |33           |Upcoming  |Anguilla_Nick        |Algeria_Nick         |AUTOTEST_SortSportsGroups|
+|4356     |Tennis    |Home_17301   |Away_17301             |325          |Upcoming  |HM_17301_Nick        |AW_17301_Nick        |AUTOTEST_BGSIR347_Tennis|
+|3678     |Hockey    |Boston Bruins|Anaheim Ducks          |50           |Upcoming  |BostonBruins_Nick    |Anaheim_Nick         |AUTOTEST_BGSIR347_Hocker|
+|3677     |Basketball|Atlanta Hawks|Denver Nuggets         |2            |Upcoming  |Atlanta_Nick         |Denver_Nick          |AUTOTEST_BGSIR347_Basketball|

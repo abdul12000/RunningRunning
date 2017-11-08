@@ -1,0 +1,84 @@
+Meta:
+@author rkora
+@story BGSIR_680
+@functionality couponarea
+@testType regression
+@run false
+
+Narrative:
+As a player
+I want single game view page for the top Live event to be displayed if I click in 'Live Betting' tab in Sports or
+when I navigate to Live Client home page so that I can place bets in live event
+
+Scenario: Home page redirects to the top upcoming event which has open markets available when no events in progress
+Meta:
+@scenarioName story_openMarkets
+Given an upcoming event created using below data:
+|GameId   |Sport   |League Id    |Status  |MarketNameToCreate  |
+|<GameId> |<Sport> |<League Id>  |<Status>|<MarketNameToCreate>|
+And change all the Live now events to upcoming if there are any
+When player navigatest to live betting page of domain <Domain>
+Then message should be displayed informing that there are no live events available
+And I am redirected to the single game page view of the event that is at the first of the Upcoming events component that has markets
+
+Examples:
+|Domain|<GameId> |<Sport>   |<League Id>  |<Status>  |<MarketNameToCreate>|
+|eu    |68001    |Football  |5            |Upcoming  |Outcome next play   |
+|lv    |68002    |Football  |5            |Upcoming  |Total               |
+
+
+Scenario: Home page redirects to the top upcoming event which has suspended markets available when no events in progress
+Meta:
+@scenarioName story_suspendedMarkets
+Given an upcoming event created using below data:
+|GameId   |Sport   |League Id    |Status  |MarketNameToCreate  |
+|<GameId> |<Sport> |<League Id>  |<Status>|<MarketNameToCreate>|
+And suspend the market <<MarketNameToCreate>>
+And change all the Live now events to upcoming if there are any
+When player navigatest to live betting page of domain <Domain>
+Then message should be displayed informing that there are no live events available
+And I am redirected to the single game page view of the event that is at the first of the Upcoming events component that has markets
+
+Examples:
+|Domain|<GameId> |<Sport>   |<League Id>  |<Status>  |<MarketNameToCreate>|
+|eu    |68003    |Football  |5            |Upcoming  |Outcome next play   |
+|lv    |68004    |Football  |5            |Upcoming  |Total               |
+
+
+
+Scenario: Home page redirects to the top upcoming event which has open markets available when no events in progress when we click on LiveBetting tab in sports domain
+Meta:
+@scenarioName story_openMarkets_LiveBettingTab
+Given an upcoming event created using below data:
+|GameId   |Sport   |League Id    |Status  |MarketNameToCreate  |
+|<GameId> |<Sport> |<League Id>  |<Status>|<MarketNameToCreate>|
+And change all the Live now events to upcoming if there are any
+And player is at sports page of <domain> domain
+When player selects live betting
+Then message should be displayed informing that there are no live events available
+And I am redirected to the single game page view of the event that is at the first of the Upcoming events component that has markets
+
+Examples:
+|Domain|<GameId> |<Sport>   |<League Id>  |<Status>  |<MarketNameToCreate>|
+|eu    |68005   |Football  |5            |Upcoming  |Outcome next play   |
+|lv    |68006    |Football  |5            |Upcoming  |Total               |
+
+Scenario: Home page redirects to the top upcoming event which has suspended markets available when no events in progress when we click on LiveBetting tab in sports domain
+Meta:
+@scenarioName story_suspendedMarkets_LiveBettingTab
+Given an upcoming event created using below data:
+|GameId   |Sport   |League Id    |Status  |MarketNameToCreate  |
+|<GameId> |<Sport> |<League Id>  |<Status>|<MarketNameToCreate>|
+And suspend the market <<MarketNameToCreate>>
+And change all the Live now events to upcoming if there are any
+And player is at sports page of <domain> domain
+When player selects live betting
+Then message should be displayed informing that there are no live events available
+And I am redirected to the single game page view of the event that is at the first of the Upcoming events component that has markets
+
+Examples:
+|Domain|<GameId> |<Sport>   |<League Id>  |<Status>  |<MarketNameToCreate>|
+|eu    |68007    |Football  |5            |Upcoming  |Outcome next play   |
+|lv    |68008    |Football  |5            |Upcoming  |Total               |
+
+

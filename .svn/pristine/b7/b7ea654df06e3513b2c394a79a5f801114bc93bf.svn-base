@@ -1,0 +1,23 @@
+Meta:
+@run false
+
+Narrative:
+As a player
+I want In-Running client contains a Live Now Events Component, Upcoming Events component and coupon area
+so that I have an easy way to see active Live events and to navigate to Single Game View page
+
+
+Scenario: Live Betting page displays placeholders for Live Now Events Component, Upcoming Events Component, BetSlip Mode Component
+Meta:
+@story BGSIR_53_58_273
+@author Harish
+@scenarioName BGSIR_53_58_273_DisplayPlaceHolders
+
+Given player is at live betting page
+Then Left Nav should have following components:
+|Component                 |
+|Live Now Events Component |
+|Upcoming Events Component |
+|BetSlip Mode Component    |
+And live bettings page should have coupon component
+

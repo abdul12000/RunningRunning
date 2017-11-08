@@ -1,0 +1,246 @@
+Narrative:
+As a player 
+I want coupons to display up-to-date information 
+so that I can place my wagers according to the information in the coupon
+
+Meta:
+@story BGSIR_400
+@author Harish
+@functionality markets
+					 
+Scenario:  Market suspension is automatically updated
+Meta:
+@scenarioName BGSIR400_MarketSuspensionAutoUpdates
+@testType regression
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description|MarketTitle    |MarketNameToCreate|
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When market '<<MarketTitle>>' is suspended
+Then market '<<MarketTitle>>' in coupon area should appear suspended automatically
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>                |<MarketNameToCreate>|<MarketTitle>     |
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+
+
+Scenario:  Market suspension is automatically updated after login
+Meta:
+@scenarioName BGSIR400_MarketSuspensionAutoUpdatesAfterLogin
+@testType regression
+@author rkora
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description  |MarketTitle|MarketNameToCreate    |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+And a user logged in with username '<Username>' and password '<Password>'
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When market '<<MarketTitle>>' is suspended
+Then market '<<MarketTitle>>' in coupon area should appear suspended automatically
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>                |<MarketNameToCreate>|<MarketTitle>     |Username|Password |
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+
+
+Scenario:  Market unsuspension is automatically updated
+Meta:
+@scenarioName BGSIR400_MarketUnSuspension_AutoUpdates
+@testType regression
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When market '<<MarketTitle>>' is suspended
+Then market '<<MarketTitle>>' in coupon area should appear suspended automatically
+When market '<<MarketTitle>>' is un suspended
+Then market '<<MarketTitle>>' should be un suspended automatically
+
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>                |<MarketNameToCreate>|<MarketTitle>     |
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+
+Scenario:  Market unsuspension is automatically updated after login
+Meta:
+@scenarioName BGSIR400_MarketUnSuspension_AutoUpdatesAfterLogin
+@testType regression
+@author rkora
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+And a user logged in with username '<Username>' and password '<Password>'
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When market '<<MarketTitle>>' is suspended
+Then market '<<MarketTitle>>' in coupon area should appear suspended automatically
+When market '<<MarketTitle>>' is un suspended
+Then market '<<MarketTitle>>' should be un suspended automatically
+
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>                |<MarketNameToCreate>|<MarketTitle>     |Username|Password |
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+		
+Scenario:  Market closure is automatically updated
+Meta:
+@scenarioName BGSIR400_MarketClosure_AutoUpdate
+@testType regression
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName |Description   |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When market '<<MarketTitle>>' is closed
+Then market '<<MarketTitle>>' should disappear from coupon area automatically
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>                |<MarketNameToCreate>|<MarketTitle>     |
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |
+
+Scenario:  Market closure is automatically updated after login
+Meta:
+@scenarioName BGSIR400_MarketClosure_AutoUpdateAfterLogin
+@testType regression
+@author rkora
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName |Description   |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+And a user logged in with username '<Username>' and password '<Password>'
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When market '<<MarketTitle>>' is closed
+Then market '<<MarketTitle>>' should disappear from coupon area automatically
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>                |<MarketNameToCreate>|<MarketTitle>     |Username|Password |
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |2393086 |testing  |
+
+Scenario:  Open Market is automatically updated on in running page
+Meta:
+@scenarioName BGSIR400_OpenNewMarket_AutoUpdate
+@testType regression
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName    |HomeTeam NickName   |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>  |<HomeTeam NickName> |<Description>|<MarketTitle>|<MarketNameToCreate>|
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When market '<<MarketTitle>>' is closed
+Then market '<<MarketTitle>>' should disappear from coupon area automatically
+When add a new market '<<MarketTitle1>>'
+Then market '<<MarketTitle1>>' should be displayed in coupon area automatically
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>              |<MarketNameToCreate>|<MarketTitle>     |<MarketTitle1>|
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick          |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick     |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick    |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick     |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |
+
+Scenario:  Open Market is automatically updated on in running page after login
+Meta:
+@scenarioName BGSIR400_OpenNewMarket_AutoUpdateAfterLogin
+@testType regression
+@author rkora
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName    |HomeTeam NickName   |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>  |<HomeTeam NickName> |<Description>|<MarketTitle>|<MarketNameToCreate>|
+And a user logged in with username '<Username>' and password '<Password>'
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When market '<<MarketTitle>>' is closed
+Then market '<<MarketTitle>>' should disappear from coupon area automatically
+When add a new market '<<MarketTitle1>>'
+Then market '<<MarketTitle1>>' should be displayed in coupon area automatically
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>              |<MarketNameToCreate>|<MarketTitle>     |<MarketTitle1>|Username|Password |
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick          |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |2393086 |testing  |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick     |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |2393086 |testing  |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick    |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |2393086 |testing  |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick     |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |2393086 |testing  |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Extra Market4 |2393086 |testing  |
+
+Scenario:  Open Outcome is automatically updated on in running page
+Meta:
+@scenarioName BGSIR400_OpenCloseOutcome_AutoUpdate
+@testType regression
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' is closed in backend
+Then selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' should no longer be available for selection
+When selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' is opened back in backend
+Then selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' should be available for selection
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>                |<MarketNameToCreate>|<MarketTitle>     |<OutcomeDescriptionToClose>|
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Pass Completion            |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Rush                       |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Turnover                   |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Pass Incomplete            |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Turnover                   |
+
+
+Scenario:  Open Outcome is automatically updated on in running page after login
+Meta:
+@scenarioName BGSIR400_OpenCloseOutcome_AutoUpdateAfterLogin
+@testType regression
+@author rkora
+
+Given user created the event with the  below data
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName  |HomeTeam NickName  |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+And a user logged in with username '<Username>' and password '<Password>'
+When user navigates to above event
+Then market <<MarketTitle>> should be displayed in coupon area
+When selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' is closed in backend
+Then selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' should no longer be available for selection
+When selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' is opened back in backend
+Then selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' should be available for selection
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<AwayTeam NickName>|<HomeTeam NickName>|<Description>                |<MarketNameToCreate>|<MarketTitle>     |<OutcomeDescriptionToClose>|Username|Password |
+|     |4001       |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AT_Nick            |HT_Nick            |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Pass Completion            |2393086 |testing  |
+|     |4002       |Soccer     |Algeria        |Anguilla          |33         |In Progress|Anguilla_Nick      |Algeria_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Rush                       |2393086 |testing  |
+|     |4003       |Tennis     |Home_17301     |Away_17301        |325        |In Progress|HM_17301_Nick      |AW_17301_Nick      |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Turnover                   |2393086 |testing  |
+|     |4004       |Hockey     |Boston Bruins  |Anaheim Ducks     |50         |In Progress|BostonBruins_Nick  |Anaheim_Nick       |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Pass Incomplete            |2393086 |testing  |
+|     |4005       |Basketball |Atlanta Hawks  |Denver Nuggets    |2          |In Progress|Atlanta_Nick       |Denver_Nick        |AUTOTEST_BGSIR400_AutoUpdates|Outcome next play   |Extra Market 1    |Turnover                   |2393086 |testing  |

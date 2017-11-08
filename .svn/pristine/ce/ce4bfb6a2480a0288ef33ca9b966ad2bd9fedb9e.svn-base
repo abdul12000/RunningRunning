@@ -1,0 +1,124 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.EventStepsHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.LiveBettingStepMethods;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.LiveBettingPageInterface;
+import internal.qaauto.inrunning.tom.markets.MarketInterface;
+import internal.qaauto.inrunning.tom.markets.OutcomeInterface;
+import internal.qaauto.inrunning.utils.InRunningComponents;
+import internal.qaauto.inrunning.utils.LeftNavComponents;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.Named;
+import org.jbehave.core.annotations.Then;
+import org.jbehave.core.annotations.When;
+import org.jbehave.core.model.ExamplesTable;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Harish Renukunta and Raghu Kora.
+ */
+public class LiveBettingPageSteps extends InRunningBaseStep {
+
+    private static final String OUTCOME_PRICE_MATCH = "Outcome price match.Market:%s Outcome:%s Price:%s";
+
+    private static final String OUTCOME_PRICE_MISMATCH = "Outcome price mis match.Market:%s Outcome:%s Expected:%s Actual:%s";
+
+    private final EventStepsHelperMethods eventStepsHelperMethods = HelperFactory.getEventStepsHelper();
+
+    private final LiveBettingStepMethods liveBettingStepMethods = HelperFactory.getLifeBettingStepMethods();
+
+    private LiveBettingPageInterface getLiveBettingPage() {
+        return ObjectFactory.getLiveBettingPage();
+    }
+
+    @Given("{player|Player} is at live betting page")
+    public void givenPlayerIsAtLiveBettingPage() {
+        getLiveBettingPage().go();
+    }
+
+    @When("I navigate to any In-Running page")
+    public void navigateToInRunningPage() {
+        givenPlayerIsAtLiveBettingPage();
+    }
+
+    @Then("Left Nav should have following components:$componentsToCheck")
+    public void verifyLeftNavComponents(final ExamplesTable componentsToCheck) {
+        String component;
+
+        for (Map<String, String> dataRow : componentsToCheck.getRows()) {
+            component = dataRow.get("Component");
+            if (component.equals(LeftNavComponents.LIVE_NOW_COUPONS_COMPONENT.getLabel())) {
+                liveBettingStepMethods.verifyLiveNowComponent();
+            } else if (component.equals(LeftNavComponents.UPCOMING_COUPONS_COMPONENT.getLabel())) {
+                liveBettingStepMethods.verifyUpcomingCouponsComponent();
+            } else if (component.equals(LeftNavComponents.BETSLIP_MODE_COMPONENT)) {
+                liveBettingStepMethods.verifyBetSlipModeComponent();
+            } else if (component.equals(InRunningComponents.BETSLIP_COMPONENT.getLabel())) {
+                liveBettingStepMethods.verifyBetSlipComponent();
+            } else {
+                Assert.fail(component + " not available in left nav page");
+            }
+
+        }
+    }
+
+    @Then("live bettings page should have coupon component")
+    public void verifyCouponComponent() {
+        liveBettingStepMethods.verifyCouponComponent();
+    }
+
+    @When("user navigate to a Single Game View page for a Live Event $GameId")
+    public void whenUserNavigateToASingleGameViewPageForALiveEvent(@Named("<GameId>") String gameId) {
+        getLiveBettingPage().goToEvent(gameId);
+    }
+
+    @When("player navigates to above event")
+    public void navigateToEvent() {
+        final Event event = getEvent();
+        whenUserNavigateToASingleGameViewPageForALiveEvent(event.getGameId());
+    }
+
+    @When("selects '<OddsFormat>' as odds format")
+    public void setOddsFormat(@Named("OddsFormat") final String oddsFormat) {
+        getLiveBettingPage().setOddsFormat(oddsFormat);
+    }
+
+    @Then("the list of markets of the selected event are displayed in the coupon area")
+    public void verifyMarketsDisplayedForTheSelectedEvent() throws InterruptedException {
+        Thread.sleep(3000);
+        Assert.assertEquals(eventStepsHelperMethods.getMarketsTitleFromEvent(getEvent()).size(),
+                getLiveBettingPage().getMarkets().size(),
+                "Expected markets are displayed in the Coupon area",
+                "Expected markets are not displayed in the Coupon area");
+        Assert.assertTrue(!liveBettingStepMethods.verifyMarketTitles(), "All market titles are displayed",
+                "All market titles are displayed");
+    }
+
+    @Then("the market which has $MarketTitle should display 3 column layout")
+    public void verify3ColumnLayoutMarketDisplay(@Named("MarketTitle") final String marketTitle) {
+        final MarketInterface market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        market.isThreeColumnLayoutDisplayed();
+
+    }
+
+    @Then("the markets should display two columns layout $marketTable")
+    public void verify2ColumnLayoutMarketDisplay(ExamplesTable marketTable) {
+        for (Map<String, String> marketData : marketTable.getRows()) {
+            for (Map.Entry<String, String> marketName : marketData.entrySet()) {
+                final String marketTitle = marketName.getValue();
+                final MarketInterface market = getLiveBettingPage().getMarketByTitle(marketTitle);
+                final boolean twoColumnLayoutDisplayed = market.isTwoColumnLayoutDisplayed();
+                Assert.assertTrue(twoColumnLayoutDisplayed,
+                        String.format("Market is displayed with Two column Layout: %s", marketTitle),
+                        String.format("Market is not displayed with Two column Layout: %s", marketTitle));
+            }
+        }
+    }
+
+}

@@ -1,0 +1,64 @@
+package internal.qaauto.inrunning.tom.coupons;
+
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 16/10/2014.
+ */
+public class LeftNavLiveNowEventImpl extends LeftNavEventImpl implements LeftNavLiveNowEvent {
+
+    public static final String TITLE_SELECTOR = "a";
+
+    private By titleLocator = new By.ByCssSelector(TITLE_SELECTOR);
+
+    public LeftNavLiveNowEventImpl(WebElement couponWebElement) {
+        setComponent(couponWebElement);
+    }
+
+    @Override
+    public boolean isClockRunning() {
+        return false;
+    }
+
+    @Override
+    public String getClock() {
+        return null;
+    }
+
+    @Override
+    public String getPeriod() {
+        return null;
+    }
+
+    @Override
+    public String getGameID() {
+        final List<WebElement> titleWebElements = getWebElement().findElements(titleLocator);
+        if(titleWebElements == null || titleWebElements.size() == 0) {
+            return StringUtils.EMPTY;
+        }
+        final String href = titleWebElements.get(0).getAttribute("href");
+        final String[] hrefElements = href.split("/");
+        final String gameID = hrefElements[hrefElements.length - 1];
+        return gameID;
+    }
+
+    @Override
+    @Deprecated
+    public String getTitle() {
+        final List<WebElement> titleWebElements = getWebElement().findElements(titleLocator);
+
+        if (titleWebElements == null || titleWebElements.size() == 0) {
+            return StringUtils.EMPTY;
+        }
+        return titleWebElements.get(0).getText();
+    }
+
+    @Override
+    public String getTime() {
+        return null;
+    }
+}

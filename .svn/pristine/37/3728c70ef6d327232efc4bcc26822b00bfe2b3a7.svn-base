@@ -1,0 +1,132 @@
+Meta:
+@author rkora
+@story BGSIR_434_59
+@functionality betslip
+@testType regression
+
+Narrative:
+As a player
+I want Bet Slip to display handicap changes of selections in the Bet Slip
+so that I am aware of any handicap change for the added selections
+
+Scenario: Prices are updated for a single selections in the betslip
+Meta:
+@scenarioName AutoUpdateOfPriceForSingleSelection
+Given user created the event with the  below data
+ |GameId     |Sport  |League Id  |Status     |MarketTitle  |MarketNameToCreate|
+ |<GameId>   |<Sport>|<League Id>|<Status>   |<MarketTitle>|<MarketNameToCreate>|
+When player navigates to above event
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+When price is updated for one of the selection <<Selection>> with Win <WinValue> and risk <RiskValue>
+Then the updated price <Price> should be automatically updated in the Bet slip for selection <<Selection>>
+And relevant price change arrow <Arrow> should be displayed
+
+Examples:
+| <GameId> | <Sport>    | <League Id> | <Status>    | <MarketNameToCreate> | <MarketTitle>      | <Selection>     | WinValue | RiskValue | Price |Arrow|
+| 43401    | Football   | 5           | In Progress | Moneyline            | Extra Market ML    | AWAY            | 24       | 20        | +120  |green|
+| 43402    | Soccer     | 33          | Upcoming    | Point Spread         | Extra Market PS    | HOME            | 24       | 20        | +120  |green|
+| 43403    | Basketball | 2           | In Progress | Total                | Extra Market Total | Over            | 20       | 24        | -120  |red  |
+| 43404    | Tennis     | 325         | Upcoming    |  Outcome next play   | Extra Market 1     | Rush            | 20       | 24        | -120  |red  |
+
+
+Scenario: Prices are updated for selections in the betslip
+Meta:
+@scenarioName AutoUpdateOfPriceForMultipleSelections
+Given user created the event with the  below data
+ |GameId     |Sport  |League Id  |Status     |
+ |<GameId>   |<Sport>|<League Id>|<Status>   |
+And add extra markets using below details:
+| MarketName    | MarketTitle    |
+| <MarketName1> | <MarketTitle1> |
+| <MarketName2> | <MarketTitle2> |
+When player navigates to above event
+And add below selections to the betslip from the markets listed below:
+| MarketTitle    | Selection    |
+| <MarketTitle1> | <Selection1> |
+| <MarketTitle2> | <Selection2> |
+When price is updated for the below selections in the betslip
+| MarketTitle    | Selection    | WinValue    | RiskValue    |
+| <MarketTitle1> | <Selection1> | <WinValue1> | <RiskValue1> |
+| <MarketTitle2> | <Selection2> | <WinValue2> | <RiskValue2> |
+Then the updated prices should be automatically updated in the Bet slip for the below selections
+| Selection    | Price    |
+| <Selection1> | <Price1> |
+| <Selection2> | <Price2> |
+And relevant price change arrows should be displayed for the below selections
+| Selection    | Arrow    |
+| <Selection1> | <Arrow1> |
+| <Selection2> | <Arrow2> |
+
+Examples:
+| <GameId> | <Sport>    | <League Id> | <Status>    | <MarketName1>     | <MarketName2>     | <MarketTitle1>     | <MarketTitle2>     | <Selection1> | <Selection2>    | <WinValue1> | <RiskValue1> | <Price1> | <Price2> | <WinValue2> | <RiskValue2> | <Arrow1> | <Arrow2> |
+| 43405    | Football   | 5           | In Progress | Outcome next play | Point Spread      | Extra Market 1     | Extra Market PS    | Rush         | AWAY            | 20          | 24           | -120     | +120     | 24          | 20           | red      | green    |
+| 43406    | Soccer     | 33          | In Progress | Total             | Outcome next play | Extra Market Total | Extra Market 1     | Over         | Turnover        | 24          | 20           | +120     | -120     | 20          | 24           | green    | red      |
+| 43407    | Basketball | 2           | In Progress | Moneyline         | Total             | Extra Market ML    | Extra Market Total | HOME         | Under           | 24          | 20           | +120     | +120     | 24          | 20           | green    | green    |
+| 43408    | Hockey     | 50          | In Progress | Total             | Point Spread      | Extra Market Total | Extra Market PS    | Under        | Stars           | 20          | 24           | -120     | -120     | 20          | 24           | red      | red      |
+| 43409    | Football   | 5           | Upcoming    | Outcome next play | Total             | Extra Market 1     | Extra Market Total | Rush         | Over            | 20          | 24           | -120     | +120     | 24          | 20           | red      | green    |
+| 43410    | Soccer     | 33          | Upcoming    | Total             | Outcome next play | Extra Market Total | Extra Market 1     | Over         | Rush            | 24          | 20           | +120     | -120     | 20          | 24           | green    | red      |
+| 43411    | Basketball | 2           | Upcoming    | Moneyline         | Total             | Extra Market ML    | Extra Market Total | AWAY         | Under           | 24          | 20           | +120     | +120     | 24          | 20           | green    | green    |
+| 43412    | Tennis     | 325         | Upcoming    | Outcome next play | Total             | Extra Market 1     | Extra Market Total | Rush         | Over            | 20          | 24           | -120     | -120     | 20          | 24           | red      | red      |
+
+Scenario: Prices are updated for a single selection in the betslip after login
+Meta:
+@scenarioName AutoUpdateOfPriceForSingleSelection_afterLogin
+Given user created the event with the  below data
+ |GameId     |Sport  |League Id  |Status     |MarketTitle  |MarketNameToCreate|
+ |<GameId>   |<Sport>|<League Id>|<Status>   |<MarketTitle>|<MarketNameToCreate>|
+When a player loggedIn and navigate to above event
+And Bet slip mode is activated
+And player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> of <<MarketTitle>> should be displayed in the betslip
+When price is updated for one of the selection <<Selection>> with Win <WinValue> and risk <RiskValue>
+Then the updated price <Price> should be automatically updated in the Bet slip for selection <<Selection>>
+And relevant price change arrow <Arrow> should be displayed
+
+Examples:
+| <GameId> | <Sport>    | <League Id> | <Status>    | <MarketNameToCreate> | <MarketTitle>      | <Selection>     | WinValue | RiskValue | Price |Arrow|
+| 43413    | Football   | 5           | In Progress | Moneyline            | Extra Market ML    | AWAY            | 24       | 20        | +120  |green|
+| 43414    | Soccer     | 33          | Upcoming    | Point Spread         | Extra Market PS    | HOME            | 24       | 20        | +120  |green|
+| 43415    | Basketball | 2           | In Progress | Total                | Extra Market Total | Over            | 20       | 24        | -120  |red  |
+| 43416    | Tennis     | 325         | Upcoming    |  Outcome next play   | Extra Market 1     | Rush            | 20       | 24        | -120  |red  |
+
+
+Scenario: Prices are updated for selections in the betslip after login
+Meta:
+@scenarioName AutoUpdateOfPriceForMultipleSelections_afterLogin
+Given user created the event with the  below data
+ |GameId     |Sport  |League Id  |Status     |
+ |<GameId>   |<Sport>|<League Id>|<Status>   |
+And add extra markets using below details:
+| MarketName    | MarketTitle    |
+| <MarketName1> | <MarketTitle1> |
+| <MarketName2> | <MarketTitle2> |
+When a player loggedIn and navigate to above event
+And Bet slip mode is activated
+And add below selections to the betslip from the markets listed below:
+| MarketTitle    | Selection    |
+| <MarketTitle1> | <Selection1> |
+| <MarketTitle2> | <Selection2> |
+When price is updated for the below selections in the betslip
+| MarketTitle    | Selection    | WinValue    | RiskValue    |
+| <MarketTitle1> | <Selection1> | <WinValue1> | <RiskValue1> |
+| <MarketTitle2> | <Selection2> | <WinValue2> | <RiskValue2> |
+Then the updated prices should be automatically updated in the Bet slip for the below selections
+| Selection    | Price    |
+| <Selection1> | <Price1> |
+| <Selection2> | <Price2> |
+And relevant price change arrows should be displayed for the below selections
+| Selection    | Arrow    |
+| <Selection1> | <Arrow1> |
+| <Selection2> | <Arrow2> |
+
+Examples:
+| <GameId> | <Sport>    | <League Id> | <Status>    | <MarketName1>     | <MarketName2>     | <MarketTitle1>     | <MarketTitle2>     | <Selection1> | <Selection2>    | <WinValue1> | <RiskValue1> | <Price1> | <Price2> | <WinValue2> | <RiskValue2> | <Arrow1> | <Arrow2> |
+| 43405    | Football   | 5           | In Progress | Outcome next play | Point Spread      | Extra Market 1     | Extra Market PS    | Rush         | AWAY            | 20          | 24           | -120     | +120     | 24          | 20           | red      | green    |
+| 43406    | Soccer     | 33          | In Progress | Total             | Outcome next play | Extra Market Total | Extra Market 1     | Over         | Turnover        | 24          | 20           | +120     | -120     | 20          | 24           | green    | red      |
+| 43407    | Basketball | 2           | In Progress | Moneyline         | Total             | Extra Market ML    | Extra Market Total | HOME         | Under           | 24          | 20           | +120     | +120     | 24          | 20           | green    | green    |
+| 43408    | Hockey     | 50          | In Progress | Total             | Point Spread      | Extra Market Total | Extra Market PS    | Under        | Stars           | 20          | 24           | -120     | -120     | 20          | 24           | red      | red      |
+| 43409    | Football   | 5           | Upcoming    | Outcome next play | Total             | Extra Market 1     | Extra Market Total | Rush         | Over            | 20          | 24           | -120     | +120     | 24          | 20           | red      | green    |
+| 43410    | Soccer     | 33          | Upcoming    | Total             | Outcome next play | Extra Market Total | Extra Market 1     | Over         | Rush            | 24          | 20           | +120     | -120     | 20          | 24           | green    | red      |
+| 43411    | Basketball | 2           | Upcoming    | Moneyline         | Total             | Extra Market ML    | Extra Market Total | AWAY         | Under           | 24          | 20           | +120     | +120     | 24          | 20           | green    | green    |
+| 43412    | Tennis     | 325         | Upcoming    | Outcome next play | Total             | Extra Market 1     | Extra Market Total | Rush         | Over            | 20          | 24           | -120     | -120     | 20          | 24           | red      | red      |

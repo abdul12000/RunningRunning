@@ -1,0 +1,462 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.CouponAreaStepsHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.tom.Utils;
+import internal.qaauto.inrunning.tom.Utilties.OutcomeStatus;
+import internal.qaauto.inrunning.tom.markets.Market;
+import internal.qaauto.inrunning.tom.markets.MarketOutcome;
+import internal.qaauto.inrunning.utils.WaitUtils;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Event;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Line;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.interfaces.Outcome;
+import internal.qaauto.sportsbook.webservice.eventpubpxp.entities.outcomes.AbstractLineOutcome;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.jbehave.core.annotations.*;
+import org.jbehave.core.model.ExamplesTable;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Created by Harish Renukunta on 31/10/2014.
+ */
+public class CouponAreaSteps extends InRunningBaseStep {
+
+    private static final String SELECTION_HEADER = "Selection";
+
+    private static final String MARKET_TITLE = "MarketTitle";
+
+    private CouponAreaStepsHelperMethods couponAreaStepsHelper = HelperFactory.getCouponAreaStepsHelper();
+
+    @Then("market <<MarketTitle>> should not be visible in coupon area")
+    public void verifyMarketNotVisibleInCouponArea(@Named("<MarketTitle>") final String marketTitle)
+            throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyMarketNotVisibleInCouponArea(marketTitle);
+    }
+
+    @Then("selection <<Selection>> of market <<MarketTitle>> should be highlighted")
+    @Aliases(values = { "selection <<Selection>> of <<MarketTitle>> should still be highlighted in the betslip" })
+    public void verifyOutcomeHighlighted(@Named("<MarketTitle>") final String marketTitle,
+            @Named("<Selection>") final String outcomeDescription) throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyOutcomeHighlighted(marketTitle, outcomeDescription);
+    }
+
+    @Then("selection '<<Selection>>' of market '<<MarketTitle>>' should not be highlighted")
+    public void verifyOutcomeNotHighlighted(@Named("<MarketTitle>") final String marketTitle,
+            @Named("<Selection>") final String outcomeDescription) throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyOutcomeNotHighlighted(marketTitle, outcomeDescription);
+    }
+
+    @Then("market '<<MarketTitle>>' should disappear from coupon area automatically")
+    public void verifyMarketWithTitleNotVisibleInCouponArea(@Named("<MarketTitle>") final String marketTitle)
+            throws ConfigurationException, IOException {
+        verifyMarketNotVisibleInCouponArea(marketTitle);
+    }
+
+    @Then("market <<MarketTitle1>> should not be visible in coupon area")
+    public void verifyMarket1NotVisibleInCouponArea(@Named("<MarketTitle1>") final String marketTitle) throws IOException,
+            ConfigurationException {
+        verifyMarketNotVisibleInCouponArea(marketTitle);
+    }
+
+    @Then("market <<MarketName>> should be displayed in coupon area")
+    public void verifyMarketExist(@Named("<MarketName>") final String marketTitle) {
+        couponAreaStepsHelper.verifyMarketExistInCouponArea(marketTitle);
+    }
+
+    @Then("market <<MarketTitle>> should be displayed in coupon area")
+    public void verifyMarketWithTitleExist(@Named("<MarketTitle>") final String marketTitle) {
+        verifyMarketExist(marketTitle);
+    }
+
+    @Then("market '<<MarketTitle1>>' should be displayed in coupon area automatically")
+    public void verifyMarketWithTitle1Exist(@Named("<MarketTitle1>") final String marketTitle) {
+        verifyMarketExist(marketTitle);
+    }
+
+    @Then("market <<MarketTitle2>> should still be displayed in coupon Area")
+    public void verifyMarket2Exist(@Named("<MarketTitle2>") final String marketTitle) {
+        verifyMarketExist(marketTitle);
+    }
+
+    @Then("above markets should be displayed in coupon area")
+    public void verifyMarketsOfEventExistInCouponArea() {
+        final List<String> linesDescription = getLineDescriptionsFromEvent();
+        couponAreaStepsHelper.verifyMarketsExistInCouponArea(linesDescription);
+    }
+
+    @Then("the market which has '<<MarketTitle>>' title should display in <ColumnName> <ColumnLayout> layout")
+    public void verifyColumnLayout(@Named("<MarketTitle>") final String marketTitle,
+            @Named("ColumnName") final String columnName, @Named("ColumnLayout") final String columnLayout)
+            throws InterruptedException {
+        final Market market = couponAreaStepsHelper.verifyMarketExistInCouponArea(marketTitle);
+        Assert.assertTrue(market.isColumnLayoutDisplayed(columnLayout),
+                String.format("Expected market column layout is displayed: %s", columnLayout),
+                String.format("Expected market column layout is not displayed: %s", columnLayout));
+        couponAreaStepsHelper.verifyMarketColumnLayout(columnName, market);
+    }
+
+    @Then("Expected price <Price> for the outcome<OutcomeDesc> should be displayed")
+    public void verifyExpectedPriceDisplayed(@Named("Price") final String expectedPrice,
+            @Named("OutcomeDesc") final String outcomeDesc) throws InterruptedException, IOException, ConfigurationException {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForPriceUpdate(outcomeDesc, expectedPrice);
+        final MarketOutcome marketOutcome = getLiveBettingPage().getMarkets().get(0).getOutcomeByDescription(outcomeDesc);
+        Assert.assertEquals(
+                expectedPrice,
+                marketOutcome.getPrice(),
+                String.format("Expected Price is displayed : %s", expectedPrice),
+                String.format("Expected Price :%s is not displayed, Price displayed : %s", expectedPrice,
+                        marketOutcome.getPrice()));
+    }
+    
+    @Then("Expected price <Price> for the outcome <OutcomeDesc> of market <<MarketTitle2>> should be displayed")
+    public void verifyExpectedPriceDisplayed(@Named("Price") final String expectedPrice,
+            @Named("OutcomeDesc") final String outcomeDesc, @Named("<MarketTitle2>")final String marketTitle) throws InterruptedException, IOException, ConfigurationException {
+        final Event event = getEvent();
+        couponAreaStepsHelper.verifyExpectedPriceDisplayed(event, expectedPrice, outcomeDesc, marketTitle);
+        
+    }
+    
+    
+
+    @Then("expected handicap values <HomeHandicap> and <AwayHandicap> should be displayed for Market <<MarketTitle>>")
+    public void verifyUpdatedHandicapValue(@Named("HomeHandicap") final String expectedHomeHandicap,
+            @Named("AwayHandicap") final String expectedAwayHandicap, @Named("<MarketTitle>") final String marketTitle) {
+        Assert.assertTrue(
+                couponAreaStepsHelper.isHandicapValuesDisplayed(expectedHomeHandicap, expectedAwayHandicap, marketTitle),
+                String.format("Handicap Value updated for all outcomes of the market : %s", marketTitle),
+                String.format("Handicap Value is not updated for all outcomes of the Market : %s", marketTitle));
+
+    }
+
+    @Then("market '<<MarketTitle>>' in coupon area should appear suspended automatically")
+    public void verifyMarketWithTitleSuspended(@Named("<MarketTitle>") final String marketTitle) throws ConfigurationException,
+            IOException {
+        couponAreaStepsHelper.verifyMarketWithTitleSuspended(marketTitle);
+    }
+
+    @Then("market '<<MarketTitle>>' should be un suspended automatically")
+    public void verifyMarketWithTitleUnSuspended(@Named("<MarketTitle>") final String marketTitle)
+            throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyMarketWithTitleUnSuspended(marketTitle);
+    }
+
+    @Then("selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' should no longer be available for selection")
+    public void verifyOutcomeWithDescriptionNoDisplay(@Named("<MarketTitle>") final String marketTitle,
+            @Named("<OutcomeDescriptionToClose>") final String outcomeDesc) throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyOutcomeWithDescriptionNoDisplay(marketTitle, outcomeDesc);
+    }
+
+    @Then("selection '<<OutcomeDescriptionToClose>>' of market with title '<<MarketTitle>>' should be available for selection")
+    public void verifyOutcomeWithDescriptionDisplays(@Named("<MarketTitle>") final String marketTitle,
+            @Named("<OutcomeDescriptionToClose>") final String outcomeDesc) throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyOutcomeWithDescriptionDisplays(marketTitle, outcomeDesc);
+    }
+
+    @When("player add a <<Selection>> from <<MarketTitle>> to the betslip")
+    @Aliases(values = { "player add the same outcome <<Selection>> from <<MarketTitle>> to betslip",
+            "player place a <<Selection>> from <<MarketTitle>> to the betslip",
+            "player selects outcome <<Selection>> from market <<MarketTitle>>" })
+    public void addSelectionToBetslip(@Named("<Selection>") final String selection,
+            @Named("<MarketTitle>") final String marketTitle) {
+        couponAreaStepsHelper.addSelection(selection, marketTitle);
+    }
+
+    @When("player add below selections to betslip:$selectionTable")
+    public void addSelectionsToBetSlip(final ExamplesTable selectionTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < selectionTable.getRowCount(); rowNo++) {
+            Map<String, String> selectionData = utils.getParamsFromExampleTableRow(selectionTable, rowNo);
+            couponAreaStepsHelper.addSelection(selectionData.get(SELECTION_HEADER), selectionData.get(MARKET_TITLE));
+        }
+    }
+
+    @When("add below selections to the betslip from the markets listed below:$selectionsTable")
+    public void addSelectionsToBetslip(final ExamplesTable selectionsTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < selectionsTable.getRowCount(); rowNo++) {
+            final Map<String, String> selectionData = utils.getParamsFromExamplesTable(selectionsTable, rowNo);
+            addSelectionToBetslip(selectionData.get("Selection"), selectionData.get("MarketTitle"));
+        }
+    }
+
+    @When("player selects 11th selection of Market '<<MarketTitle>>' to add it to betslip")
+    public void addNthSelection(@Named("<MarketTitle>") final String marketTitle) {
+        couponAreaStepsHelper.addNthSelection(marketTitle, 11);
+    }
+
+    @When("select 10 selections of market <<MarketTitle>>")
+    public void addNSelectionsToBetSlip(@Named("<MarketTitle>") final String marketTitle) {
+        couponAreaStepsHelper.addNSelectionsToBetSlip(marketTitle, 10);
+    }
+
+    @When("player add one more selection <<Selection2>> from <<MarketTitle>> to the betslip")
+    public void addExtraSelectionToBetslip(@Named("<Selection2>") final String selection,
+            @Named("<MarketTitle>") final String marketTitle) {
+        addSelectionToBetslip(selection, marketTitle);
+    }
+
+    @When("add one more selection from ")
+    @Then("pending class is applied to the selection <<Selection>> of market <<MarketTitle>> that has been placed")
+    public void verifySelectionStatusIsPending(@Named("<Selection>") final String outcomeDescription,
+            @Named("<MarketTitle>") final String marketTitle) {
+        couponAreaStepsHelper.verifySelectionStatus(marketTitle, outcomeDescription, OutcomeStatus.PENDING);
+    }
+
+    @Then("rejected class is applied to the selection <<Selection>> of market <<MarketTitle>>")
+    public void verifySelectionStatusIsRejected(@Named("<Selection>") final String outcomeDescription,
+            @Named("<MarketTitle>") final String marketTitle) {
+        couponAreaStepsHelper.verifySelectionStatus(marketTitle, outcomeDescription, OutcomeStatus.REJECTED);
+    }
+
+    @Then("rejected class is removed from selection <<Selection>> of market <<MarketTitle>>")
+    public void verifyRejectedIsNotDisplayedForSelection(@Named("<Selection>") final String outcomeDescription,
+            @Named("<MarketTitle>") final String marketTitle) {
+        couponAreaStepsHelper.verifySelectionStatus(marketTitle, outcomeDescription, OutcomeStatus.IDLE);
+    }
+
+    @When("player add <Selection>,<Selection2> of <<MarketTitle>> to the betslip")
+    public void addSelections(@Named("Selection") final String selection1, @Named("Selection2") final String selection2,
+            @Named("<MarketTitle>") final String marketTitle) {
+        verifyMarketExist(marketTitle);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        market.clickOnOutcomeByDescription(selection1);
+        market.clickOnOutcomeByDescription(selection2);
+    }
+
+    @Then("by default all markets displayed in coupon area are expanded")
+    @Aliases(values = { "all markets displayed in coupon area should be in expand mode" })
+    public void verifyAllMarketsAreExpanded() {
+        couponAreaStepsHelper.verifyAllMarketsAreExpanded();
+    }
+
+    @When("player collapses market '<<MarketTitle1>>'")
+    public void collapseMarketWithTitle1(@Named("<MarketTitle1>") final String marketTitle) {
+        couponAreaStepsHelper.collapseMarketWithTitle(marketTitle);
+    }
+
+    @When("player expands market '<<MarketTitle1>>'")
+    public void expandMarketWithTitle(@Named("<MarketTitle1>") final String marketTitle) {
+        couponAreaStepsHelper.expandMarketWithTitle(marketTitle);
+    }
+
+    @Then("the market '<<MarketTitle1>>' should collapse with all outcomes hidden")
+    @Aliases(values={"the market '<<MarketTitle1>>' should still be collapsed with all outcomes hidden"})
+    public void verifyMarketWithTitle1IsCollapsed(@Named("<MarketTitle1>") final String marketTitle) {
+        couponAreaStepsHelper.verifyMarketWithTitleIsCollapsed(marketTitle);
+    }
+
+    @Then("market '<<MarketTitle2>>' shoudl still be in expand mode")
+    public void verifyMarketWithTitleIsExpanded(@Named("<MarketTitle2>") final String marketTitle) {
+        couponAreaStepsHelper.verifyMarketIsExpanded(marketTitle);
+    }
+
+    @Then("bet button for the outcome<OutcomeDesc> displays a <ExpectedPriceChangeArrow> arrow indicating the direction of the change")
+    public void verifyArrowOnBetButton(@Named("OutcomeDesc") final String outcomeDesc,
+            @Named("ExpectedPriceChangeArrow") final String expectedPriceChangeArrow) throws InterruptedException {
+        // Thread.sleep(2000);
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForPriceChangeArrowToDisplay(outcomeDesc);
+        final MarketOutcome marketOutcome = getLiveBettingPage().getMarkets().get(0).getOutcomeByDescription(outcomeDesc);
+        final String actualPriceChangeArrow = marketOutcome.getDisplayedArrow();
+        Assert.assertEquals(expectedPriceChangeArrow, actualPriceChangeArrow, String.format(
+                "Expected price change Arrow is displayed : %s", expectedPriceChangeArrow), String.format(
+                "Expected price change Arrow :%s ,Actual Price change Arrow displayed: %s", expectedPriceChangeArrow,
+                actualPriceChangeArrow));
+    }
+       
+
+    @Then("bet button for the outcome '<<Selection>>' displays a <ExpectedPriceChangeArrow> arrow indicating the direction of the change")
+    public void verifyArrowOnSelection(@Named("<Selection>") final String selection,
+            @Named("ExpectedPriceChangeArrow") final String expectedPriceChangeArrow) throws InterruptedException {
+        verifyArrowOnBetButton(selection, expectedPriceChangeArrow);
+    }
+
+    @Then("price displayed for all outcomes of market <<MarketTitle>> in coupon area should be <OddsDisplayed>")
+    public void verifyOddsOfAllOutcomes(@Named("<MarketTitle>") final String marketTitle,
+            @Named("OddsDisplayed") final String expectedOdd) {
+        final WaitUtils waitUtils = new WaitUtils();
+        waitUtils.waitForMarketToDisplayInCoupon(getLiveBettingPage(), marketTitle);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        final List<MarketOutcome> marketOutcomes = market.getOutcomes();
+        for (final MarketOutcome marketOutcome : marketOutcomes) {
+            couponAreaStepsHelper.verifyOddsOfOutcome(marketOutcome, expectedOdd);
+        }
+    }
+
+    @Then("an Informative message '<Message>' is displayed saying markets are not available in coupon area")
+    @Alias(value = "an Informative message <Message> should be displayed in the coupon area")
+    public void verifyMarketsNotAvailableMsg(@Named("Message") final String message) {
+        couponAreaStepsHelper.verifyMessageInCouponArea(message);
+    }
+
+    @Then("message '<Message>' not displayed in coupon area")
+    public void verifyMessageNotDisplayedInCouponArea(@Named("Message") final String message) {
+        couponAreaStepsHelper.verifyMessageNotDisplayedInCouponArea(message);
+    }
+
+    @Then("markets should be displayed in coupon area")
+    public void verifyMarketsDisplayed() {
+        couponAreaStepsHelper.verifyMarketsDisplayed();
+    }
+
+    @Then("single game page view is displayed for the selected event")
+    public void verifyUpcomingEventLinkIsActive() {
+        final boolean isGameIdDisplayed = webDriver.getCurrentUrl().contains(getEvent().getGameId());
+        Assert.assertTrue(isGameIdDisplayed, "Upcoming event coupon page is displayed",
+                "Upcoming event coupon page is not displayed");
+    }
+
+    @Then("single game page view is not displayed for the selected event")
+    public void verifyUpcomingEventLinkIsNotActive() {
+        final String previousUrl = getScenarioContext().getTempStorage().get("previousUrl");
+        final String currentUrl = getLiveBettingPage().getCurrentURL();
+        Assert.assertEquals(currentUrl, previousUrl, "Upcoming event coupon page is not displayed",
+                "Upcoming event coupon page is displayed");
+    }
+
+    @Then("selection <Outcome Description> in market should display 'Suspended' instead of odd")
+    public void verifyOutcomeDescriptionAfterSuspension(@Named("Outcome Description") final String outcomeDescription)
+            throws ConfigurationException, IOException {
+        couponAreaStepsHelper.verifyOutcomeDescriptionOfSuspendedOutcome(outcomeDescription);
+        couponAreaStepsHelper.verifySuspendedOutcomeOddNotDisplayed(outcomeDescription);
+    }
+
+    @Then("selection <Outcome Description> in market should be unsuspended and displays odd instead of 'Suspended'")
+    public void verifyOutcomeDescriptionAfterUnSuspension(@Named("Outcome Description") final String outcomeDescription)
+            throws ConfigurationException, IOException, InterruptedException {
+        couponAreaStepsHelper.verifyOutcomeIsNotSuspended(outcomeDescription);
+        couponAreaStepsHelper.verifyOutcomeDescription(outcomeDescription);
+        couponAreaStepsHelper.verifyOutcomeOddDisplayed(outcomeDescription);
+    }
+
+    @When("player selects suspended outcome '<Outcome Description>' to add to betslip")
+    public void addSuspendedOutcomeToBetSlip(@Named("Outcome Description") final String outcomeDescription)
+            throws ConfigurationException, IOException {
+        final Market market = getLiveBettingPage().getMarkets().get(0);
+        Assert.assertNotNull(market, "Market found", "There are no markets associated with event");
+        couponAreaStepsHelper.addSuspendedOutcomeToBetSlip(market, outcomeDescription);
+    }
+
+    @Then("the outcome '<Outcome Description>' shouldn't be added to betslip")
+    public void verifyOutcomeNotAddedToBetSlip(@Named("Outcome Description") final String outcomeDescription) {
+        couponAreaStepsHelper.verifySelectionNotAddedToBetSlip(outcomeDescription);
+    }
+
+    @Then("the markets which has the below market titles should be displayed in the coupon area $marketDataTable")
+    public void verifyMarketsInCouponArea(final ExamplesTable marketDataTable) {
+        final Utils utils = new Utils();
+        for (int rowNo = 0; rowNo < marketDataTable.getRowCount(); rowNo++) {
+            final Map<String, String> marketData = utils.getParamsFromExamplesTable(marketDataTable, rowNo);
+            verifyMarketExist(marketData.get("MarketTitle"));
+        }
+    }
+
+    @When("player navigatest to live betting page of domain <Domain>")
+    public void goToDomain(@Named("Domain") final String domain) throws ConfigurationException {
+        if (domain.equals("lv")) {
+            getLiveBettingPage().go();
+        } else if (domain.equals("eu")) {
+            webDriver.get(couponAreaStepsHelper.constructAppUrl(domain));
+        } else {
+            Assert.fail("No Domain is specified");
+        }
+    }
+
+    @When("player navigate to an invalid event in domain <Domain>")
+    public void goToAnInvalidEventInDomain(@Named("Domain") final String domain) throws ConfigurationException {
+        couponAreaStepsHelper.goToEventInDomain("12342344", domain);
+    }
+
+    @Given("player is at sports page of $domain domain")
+    public void goToSportsHomePage(@Named("Domain") final String domain) throws ConfigurationException {
+        webDriver.get("http://sports." + couponAreaStepsHelper.getHostDetails(domain));
+    }
+
+    @Then("player redirected to Unavailable events page")
+    public void verifyUnavailableEventsPage() {
+        couponAreaStepsHelper.verifyMessageInCouponArea("Events unavailable");
+    }
+
+    @Then("page loading icon should be displayed until markets are rendered")
+    public void verifyPageLoadIconDisplayed() {
+        couponAreaStepsHelper.verifyPageLoadIcon();
+    }
+
+    @Then("bet buttons of the market which has <<MarketTitle>> should display the <<Outcome Description>> with elipses")
+    public void verifyElipsesOnBetButton(@Named("<MarketTitle>") final String marketTitle,
+            @Named("<Outcome Description>") final String outcomeDesc) throws InterruptedException {
+        Thread.sleep(2000);
+        final Market market = getLiveBettingPage().getMarketByTitle(marketTitle);
+        final List<MarketOutcome> marketOutcomes = market.getOutcomes();
+        boolean isElipsesDisplayed = Boolean.FALSE;
+        for (MarketOutcome marketOutcome : marketOutcomes) {
+            if (marketOutcome.getOutcomeDescription().equals(outcomeDesc)) {
+                isElipsesDisplayed = marketOutcome.isElipsesApplied(outcomeDesc);
+            }
+        }
+        Assert.assertTrue(isElipsesDisplayed, String.format("Elipses is applied for the selection :%s", outcomeDesc),
+                String.format("Elipses is not applied for the selection :%s", outcomeDesc));
+    }
+
+    @Then("outcomes of market '<<MarketTitle>>' should be displayed in correct order based on displayAwayTeam flag")
+    public void verifyOutcomesOrder(@Named("<MarketTitle>") final String marketTitle) {
+        final Event event = getEvent();
+        final Line line = event.getLineByDisplayName(marketTitle);
+        final List<Outcome> lineOutcomes = line.getOutcomesList();
+        final Outcome awayTeamFirstOutcome = getAwayTeamFirstOutcome(lineOutcomes);
+        final Outcome homeTeamFirstOutcome = getHomeTeamFirstOutcome(lineOutcomes);
+        final String awayTeamOutcomeDesc = awayTeamFirstOutcome.getDisplayText();
+        final String homeTeamOutcomeDesc = homeTeamFirstOutcome.getDisplayText();
+        final Market market = couponAreaStepsHelper.verifyMarketExistInCouponArea(marketTitle);
+        final List<MarketOutcome> marketOutcomes = market.getOutcomes();
+        final int awayTeamOutcomePosition = getOutcomePosition(marketOutcomes, awayTeamFirstOutcome.getDisplayText());
+        final int homeTeamOutcomePosition = getOutcomePosition(marketOutcomes, homeTeamFirstOutcome.getDisplayText());
+        if (event.getDisplayAwayTeamFirst().equals(Boolean.TRUE.toString())) {
+            Assert.assertEquals(awayTeamOutcomePosition, 0, String.format("Away Team Outcome '%s' displayed first", awayTeamOutcomeDesc),
+                    String.format("Away Team Outcome '%s' not displayed first", awayTeamOutcomeDesc));
+            Assert.assertTrue(homeTeamOutcomePosition != 0,
+                    String.format("Home Team Outcome '%s' position is %s", homeTeamOutcomeDesc,homeTeamOutcomePosition),
+                    String.format("Home Team Outcome '%s' position is %s.It shouldn't be in 1st position", homeTeamOutcomeDesc,homeTeamOutcomePosition));
+        } else {
+            Assert.assertEquals(homeTeamOutcomePosition, 0, String.format("Home Team Outcome '%s' displayed first",homeTeamOutcomeDesc),
+                    String.format("Home Team Outcome '%s' not displayed first. Its position:%s", homeTeamOutcomeDesc,homeTeamOutcomePosition));
+            Assert.assertTrue(awayTeamOutcomePosition != 0,
+                    String.format("Away Team Outcome '%s' position is %s", awayTeamOutcomeDesc,awayTeamOutcomePosition),
+                    String.format("Away Team Outcome '%s' position is %s.It shouldn't be in 1st position", awayTeamOutcomeDesc,awayTeamOutcomePosition));
+        }
+    }
+      
+    private Outcome getHomeTeamFirstOutcome(List<Outcome> outcomes) {
+        for (Outcome outcome : outcomes) {
+            if (AbstractLineOutcome.HOME_OUTCOME.equals(outcome.getOutcomeTypeId())) {
+                return outcome;
+            }
+        }
+        return null;
+    }
+
+    private Outcome getAwayTeamFirstOutcome(List<Outcome> outcomes) {
+        for (Outcome outcome : outcomes) {
+            if (AbstractLineOutcome.AWAY_OUTCOME.equals(outcome.getOutcomeTypeId())) {
+                return outcome;
+            }
+        }
+        return null;
+    }
+
+    private int getOutcomePosition(final List<MarketOutcome> marketOutcomes, final String outcomeDescription) {
+        for (int pos = 0; pos < marketOutcomes.size(); pos++) {
+            if (outcomeDescription.startsWith(marketOutcomes.get(pos).getOutcomeDescription())) {
+                return pos;
+            }
+        }
+        return -1;
+    }
+}

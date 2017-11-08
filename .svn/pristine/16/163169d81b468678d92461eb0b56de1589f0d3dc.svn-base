@@ -1,0 +1,21 @@
+package internal.qaauto.inline.tom.leftnav;
+
+import internal.qaauto.inline.tom.coupons.LeftNavCouponInterface;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 07/10/2014.
+ */
+public interface SportsContainerInterface {
+
+    public String getTitle();
+
+    public List<LeftNavCouponInterface> getCoupons();
+
+    public void collapse();
+
+    public void expand();
+
+    public boolean isCollapsed();
+}

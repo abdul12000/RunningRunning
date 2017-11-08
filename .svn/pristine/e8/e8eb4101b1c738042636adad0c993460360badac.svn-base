@@ -1,0 +1,29 @@
+<wagerLimitRequestMessage>
+   <wagerCriterias>
+      <wagerCriteria>
+      <internalKey>${internalKey}</internalKey>
+         <criterias>
+            <criteria>
+               <wagerType>${wagerType}</wagerType>
+               <tradingGroup>${tradingGroup}</tradingGroup>
+               <eventTypeCode>${eventTypeCode}</eventTypeCode>
+               <lineType>${lineType}</lineType>
+               <lineQuality>${lineQuality}</lineQuality>
+               <playerGroup>${playerGroup}</playerGroup>
+               <channel>${channel}</channel>
+               <currencyCode>${currencyCode}</currencyCode>
+            </criteria>
+            <criteria>
+               <wagerType>${wagerType2}</wagerType>
+               <tradingGroup>${tradingGroup2}</tradingGroup>
+               <eventTypeCode>${eventTypeCode2}</eventTypeCode>
+               <lineType>${lineType2}</lineType>
+               <lineQuality>${lineQuality2}</lineQuality>
+               <playerGroup>${playerGroup2}</playerGroup>
+               <channel>${channel2}</channel>
+               <currencyCode>${currencyCode2}</currencyCode>			   
+            </criteria>
+         </criterias>
+      </wagerCriteria>
+   </wagerCriterias>
+</wagerLimitRequestMessage>

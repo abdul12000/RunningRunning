@@ -1,0 +1,19 @@
+<wagerLimitRequestMessage>
+   <wagerCriterias>
+      <wagerCriteria>
+         <internalKey>${internalKey}</internalKey>
+         <criterias>
+            <criteria>
+               <wagerType>${wagerType}</wagerType>
+               <tradingGroup>${tradingGroup}</tradingGroup>
+               <eventTypeCode>${eventTypeCode}</eventTypeCode>
+               <lineType>${lineType}</lineType>
+               <lineQuality>${lineQuality}</lineQuality>
+               <playerGroup>${playerGroup}</playerGroup>
+               <channel>${channel}</channel>
+               <currencyCode>${currencyCode}</currencyCode>
+            </criteria>
+         </criterias>
+      </wagerCriteria>
+   </wagerCriterias>
+</wagerLimitRequestMessage>

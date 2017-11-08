@@ -1,0 +1,39 @@
+package internal.qaauto.inline.tom.coupons;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 06/10/2014.
+ */
+public class LeftNavCoupon implements LeftNavCouponInterface {
+    @Override
+    public String getSport() {
+        return null;
+    }
+
+    @Override
+    public String getCouponDescription() {
+        return null;
+    }
+
+    @Override
+    public void collapse() {
+
+    }
+
+    @Override
+    public void expand() {
+
+    }
+
+    @Override
+    public WebElement getCouponWebElement() {
+        return null;
+    }
+
+    @Override
+    public WebElement getChildWebElement(By b) {
+        return null;
+    }
+}

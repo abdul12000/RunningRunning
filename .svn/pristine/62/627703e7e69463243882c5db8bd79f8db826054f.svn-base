@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
+    xmlns:enc="http://schemas.xmlsoap.org/soap/encoding/" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <SOAP-ENV:Header/>
+    <SOAP-ENV:Body>
+        <ns1:postXML xmlns:ns1="http://webservice.bodoglive.integration.irc.live.bodog/"><arg0>
+		<![CDATA[<BroadcastDataSet xmlns="http://pxpsystems.com/BroadcastDataSet.xsd">
+			${payload}
+		</BroadcastDataSet>]]></arg0><arg1>177</arg1></ns1:postXML>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

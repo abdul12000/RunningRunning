@@ -1,0 +1,23 @@
+Meta:
+@author rkora
+@story BGSIR_626
+@functionality qbm
+@testType regression
+
+Narrative:
+As a player
+I want wager placement confirmation indicator to be displayed for a while
+so that I am aware of the end of wager placement process
+
+Scenario:  Wager placement indicator is displayed for 5 seconds
+Given user created the event with the  below data
+| GameId   | Sport   | League Id   | Status   | MarketTitle   | MarketNameToCreate   |
+| <GameId> | <Sport> | <League Id> | <Status> | <MarketTitle> | <MarketNameToCreate> |
+And player loggedIn and navigate to the above event
+And QBM is activated
+When player add a <<Selection>> from <<MarketTitle>> to the betslip
+Then <<Selection>> <status> indicator is displayed for 5 seconds for market which has <<MarketTitle>>
+
+Examples:
+| <GameId> | <Sport>  | <Selection>     | status   | Username | Password | <MarketNameToCreate> | <MarketTitle>  | <League Id> | <Status>    |
+| 62601    | Football | Pass Completion | rejected | 2393086  | testing  | Outcome next play    | Extra Market 1 | 5           | In Progress |

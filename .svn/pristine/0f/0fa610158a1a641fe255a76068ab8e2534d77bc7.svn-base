@@ -1,0 +1,153 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.framework.testCase.webTestsCase.BaseTestCase;
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
+
+/**
+ * @author rkora on 30/10/2014.
+ */
+public class BetSlipSelectionImpl extends InRunningComponent implements BetSlipSelection {
+
+    private static final String H4_TAG = "h4";
+
+    private static final String QBM_ACTIVE = "Quick Bet Mode Active";
+
+    private static final String SPAN_TAG = "span";
+
+    private static final String STAKE_CLASS = "stake";
+
+    private static final String WIN_AMOUNT_NAME = "winAmount";
+
+    private static final String VALUE_ATTRIBUTE = "value";
+
+    private static final int FIRST_SELECTION = 0;
+
+    private static final String COMPETITION_CLASS = "competition";
+
+    private static final String PROPOSITION_CLASS = "proposition";
+
+    private static final By marketNameLocator = new By.ByClassName(PROPOSITION_CLASS);
+
+    public static final String PICK = "Pick";
+
+    public static final String EVEN = "EVEN";
+
+    private static String DELETE_CLASS = "betAction";
+
+    private static final By toWinLocator = By.name(WIN_AMOUNT_NAME);
+
+    private final By descriptionLocator = new By.ByTagName(H4_TAG);
+
+    private final By priceLocator = new By.ByTagName(SPAN_TAG);
+
+    private static final By stakeLocator = new By.ByClassName(STAKE_CLASS);
+
+    private final By deleteBetLocator = new By.ByClassName(DELETE_CLASS);
+
+    private final By eventDescLocator = new By.ByClassName(COMPETITION_CLASS);
+
+    public BetSlipSelectionImpl(final WebElement betSlip) {
+        setComponent(betSlip);
+    }
+
+    @Override
+    public String getDescription() {
+        final List<WebElement> selectionDescription = getWebElement().findElements(descriptionLocator);
+        if (selectionDescription.isEmpty()) {
+            return StringUtils.EMPTY;
+        }
+        String desc = selectionDescription.get(FIRST_SELECTION).getText();
+        String selectionDesc = StringUtils.EMPTY;
+        final String outcomeDescriptionRegex = "([+-]?\\d+[\\u00BD\\u00BC\\u00BE]?)";//"([a-zA-Z]+)";
+        selectionDesc = desc.replaceAll(outcomeDescriptionRegex, "").trim();
+        if (selectionDesc.contains(PICK)) {
+            selectionDesc = selectionDesc.replace(PICK, "").trim();
+        }
+        if (selectionDesc.contains(EVEN)) {
+            selectionDesc = selectionDesc.replace(EVEN, "").trim();
+        }
+        return selectionDesc;
+    }
+
+    @Override
+    public String getPrice() {
+        final List<WebElement> selectionDescription = getWebElement().findElements(priceLocator);
+        if (selectionDescription.isEmpty()) {
+            return StringUtils.EMPTY;
+        }
+        return selectionDescription.get(FIRST_SELECTION).getText();
+    }
+
+    @Override
+    public void delete() {
+        final List<WebElement> selectionDescription = getWebElement().findElements(deleteBetLocator);
+        if (selectionDescription.isEmpty()) {
+            BaseTestCase.reporter.info("Delete bet locator is not displayed");
+            return;
+        }
+        selectionDescription.get(FIRST_SELECTION).click();
+    }
+
+    @Override
+    public boolean isDisplayed() {
+        return getWebElement().isDisplayed();
+    }
+
+    @Override
+    public void setRiskAmount(final String amount) {
+        final List<WebElement> risk = getWebElement().findElements(stakeLocator);
+        if (risk.isEmpty()) {
+            BaseTestCase.reporter.info("Risk field is not displayed");
+            return;
+        }
+        risk.get(FIRST_SELECTION).clear();
+        risk.get(FIRST_SELECTION).sendKeys(amount);
+    }
+
+    @Override
+    public String getToWinValue() {
+        final WebElement toWinWebElement = getWebElement().findElement(toWinLocator);
+        return toWinWebElement.getAttribute(VALUE_ATTRIBUTE);
+    }
+
+    @Override
+    public void setToWinAmount(final String amount) {
+        final WebElement toWin = getWebElement().findElement(toWinLocator);
+        toWin.click();
+        toWin.sendKeys(amount);
+    }
+
+    @Override
+    public String getRiskValue() {
+        final List<WebElement> stake = getWebElement().findElements(stakeLocator);
+        if (stake.isEmpty()) {
+            return null;
+        }
+        return stake.get(FIRST_SELECTION).getAttribute(VALUE_ATTRIBUTE);
+    }
+
+    @Override
+    public String getSelectionEventDescription() {
+        final List<WebElement> eventDesc = getWebElement().findElements(eventDescLocator);
+        if (eventDesc.isEmpty()) {
+            return null;
+        }
+        final String eventDescription = eventDesc.get(FIRST_SELECTION).getText();
+        return eventDescription;
+    }
+
+    @Override
+    public String getMarketTitle() {
+        final List<WebElement> marketName = getWebElement().findElements(marketNameLocator);
+        if (marketName.isEmpty()) {
+            return null;
+        }
+        final String marketTitle = marketName.get(FIRST_SELECTION).getText();
+        return marketTitle;
+    }
+}

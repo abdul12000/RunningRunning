@@ -1,0 +1,28 @@
+package internal.qaauto.inrunning.steps;
+
+import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.Then;
+import org.jbehave.core.annotations.When;
+
+/**
+ * Created by Harish Renukunta on 09/10/2014.
+ */
+public class FirstStorySteps {
+
+    @Given("user opens $browser browser")
+    public void openBrowser(final String browser){
+        System.out.println("Open Browser " + browser);
+    }
+
+    @When("navigates to $url")
+    public void navigateToSportsPage(String url){
+        System.out.println("navigateToSportsPage " + url);
+
+    }
+
+    @Then("sportsbook page should be displayed")
+    public void verifySportsPage(){
+        System.out.println("verifySportsPage");
+
+    }
+}

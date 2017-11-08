@@ -1,0 +1,44 @@
+package internal.qaauto.inrunning.steps;
+
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.CouponAreaStepsHelperMethods;
+import internal.qaauto.inrunning.StepCandidatesHelperMethods.HelperFactory;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import org.jbehave.core.annotations.Named;
+import org.jbehave.core.annotations.Then;
+
+import java.util.List;
+
+/**
+ * Created by Harish Renukunta on 31/10/2014.
+ */
+public class CouponAreaSteps extends InRunningBaseStep {
+
+    private CouponAreaStepsHelperMethods couponAreaStepsHelper = HelperFactory.getCouponAreaStepsHelper();
+
+    @Then("market <<MarketName>> should not be visible in coupon area")
+    public void verifyMarketNotVisibleInCouponArea(@Named("<MarketName>") final String marketName) {
+        couponAreaStepsHelper.verifyMarketNotVisibleInCouponArea(marketName);
+    }
+
+    @Then("market <<MarketName1>> should not be visible in coupon area")
+    public void verifyMarket1NotVisibleInCouponArea(@Named("<MarketName1>") final String marketTitle) {
+        verifyMarketNotVisibleInCouponArea(marketTitle);
+    }
+
+    @Then("market <<MarketName>> should be displayed in coupon area")
+    public void verifyMarketExist(@Named("<MarketName>") final String marketTitle) {
+        couponAreaStepsHelper.verifyMarketExistInCouponArea(marketTitle);
+    }
+
+    @Then("market <<MarketName2>> should still be displayed in coupon Area")
+    public void verifyMarket2Exist(@Named("<MarketName2>") final String marketTitle) {
+        verifyMarketExist(marketTitle);
+    }
+
+    @Then("above markets should be displayed in coupon area")
+    public void verifyMarketsOfEventExistInCouponArea() {
+        final List<String> linesDescription = getLineDescriptionsFromEvent();
+        couponAreaStepsHelper.verifyMarketsExistInCouponArea(linesDescription);
+    }
+
+}

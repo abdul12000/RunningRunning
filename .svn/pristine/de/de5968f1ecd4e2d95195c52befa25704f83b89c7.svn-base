@@ -1,0 +1,22 @@
+Narrative:
+As a User
+I want to add a bet to betslip
+So that bet will be added to betslip
+
+Meta:
+@author rkora
+@story BGSIR397
+
+Scenario:Add a bet to betslip
+Given user created the event with the  below data
+ |GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |Description|MarketTitle|MarketNameToCreate|
+ |<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Description>|<MarketTitle>|<MarketNameToCreate>|
+And player navigate to a Single Game View page of a Live Event <<GameId>>
+When player add a <Selection> from <<MarketTitle>> to the betslip
+Then <Selection> of <<MarketTitle>> should be displayed in the betslip
+
+Examples:
+|<GameId>   |<Sport>    |<Home Team>    |<Away Team>    |<League Id>    |<Status>    |<Description>     |<MarketNameToCreate>|<MarketTitle>     |Selection|
+|12345      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Outcome next play   |Extra Market 1    |Pass Completion|
+|12346      |Football   |Home_Story     |Away_Story     |5              |In Progress |AUTOTEST-BGSIR-104|Point Spread        |Extra Market 1    |HOME        |
+|12346      |Soccer   |Home_Story     |Away_Story       |33               |In Progress |AUTOTEST-BGSIR-104 |Moneyline          |Extra Market 1  |DRAW EVEN        |

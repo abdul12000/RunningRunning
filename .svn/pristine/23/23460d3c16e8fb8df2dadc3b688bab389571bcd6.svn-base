@@ -1,0 +1,15 @@
+package internal.qaauto.inrunning.tom.betslip;
+
+import internal.qaauto.inrunning.tom.InRunningComponent;
+import org.openqa.selenium.WebElement;
+
+/**
+ * Created by Harish Renukunta on 15/10/2014.
+ */
+public class BetSlip extends InRunningComponent implements BetSlipInterface {
+
+    public BetSlip(final WebElement betSlip){
+        setComponent(betSlip);
+    }
+
+}

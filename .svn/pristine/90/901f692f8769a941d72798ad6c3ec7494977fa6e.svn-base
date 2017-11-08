@@ -1,0 +1,53 @@
+package internal.qaauto.inrunning.StepCandidatesHelperMethods;
+
+import internal.qaauto.framework.Assert;
+import internal.qaauto.inrunning.framework.InRunningBaseStep;
+import internal.qaauto.inrunning.steps.ObjectFactory;
+import internal.qaauto.inrunning.tom.LiveBettingPageInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowCoupon;
+import internal.qaauto.inrunning.tom.coupons.LeftNavLiveNowCouponInterface;
+import internal.qaauto.inrunning.tom.coupons.LeftNavUpcomingCouponInterface;
+import internal.qaauto.inrunning.tom.leftnav.LiveNowCouponsComponentInterface;
+import internal.qaauto.inrunning.tom.leftnav.UpcomingCouponsComponentInterface;
+import internal.qaauto.inrunning.tom.markets.OutcomeInterface;
+
+/**
+ * Created by Harish Renukunta on 22/10/2014.
+ */
+public class CouponStepsHelperMethods extends InRunningBaseStep {
+
+    private final static String ODDS_MATCH = "Odds match. Price:%s";
+
+    private final static String ODDS_MISMATCH = "Odds mismatch. Outcome desc:%s Expected:%s Actual:%s";
+
+    private LiveBettingPageInterface getLiveBettingPage() {
+        return ObjectFactory.getLiveBettingPage();
+    }
+
+    private UpcomingCouponsComponentInterface getUpcomingCouponsComponent() {
+        return getLiveBettingPage().getUpcomingCouponsComponent();
+    }
+
+    private LiveNowCouponsComponentInterface getLiveNowCouponsComponent() {
+        return getLiveBettingPage().getLiveNowCouponsComponent();
+    }
+
+    public LeftNavLiveNowCouponInterface getLeftNavLiveNowCouponByGameID(final String gameID) {
+        LiveNowCouponsComponentInterface liveNowCouponsComponent = getLiveNowCouponsComponent();
+        LeftNavLiveNowCouponInterface liveNowCoupon = (LeftNavLiveNowCoupon) liveNowCouponsComponent.getCouponByGameID(gameID);
+        return liveNowCoupon;
+    }
+
+    public LeftNavUpcomingCouponInterface getLeftNavUpcomingCouponByTitle(final String title) {
+        UpcomingCouponsComponentInterface upcomingCouponsComponent = getUpcomingCouponsComponent();
+        return upcomingCouponsComponent.getUpcomingCouponByTitle(title);
+    }
+
+    public void verifyOddsOfOutcome(final OutcomeInterface outcome, final String expectedOdd) {
+        final String outcomePrice = outcome.getPrice();
+        Assert.assertEquals(expectedOdd, outcomePrice, String.format(ODDS_MATCH, expectedOdd),
+                String.format(ODDS_MISMATCH, outcome.getDescription(), expectedOdd,
+                        outcomePrice));
+
+    }
+}

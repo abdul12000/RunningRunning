@@ -1,0 +1,27 @@
+Meta:
+@story BGSIR_959
+@functionality qbm
+
+Narrative:
+As a user I want 
+application to wait for transaction to complete before switching mode
+so that there is no ambiguity
+					 
+Scenario:  Not possible to switch from QBM to Betslip when placing bets
+Meta:
+@scenarioName BGSIR_959_NotPossibleToSwitchFromQBMToBetslip
+@author Harish
+@testType regression
+
+Given an event is created using below data:
+|GameId     |Sport  |Home Team  |Away Team  |League Id  |Status     |AwayTeam NickName   |HomeTeam NickName   |Description  |MarketTitle  |MarketNameToCreate  |
+|<GameId>   |<Sport>|<Home Team>|<Away Team>|<League Id>|<Status>   |<Away Team>_<GameId>|<Home Team>_<GameId>|<Description>|<MarketTitle>|<MarketNameToCreate>|
+When a player loggedIn and navigate to above event
+And QBM is activated
+Then QBM is activated
+When player selects outcome <<Selection>> from market <<MarketTitle>>
+Then QBM should be in disabled state
+
+Examples:
+|Meta:|<GameId>   |<Sport>    |<Home Team>    |<Away Team>       |<League Id>|<Status>   |<Description>    |<MarketNameToCreate>|<MarketTitle>     |<Selection>    |
+|     |95901      |Football   |Buffalo Bills  |Arizona Cardinals |5          |In Progress|AUTOTEST_BGSIR643|Outcome next play   |Extra Market 1    |Pass Completion|
